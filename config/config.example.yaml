@@ -1,0 +1,23 @@
+# Copy to config.yaml and customize. Do not commit config.yaml if it contains
+# internal project URLs or credentials.
+database:
+  type: sqlite  # sqlite, postgres, mysql
+  host: localhost
+  port: 5432
+  username: your_db_user
+  password: ""
+  database: lazy_ai_coder
+  ssl_mode: disable
+  charset: utf8mb4
+  file_path: ./db/lazy_ai_coder.db
+
+# Example projects (replace with your GitLab group/project paths)
+projects:
+  example-project:
+    gitUrl: https://gitlab.com
+    project: your-group/your-project
+    branch: main
+    codePath: src/main.go
+    language: go
+
+prompts_file: config/prompts.yaml

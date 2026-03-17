@@ -1,0 +1,1501 @@
+# ============================================================================
+# Code Review Prompts - Comprehensive Collection
+# Organized by review focus area with consistent naming and structure
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# COMPREHENSIVE REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_comprehensive
+  title: Comprehensive Code Review
+  description: Multi-dimensional comprehensive code review covering all aspects
+  tags: [code, review, comprehensive, quality, security]
+  system_prompt: |
+    You are a principal software engineer with 15+ years of experience conducting thorough code reviews.
+    You have deep expertise in {{language}} and understand security, performance, maintainability, and best practices.
+    Provide constructive, actionable feedback with specific code examples.
+  user_prompt: |
+    Perform a comprehensive code review of the following {{language}} code:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    Review across these dimensions:
+
+    ## 1. Functionality & Correctness
+    - Logic errors and algorithmic correctness
+    - Edge cases and boundary conditions
+    - Null/undefined/error handling
+    - Data validation and sanitization
+
+    ## 2. Security Vulnerabilities
+    - Input validation (injection attacks: SQL, XSS, command injection)
+    - Authentication and authorization flaws
+    - Sensitive data exposure (secrets, PII)
+    - Cryptographic weaknesses
+    - Dependency vulnerabilities
+    - Rate severity: CRITICAL/HIGH/MEDIUM/LOW
+
+    ## 3. Performance & Scalability
+    - Time complexity: O(?) analysis
+    - Space complexity and memory usage
+    - Database query optimization (N+1, indexes)
+    - Caching opportunities
+    - Resource leaks (memory, connections, goroutines, threads)
+    - Concurrency issues (race conditions, deadlocks)
+
+    ## 4. Code Quality & Maintainability
+    - SOLID principles adherence
+    - Design patterns (appropriate usage)
+    - Code smells and anti-patterns
+    - Cyclomatic complexity
+    - DRY principle (duplication)
+    - Single Responsibility Principle
+    - Magic numbers and hard-coded values
+
+    ## 5. Readability & Style
+    - Naming conventions (clarity, consistency)
+    - Function/method length and complexity
+    - Code organization and structure
+    - Comments quality (when/where/why)
+    - Language-specific idioms
+
+    ## 6. Testing
+    - Test coverage (unit, integration)
+    - Test quality and assertions
+    - Missing test scenarios
+    - Testability of the code
+
+    ## 7. Error Handling & Resilience
+    - Error propagation strategy
+    - Graceful degradation
+    - Logging and observability
+    - Recovery mechanisms
+
+    ## 8. Documentation
+    - API documentation completeness
+    - Code comments (helpful vs. redundant)
+    - README/changelog updates needed
+
+    ## Output Format:
+    For each issue found:
+    - **Category**: [Functionality/Security/Performance/Quality/etc.]
+    - **Severity**: CRITICAL/HIGH/MEDIUM/LOW
+    - **Issue**: Clear description of the problem
+    - **Impact**: Why this matters
+    - **Fix**: Code example showing the correction
+    - **Reference**: Link to documentation/best practice (if applicable)
+
+    **Summary**:
+    - Overall Quality Score: X/10
+    - Priority Fixes: (must address before merge)
+    - Nice-to-haves: (future improvements)
+    - Positive Feedback: (what's done well)
+
+# ----------------------------------------------------------------------------
+# SECURITY FOCUSED REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_security
+  title: Security-Focused Code Review
+  description: Deep security analysis focusing on vulnerabilities and attack vectors
+  tags: [code, review, security, vulnerability]
+  system_prompt: |
+    You are a security engineer specializing in application security and vulnerability assessment.
+    You are expert in {{language}} security best practices and common vulnerability patterns (OWASP Top 10).
+  user_prompt: |
+    Perform a security-focused code review of the following {{language}} code:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Security Review Checklist**:
+
+    ## 1. Injection Vulnerabilities
+    - SQL Injection (parameterized queries?)
+    - Command Injection (shell execution safety?)
+    - LDAP/XML/NoSQL Injection
+    - Template Injection
+
+    ## 2. Authentication & Authorization
+    - Authentication bypass possibilities
+    - Session management issues
+    - Insufficient authorization checks
+    - Privilege escalation risks
+    - Token/credential handling
+
+    ## 3. Sensitive Data Exposure
+    - Secrets in code (API keys, passwords)
+    - PII data handling (encryption, masking)
+    - Logging sensitive information
+    - Insecure data transmission
+    - Weak cryptography usage
+
+    ## 4. Input Validation & Sanitization
+    - Missing input validation
+    - Type confusion vulnerabilities
+    - Size/length validation
+    - File upload security
+    - URL/redirect validation
+
+    ## 5. Cross-Site Scripting (XSS)
+    - Reflected XSS
+    - Stored XSS
+    - DOM-based XSS
+    - Output encoding/escaping
+
+    ## 6. Cross-Site Request Forgery (CSRF)
+    - CSRF token usage
+    - State-changing operations protection
+
+    ## 7. Security Misconfiguration
+    - Default credentials
+    - Unnecessary features enabled
+    - Error message information disclosure
+    - Missing security headers
+
+    ## 8. Insecure Dependencies
+    - Known vulnerable dependencies
+    - Outdated libraries
+    - Supply chain risks
+
+    ## 9. Race Conditions & TOCTOU
+    - Time-of-check to time-of-use bugs
+    - Concurrent access issues
+
+    ## 10. Denial of Service (DoS)
+    - Resource exhaustion possibilities
+    - Infinite loops/recursion
+    - Regex DoS (ReDoS)
+
+    **Output Format**:
+    For each vulnerability:
+    - **Vulnerability**: Name and CWE ID (if applicable)
+    - **Severity**: CRITICAL/HIGH/MEDIUM/LOW (CVSS score if relevant)
+    - **Attack Vector**: How this could be exploited
+    - **Impact**: Potential damage
+    - **Proof of Concept**: Example exploit (if safe to show)
+    - **Fix**: Secure code example
+    - **Prevention**: How to avoid in future
+
+    **Summary**:
+    - Risk Score: X/10
+    - Critical Issues: (fix immediately)
+    - Security Best Practices: (recommendations)
+
+# ----------------------------------------------------------------------------
+# PERFORMANCE FOCUSED REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_performance
+  title: Performance-Focused Code Review
+  description: Deep performance analysis and optimization recommendations
+  tags: [code, review, performance, optimization]
+  system_prompt: |
+    You are a performance engineer specializing in {{language}} optimization.
+    You understand algorithmic complexity, profiling, and system-level performance tuning.
+  user_prompt: |
+    Perform a performance-focused code review of the following {{language}} code:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Performance Analysis**:
+
+    ## 1. Algorithmic Complexity
+    - Time complexity: O(?) analysis for each operation
+    - Space complexity: Memory usage patterns
+    - Can we do better? Alternative algorithms?
+    - Worst-case vs average-case performance
+
+    ## 2. Database & Query Optimization
+    - N+1 query problems
+    - Missing indexes
+    - Query optimization opportunities
+    - Batch operations vs individual queries
+    - Connection pooling
+    - ORM usage efficiency
+
+    ## 3. Memory Management
+    - Unnecessary object allocations
+    - Memory leaks (unclosed resources)
+    - Large object retention
+    - Buffer/array sizing
+    - String concatenation inefficiencies
+
+    ## 4. Caching Opportunities
+    - Repeated computations
+    - Cacheable data/results
+    - Cache invalidation strategy
+    - Memoization possibilities
+
+    ## 5. I/O Operations
+    - Synchronous vs asynchronous I/O
+    - File I/O optimization
+    - Network call efficiency
+    - Batch vs streaming
+
+    ## 6. Concurrency & Parallelization
+    - Parallelization opportunities
+    - Thread pool sizing
+    - Lock contention
+    - Goroutine/coroutine usage (for Go/Python)
+    - Async/await patterns (for JS/Python)
+
+    ## 7. Data Structures
+    - Appropriate data structure selection
+    - Hash map vs array/list usage
+    - Set vs list for lookups
+    - Custom data structures needed?
+
+    ## 8. Lazy Loading & Eager Loading
+    - Loading strategy appropriateness
+    - Pagination opportunities
+    - Streaming vs bulk loading
+
+    ## 9. Resource Management
+    - Connection pooling
+    - File handle management
+    - HTTP client reuse
+    - Goroutine/thread leaks
+
+    ## 10. Premature Optimization
+    - Is optimization needed here?
+    - Profile before optimizing
+    - Readability vs performance trade-offs
+
+    **Output Format**:
+    For each performance issue:
+    - **Issue**: Description of bottleneck
+    - **Current Complexity**: O(?) time/space
+    - **Impact**: Performance degradation (latency/throughput/memory)
+    - **Measurement**: How to measure (profiling approach)
+    - **Optimization**: Improved code example
+    - **Improved Complexity**: O(?) after fix
+    - **Trade-offs**: Any downsides to the optimization
+
+    **Summary**:
+    - Performance Score: X/10
+    - Critical Bottlenecks: (fix first)
+    - Quick Wins: (easy optimizations)
+    - Profiling Recommendations: (what to measure)
+
+# ----------------------------------------------------------------------------
+# BUG DETECTION REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_bugs
+  title: Bug Detection Code Review
+  description: Systematic bug hunting focusing on common error patterns
+  tags: [code, review, bugs, errors]
+  system_prompt: |
+    You are a senior software engineer with expertise in finding subtle bugs and edge cases.
+    You understand common bug patterns in {{language}} and have keen attention to detail.
+  user_prompt: |
+    Perform a bug-focused code review of the following {{language}} code:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Bug Detection Checklist**:
+
+    ## 1. Logic Errors
+    - Incorrect conditional logic
+    - Wrong operators (==/= confusion, && vs ||)
+    - Inverted logic
+    - Missing return statements
+    - Unreachable code
+
+    ## 2. Null/Undefined/None Errors
+    - Null pointer dereferences
+    - Undefined variable access
+    - Missing null checks
+    - Optional chaining opportunities
+
+    ## 3. Off-by-One Errors
+    - Array index boundaries
+    - Loop conditions (< vs <=)
+    - String slicing errors
+    - Fencepost errors
+
+    ## 4. Type Errors
+    - Type mismatches
+    - Implicit type conversions
+    - Integer overflow/underflow
+    - Floating-point precision issues
+    - String vs number confusion
+
+    ## 5. Concurrency Bugs
+    - Race conditions
+    - Deadlocks
+    - Starvation
+    - Lost updates
+    - Non-atomic operations
+    - Missing synchronization
+    - Goroutine/thread leaks
+
+    ## 6. Resource Leaks
+    - Unclosed files/connections
+    - Memory leaks
+    - Unreleased locks
+    - Database connection leaks
+    - Event listener leaks
+
+    ## 7. Error Handling Bugs
+    - Uncaught exceptions
+    - Ignored errors
+    - Empty catch blocks
+    - Wrong error types
+    - Error swallowing
+
+    ## 8. Edge Cases
+    - Empty input handling
+    - Negative numbers
+    - Very large numbers
+    - Special characters
+    - Unicode issues
+    - Timezone bugs
+
+    ## 9. State Management Bugs
+    - Uninitialized variables
+    - State mutation issues
+    - Stale state reads
+    - Shared mutable state
+
+    ## 10. Async/Concurrency Bugs
+    - Missing await/async
+    - Promise rejection handling
+    - Callback hell
+    - Async initialization issues
+
+    **Output Format**:
+    For each bug:
+    - **Bug Type**: Category of bug
+    - **Severity**: CRITICAL/HIGH/MEDIUM/LOW
+    - **Description**: What's wrong
+    - **Trigger Condition**: How/when it manifests
+    - **Impact**: What breaks
+    - **Fix**: Corrected code
+    - **Test Case**: How to reproduce/test
+
+    **Summary**:
+    - Bugs Found: X (Critical: Y, High: Z)
+    - Must Fix: (before deployment)
+    - Testing Recommendations: (test scenarios to add)
+
+# ----------------------------------------------------------------------------
+# CODE QUALITY REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_quality
+  title: Code Quality & Maintainability Review
+  description: Assess code quality, maintainability, and adherence to clean code principles
+  tags: [code, review, quality, maintainability, clean-code]
+  system_prompt: |
+    You are a software craftsmanship expert specializing in clean code, SOLID principles, and maintainable architecture.
+    You're expert in {{language}} best practices and design patterns.
+  user_prompt: |
+    Perform a code quality review of the following {{language}} code:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Code Quality Assessment**:
+
+    ## 1. SOLID Principles
+    - **S**ingle Responsibility: Does each class/function do one thing?
+    - **O**pen/Closed: Extensible without modification?
+    - **L**iskov Substitution: Proper inheritance/interface usage?
+    - **I**nterface Segregation: Focused interfaces?
+    - **D**ependency Inversion: Depend on abstractions?
+
+    ## 2. Code Smells
+    - Long methods/functions (>20-30 lines?)
+    - Large classes (too many responsibilities?)
+    - Duplicated code (DRY violations)
+    - Magic numbers/strings (need constants?)
+    - Feature envy (accessing other objects too much?)
+    - Data clumps (repeated parameter groups?)
+    - Shotgun surgery (changes require many file edits?)
+    - Divergent change (one class changes for many reasons?)
+
+    ## 3. Complexity Metrics
+    - Cyclomatic complexity (branching complexity)
+    - Nesting depth (too many nested ifs/loops?)
+    - Parameter count (too many parameters?)
+    - Return statement count
+
+    ## 4. Maintainability
+    - Ease of understanding
+    - Ease of modification
+    - Ease of testing
+    - Ease of debugging
+    - Coupling and cohesion
+
+    ## 5. Design Patterns
+    - Appropriate pattern usage
+    - Over-engineering (unnecessary patterns?)
+    - Missing patterns (where they'd help?)
+    - Pattern misuse
+
+    ## 6. Reusability
+    - Code duplication
+    - Extract reusable components
+    - Generic vs specific implementations
+    - Utility function opportunities
+
+    ## 7. Testability
+    - Dependency injection
+    - Pure functions
+    - Side effects isolation
+    - Mock-friendly interfaces
+    - Test coverage enablers
+
+    ## 8. Documentation Quality
+    - Self-documenting code
+    - Necessary comments (why, not what)
+    - API documentation completeness
+    - Complex logic explanations
+
+    **Output Format**:
+    For each quality issue:
+    - **Issue**: Quality problem identified
+    - **Category**: Code smell/SOLID/Pattern/etc.
+    - **Impact**: Effect on maintainability
+    - **Refactoring**: Improved code example
+    - **Pattern**: Recommended pattern (if applicable)
+
+    **Metrics**:
+    - Overall Quality Score: X/10
+    - Maintainability Index: X/100
+    - Complexity Score: X
+    - Technical Debt: (estimated effort to fix)
+
+    **Summary**:
+    - Immediate Improvements: (quick wins)
+    - Refactoring Opportunities: (larger changes)
+    - Positive Aspects: (what's good)
+
+# ----------------------------------------------------------------------------
+# BEST PRACTICES REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_best_practices
+  title: Best Practices & Idioms Review
+  description: Review against language-specific best practices and idiomatic code
+  tags: [code, review, best-practices, idioms]
+  system_prompt: |
+    You are a {{language}} expert who knows the language idioms, conventions, and community best practices deeply.
+    You stay current with modern {{language}} features and recommended patterns.
+  user_prompt: |
+    Review the following {{language}} code against best practices and idioms:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Best Practices Review**:
+
+    ## 1. Language-Specific Idioms
+    - Idiomatic {{language}} patterns
+    - Language-specific features usage
+    - Standard library usage
+    - Community conventions
+
+    ## 2. Naming Conventions
+    - Variable naming (camelCase, snake_case, etc.)
+    - Function/method naming (verb phrases?)
+    - Class/type naming (nouns?)
+    - Constants naming (UPPER_CASE?)
+    - Package/module naming
+
+    ## 3. Code Style
+    - Indentation and formatting
+    - Line length
+    - Whitespace usage
+    - Bracket/brace placement
+    - Import/include organization
+
+    ## 4. Error Handling Patterns
+    - Language-appropriate error handling
+    - Error wrapping and context
+    - Panic/exception usage
+    - Result types (Rust, Go)
+    - Try-catch patterns
+
+    ## 5. Modern Language Features
+    - Latest language version features
+    - Deprecated feature usage
+    - Alternative modern approaches
+    - Feature availability (version check)
+
+    ## 6. Standard Library
+    - Using std library vs reinventing
+    - Appropriate utility usage
+    - Common library patterns
+
+    ## 7. Framework/Ecosystem Patterns
+    - Framework best practices
+    - ORM usage patterns
+    - API design conventions
+    - Testing framework usage
+
+    ## 8. Documentation Standards
+    - DocString/JavaDoc format
+    - API documentation completeness
+    - Example code in docs
+    - Parameter/return descriptions
+
+    ## 9. Tooling Integration
+    - Linter compliance
+    - Formatter compatibility
+    - Type hints/annotations
+    - Build tool conventions
+
+    **Output Format**:
+    For each best practice violation:
+    - **Practice**: Which best practice is violated
+    - **Current**: What the code does now
+    - **Recommended**: Idiomatic approach
+    - **Rationale**: Why this is better
+    - **Example**: Code showing the improvement
+    - **Reference**: Link to style guide/docs
+
+    **Summary**:
+    - Compliance Score: X/10
+    - Style Issues: (formatting, naming)
+    - Modernization: (use newer features)
+    - Learning Resources: (docs to read)
+
+# ----------------------------------------------------------------------------
+# ARCHITECTURE & DESIGN REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_architecture
+  title: Architecture & Design Review
+  description: Review architectural decisions, design patterns, and system design
+  tags: [code, review, architecture, design, patterns]
+  system_prompt: |
+    You are a software architect with expertise in system design, design patterns, and architectural patterns.
+    You understand {{language}} ecosystem architecture and can evaluate design decisions.
+  user_prompt: |
+    Perform an architectural review of the following {{language}} code:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Architecture Review**:
+
+    ## 1. Design Patterns
+    - Pattern identification (which patterns used?)
+    - Pattern appropriateness
+    - Pattern misuse or over-engineering
+    - Missing beneficial patterns
+
+    ## 2. Architectural Patterns
+    - Layered architecture adherence
+    - MVC/MVVM/MVP patterns
+    - Microservices patterns
+    - Event-driven patterns
+    - Domain-Driven Design (DDD)
+
+    ## 3. Separation of Concerns
+    - Business logic isolation
+    - Presentation layer separation
+    - Data access layer organization
+    - Cross-cutting concerns handling
+
+    ## 4. Dependency Management
+    - Dependency direction (inward?)
+    - Circular dependencies
+    - Dependency injection usage
+    - Interface vs implementation dependency
+
+    ## 5. API Design
+    - RESTful principles (if applicable)
+    - API consistency
+    - Versioning strategy
+    - Error response design
+    - Input/output contracts
+
+    ## 6. Modularity & Coupling
+    - Module boundaries
+    - Coupling degree (loose vs tight)
+    - Cohesion level
+    - Component reusability
+
+    ## 7. Scalability Considerations
+    - Horizontal scaling readiness
+    - Stateless design
+    - Database access patterns
+    - Caching strategy
+    - Asynchronous processing
+
+    ## 8. Extensibility
+    - Plugin architecture
+    - Configuration externalization
+    - Feature flags usage
+    - Strategy pattern for variations
+
+    **Output Format**:
+    For each architectural concern:
+    - **Concern**: Architecture issue
+    - **Impact**: Effect on system qualities (maintainability, scalability, testability)
+    - **Alternative**: Better architectural approach
+    - **Diagram**: (describe structure if helpful)
+    - **Refactoring**: How to improve
+    - **Trade-offs**: Pros and cons
+
+    **Summary**:
+    - Architecture Score: X/10
+    - Major Concerns: (critical architectural issues)
+    - Improvement Path: (steps to better architecture)
+
+# ----------------------------------------------------------------------------
+# READABILITY & STYLE REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_readability
+  title: Readability & Code Style Review
+  description: Focus on code clarity, readability, and consistent style
+  tags: [code, review, readability, style, clarity]
+  system_prompt: |
+    You are a code readability expert who understands what makes code easy to understand and maintain.
+    You know {{language}} style guides and readability best practices.
+  user_prompt: |
+    Review the following {{language}} code for readability and style:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Readability Review**:
+
+    ## 1. Naming Quality
+    - Variable names (descriptive?)
+    - Function names (clear intent?)
+    - Class names (accurate representation?)
+    - Avoid abbreviations/acronyms
+    - Boolean naming (isActive, hasItems?)
+    - Consistent naming patterns
+
+    ## 2. Function/Method Clarity
+    - Function length (too long?)
+    - Single responsibility
+    - Clear purpose
+    - Self-documenting
+    - Parameter count (too many?)
+
+    ## 3. Code Structure
+    - Logical organization
+    - Visual grouping
+    - Vertical spacing
+    - Related code proximity
+    - Consistent indentation
+
+    ## 4. Complexity Reduction
+    - Nested if statements (flatten?)
+    - Early returns vs nested conditions
+    - Complex boolean logic (simplify?)
+    - Extract method opportunities
+    - Guard clauses usage
+
+    ## 5. Comments & Documentation
+    - Comment necessity (code should be self-explanatory)
+    - Comment quality (explain why, not what)
+    - Outdated comments
+    - TODO/FIXME markers
+    - Complex logic explanations
+
+    ## 6. Magic Values
+    - Magic numbers (replace with constants?)
+    - Hard-coded strings
+    - Unexplained values
+    - Configuration externalization
+
+    ## 7. Code Flow
+    - Linear flow vs jumping around
+    - Predictable execution path
+    - Minimal surprises
+    - Consistent abstraction level
+
+    ## 8. Formatting Consistency
+    - Consistent brace style
+    - Import organization
+    - Line length adherence
+    - Whitespace consistency
+
+    **Output Format**:
+    For each readability issue:
+    - **Issue**: What makes it hard to read
+    - **Cognitive Load**: How it affects understanding
+    - **Improvement**: More readable version
+    - **Rationale**: Why it's better
+
+    **Summary**:
+    - Readability Score: X/10
+    - Quick Wins: (easy improvements)
+    - Clarity Issues: (confusing sections)
+
+# ----------------------------------------------------------------------------
+# TESTING REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_testing
+  title: Testing & Test Coverage Review
+  description: Review test coverage, quality, and testing practices
+  tags: [code, review, testing, coverage, quality]
+  system_prompt: |
+    You are a test engineering expert who understands comprehensive testing strategies.
+    You know {{language}} testing frameworks and best practices for unit, integration, and E2E testing.
+  user_prompt: |
+    Review the following {{language}} code and its tests:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Testing Review**:
+
+    ## 1. Test Coverage
+    - Unit test coverage (% of code)
+    - Branch coverage
+    - Edge case coverage
+    - Error path coverage
+    - Missing test scenarios
+
+    ## 2. Test Quality
+    - Test clarity and readability
+    - AAA pattern (Arrange, Act, Assert)
+    - One assertion per test?
+    - Test naming (describes what it tests?)
+    - Test independence
+
+    ## 3. Test Types Balance
+    - Unit tests (fast, isolated)
+    - Integration tests (component interaction)
+    - E2E tests (user workflows)
+    - Testing pyramid adherence
+
+    ## 4. Assertions
+    - Meaningful assertions
+    - Assertion strength
+    - Error messages clarity
+    - Assertion completeness
+
+    ## 5. Test Data
+    - Test fixtures quality
+    - Factory patterns usage
+    - Data builder patterns
+    - Test data maintainability
+
+    ## 6. Mocking & Stubbing
+    - Appropriate mocking
+    - Over-mocking issues
+    - Stub clarity
+    - Mock verification
+
+    ## 7. Testability of Code
+    - Dependency injection
+    - Pure functions
+    - Side effects isolation
+    - Seams for testing
+    - Testable architecture
+
+    ## 8. Edge Cases & Scenarios
+    - Boundary value testing
+    - Null/empty input handling
+    - Error scenarios
+    - Concurrent access scenarios
+    - Performance testing
+
+    ## 9. Test Maintenance
+    - Brittle tests identification
+    - Flaky tests risks
+    - Test duplication
+    - Test refactoring opportunities
+
+    **Output Format**:
+    For each testing issue:
+    - **Issue**: Testing gap or problem
+    - **Risk**: What could break without this test
+    - **Missing Tests**: Test cases needed
+    - **Example Test**: Code for missing test
+    - **Coverage Impact**: How it improves coverage
+
+    **Summary**:
+    - Test Coverage: X%
+    - Missing Critical Tests: (must add)
+    - Test Quality Score: X/10
+    - Testing Recommendations: (framework, approach)
+
+# ----------------------------------------------------------------------------
+# CONCURRENCY & THREAD SAFETY REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_concurrency
+  title: Concurrency & Thread Safety Review
+  description: Review concurrent code for race conditions, deadlocks, and thread safety
+  tags: [code, review, concurrency, threading, safety]
+  system_prompt: |
+    You are a concurrency expert who understands multi-threading, async programming, and synchronization.
+    You know {{language}} concurrency primitives and common concurrency bugs.
+  user_prompt: |
+    Review the following {{language}} code for concurrency issues:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Concurrency Review**:
+
+    ## 1. Race Conditions
+    - Shared mutable state access
+    - Non-atomic operations on shared data
+    - Check-then-act patterns
+    - Read-modify-write issues
+    - Missing synchronization
+
+    ## 2. Deadlocks
+    - Lock ordering issues
+    - Circular wait conditions
+    - Nested lock acquisition
+    - Timeout mechanisms
+
+    ## 3. Thread Safety
+    - Thread-safe data structures
+    - Immutability usage
+    - Lock-free algorithms
+    - Volatile/atomic variables
+    - Safe publication
+
+    ## 4. Synchronization
+    - Lock granularity (too coarse/fine?)
+    - Appropriate lock types (mutex, rwlock, etc.)
+    - Lock contention
+    - Critical section size
+    - Spin locks vs blocking locks
+
+    ## 5. Async/Await Patterns
+    - Proper async usage
+    - Await placement
+    - Async function coloring
+    - Blocking in async context
+    - Promise/Future handling
+
+    ## 6. Resource Leaks
+    - Goroutine leaks (Go)
+    - Thread pool exhaustion
+    - Connection pool leaks
+    - Unreleased resources
+    - Proper cleanup
+
+    ## 7. State Management
+    - Thread-local storage
+    - Shared state minimization
+    - Immutable data structures
+    - Message passing vs shared memory
+
+    ## 8. Concurrency Primitives
+    - Channels usage (Go)
+    - Promises/Futures
+    - Semaphores
+    - Barriers
+    - Atomic operations
+
+    ## 9. Performance
+    - Lock contention hotspots
+    - False sharing
+    - Context switching overhead
+    - Parallelism degree
+
+    **Output Format**:
+    For each concurrency issue:
+    - **Issue**: Concurrency bug or problem
+    - **Severity**: CRITICAL/HIGH/MEDIUM/LOW
+    - **Scenario**: How/when it manifests
+    - **Impact**: Race condition outcome
+    - **Fix**: Thread-safe implementation
+    - **Testing**: How to test concurrency
+
+    **Summary**:
+    - Thread Safety Score: X/10
+    - Critical Issues: (race conditions, deadlocks)
+    - Recommendations: (synchronization strategy)
+
+# ----------------------------------------------------------------------------
+# ERROR HANDLING REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_error_handling
+  title: Error Handling & Resilience Review
+  description: Review error handling patterns, recovery, and resilience
+  tags: [code, review, errors, exceptions, resilience]
+  system_prompt: |
+    You are an expert in robust error handling and building resilient systems.
+    You understand {{language}} error handling patterns and failure recovery strategies.
+  user_prompt: |
+    Review error handling in the following {{language}} code:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Error Handling Review**:
+
+    ## 1. Error Detection
+    - Return value checking
+    - Exception catching
+    - Error propagation
+    - Silent failures
+    - Ignored errors
+
+    ## 2. Error Types
+    - Appropriate error types
+    - Custom error definitions
+    - Error hierarchies
+    - Recoverable vs unrecoverable
+    - Error context preservation
+
+    ## 3. Error Messages
+    - Message clarity
+    - Actionable information
+    - Context inclusion (what/where/when)
+    - User vs developer messages
+    - Sensitive data in errors
+
+    ## 4. Error Propagation
+    - Error wrapping
+    - Stack trace preservation
+    - Error context addition
+    - Error translation at boundaries
+    - Appropriate error level
+
+    ## 5. Recovery Strategies
+    - Graceful degradation
+    - Fallback mechanisms
+    - Retry logic (with backoff)
+    - Circuit breaker patterns
+    - Timeout handling
+
+    ## 6. Resource Cleanup
+    - Finally blocks usage
+    - Defer statements (Go)
+    - Context managers (Python)
+    - RAII patterns (C++)
+    - Cleanup on error paths
+
+    ## 7. Logging & Observability
+    - Error logging
+    - Log levels appropriateness
+    - Structured logging
+    - Correlation IDs
+    - Alerting triggers
+
+    ## 8. Validation
+    - Input validation
+    - Pre-condition checks
+    - Post-condition checks
+    - Invariant assertions
+    - Fail-fast principles
+
+    ## 9. Error Handling Anti-patterns
+    - Empty catch blocks
+    - Catching generic exceptions
+    - Exception for control flow
+    - Error swallowing
+    - Panic/exit in libraries
+
+    **Output Format**:
+    For each error handling issue:
+    - **Issue**: Error handling problem
+    - **Risk**: What could go wrong
+    - **Current**: How errors are handled now
+    - **Improved**: Better error handling
+    - **Recovery**: Appropriate recovery strategy
+
+    **Summary**:
+    - Error Handling Score: X/10
+    - Critical Gaps: (unhandled errors)
+    - Resilience Score: X/10
+    - Recommendations: (error strategy)
+
+# ----------------------------------------------------------------------------
+# MERGE REQUEST / PULL REQUEST REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_merge_request
+  title: Merge Request / Pull Request Review
+  description: Comprehensive review of code changes in a merge/pull request
+  tags: [code, review, merge-request, pull-request, PR, MR]
+  system_prompt: |
+    You are a senior software engineer conducting a thorough merge request review.
+    You understand git workflows, {{language}} best practices, and the importance of quality gates before merging.
+    Focus on changes that impact production systems.
+  user_prompt: |
+    Review the following merge request/pull request:
+
+    **MR/PR Title**: {{mr_title}}
+    **Description**: {{mr_description}}
+    **Target Branch**: {{target_branch}}
+
+    **Code Changes**:
+    ```diff
+    {{code}}
+    ```
+
+    **Comprehensive MR Review**:
+
+    ## 1. Change Impact Analysis
+    - Scope of changes (appropriate for description?)
+    - Breaking changes identification
+    - API compatibility
+    - Database schema changes
+    - Configuration changes
+    - Backward compatibility
+
+    ## 2. Code Quality Review
+    - Correctness and logic
+    - Performance implications
+    - Security vulnerabilities
+    - Error handling
+    - Edge cases coverage
+    - Code duplication
+
+    ## 3. Testing Requirements
+    - Unit test coverage (new code)
+    - Integration tests needed
+    - Regression tests
+    - Manual testing scenarios
+    - Test quality assessment
+
+    ## 4. Design & Architecture
+    - Architectural consistency
+    - Design patterns adherence
+    - SOLID principles
+    - Separation of concerns
+    - Technical debt introduction/reduction
+
+    ## 5. Documentation Updates
+    - Code comments (for complex logic)
+    - API documentation
+    - README updates
+    - CHANGELOG entries
+    - Migration guides (if needed)
+
+    ## 6. DevOps & Deployment
+    - Configuration management
+    - Environment variables
+    - Feature flags usage
+    - Rollback strategy
+    - Monitoring/logging additions
+    - Deployment risks
+
+    ## 7. Dependencies
+    - New dependencies (justified?)
+    - Dependency updates (changelog review)
+    - Security vulnerabilities check
+    - License compatibility
+
+    ## 8. Code Review Basics
+    - Naming conventions
+    - Code style consistency
+    - Readability
+    - Maintainability
+    - Best practices adherence
+
+    ## 9. Commit Quality
+    - Commit message quality
+    - Atomic commits
+    - Logical change grouping
+    - Rebase/merge strategy
+
+    **Review Decision Framework**:
+
+    ### ✅ APPROVE if:
+    - No blocking issues
+    - Tests pass and coverage is adequate
+    - Code quality meets standards
+    - No security concerns
+    - Documentation is complete
+
+    ### 🔄 REQUEST CHANGES if:
+    - Critical bugs present
+    - Security vulnerabilities found
+    - Missing essential tests
+    - Breaking changes not documented
+    - Architectural concerns
+
+    ### 💬 COMMENT if:
+    - Minor suggestions
+    - Style preferences
+    - Future improvement ideas
+    - Questions for clarification
+
+    **Output Format**:
+
+    ### Overall Assessment
+    **Decision**: [APPROVE / REQUEST CHANGES / COMMENT]
+    **Summary**: [1-2 sentence overall assessment]
+
+    ### Blocking Issues (Must Fix Before Merge)
+    - [List critical issues that prevent merging]
+
+    ### High Priority (Should Fix)
+    - [Important but not blocking]
+
+    ### Suggestions (Nice to Have)
+    - [Improvements for future consideration]
+
+    ### Positive Feedback
+    - [What's done well - be specific!]
+
+    ### Testing Checklist
+    - [ ] Unit tests for new code
+    - [ ] Integration tests where needed
+    - [ ] Manual testing scenarios documented
+    - [ ] Edge cases covered
+
+    ### Pre-Merge Checklist
+    - [ ] CI/CD pipeline passes
+    - [ ] Code coverage meets threshold
+    - [ ] No security vulnerabilities
+    - [ ] Documentation updated
+    - [ ] Breaking changes documented
+    - [ ] Reviewer concerns addressed
+
+    ### Questions for Author
+    - [Any clarifications needed]
+
+# ----------------------------------------------------------------------------
+# REFACTORING REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_refactoring
+  title: Refactoring Suggestions Review
+  description: Identify refactoring opportunities and technical debt
+  tags: [code, review, refactoring, technical-debt]
+  system_prompt: |
+    You are a refactoring expert who can identify code smells, technical debt, and improvement opportunities.
+    You know {{language}} refactoring patterns and when to apply them.
+  user_prompt: |
+    Analyze the following {{language}} code for refactoring opportunities:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Refactoring Analysis**:
+
+    ## 1. Code Smells Identification
+    - Long methods (>20-30 lines)
+    - Large classes (too many responsibilities)
+    - Duplicated code
+    - Feature envy
+    - Data clumps
+    - Primitive obsession
+    - Switch statements (polymorphism opportunity?)
+    - Speculative generality
+    - Temporary fields
+
+    ## 2. Refactoring Catalog
+    For each smell, suggest:
+    - **Extract Method**: Break down long methods
+    - **Extract Class**: Separate responsibilities
+    - **Move Method/Field**: Better placement
+    - **Rename**: Clearer names
+    - **Replace Temp with Query**: Remove temporary variables
+    - **Replace Conditional with Polymorphism**
+    - **Introduce Parameter Object**: Group parameters
+    - **Preserve Whole Object**: Pass object instead of fields
+    - **Replace Magic Number with Symbolic Constant**
+
+    ## 3. Design Pattern Opportunities
+    - Strategy pattern (for algorithm variations)
+    - Factory pattern (for object creation)
+    - Observer pattern (for event handling)
+    - Decorator pattern (for extending behavior)
+    - Template method (for algorithm structure)
+    - State pattern (for state-dependent behavior)
+
+    ## 4. Simplification Opportunities
+    - Simplify conditionals
+    - Consolidate duplicate conditionals
+    - Remove dead code
+    - Simplify boolean expressions
+    - Replace nested conditionals with guard clauses
+    - Decompose complex conditions
+
+    ## 5. Data Structure Improvements
+    - Better data structure selection
+    - Encapsulate collections
+    - Replace array with object
+    - Change value to reference (or vice versa)
+
+    ## 6. Object-Oriented Improvements
+    - Encapsulate fields
+    - Remove setters (prefer immutability)
+    - Replace inheritance with delegation
+    - Replace delegation with inheritance (where appropriate)
+
+    ## 7. Function/Method Improvements
+    - Reduce parameter lists
+    - Separate query from modifier
+    - Parameterize method
+    - Replace parameter with explicit methods
+    - Introduce named parameters
+
+    ## 8. Technical Debt Assessment
+    - Estimated effort to refactor
+    - Risk level of refactoring
+    - Priority (high/medium/low)
+    - Dependencies affected
+
+    **Output Format**:
+    For each refactoring opportunity:
+    - **Code Smell**: Type of problem
+    - **Location**: Where in code
+    - **Impact**: How it affects maintainability
+    - **Refactoring**: Specific refactoring technique
+    - **Before**: Current problematic code
+    - **After**: Refactored version
+    - **Effort**: Time/complexity estimate
+    - **Priority**: HIGH/MEDIUM/LOW
+    - **Testing**: How to verify refactoring didn't break anything
+
+    **Summary**:
+    - Technical Debt Score: X/10
+    - High Priority Refactorings: (do these first)
+    - Quick Wins: (easy improvements with high impact)
+    - Long-term Improvements: (architectural changes)
+    - Estimated Total Effort: (story points/hours)
+
+# ----------------------------------------------------------------------------
+# DOCUMENTATION REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_documentation
+  title: Documentation Quality Review
+  description: Review code documentation, comments, and API docs
+  tags: [code, review, documentation, comments]
+  system_prompt: |
+    You are a technical writer and documentation expert who understands what makes good code documentation.
+    You know {{language}} documentation standards and tools.
+  user_prompt: |
+    Review documentation quality in the following {{language}} code:
+
+    ```{{language}}
+    {{code}}
+    ```
+
+    **Documentation Review**:
+
+    ## 1. Code Comments Quality
+    - Comments explain WHY, not WHAT
+    - Complex logic explanations
+    - Non-obvious behavior documentation
+    - Assumptions and constraints
+    - TODO/FIXME tracking
+    - Outdated comments identification
+
+    ## 2. API Documentation
+    - Public API completeness
+    - Function/method descriptions
+    - Parameter descriptions
+    - Return value descriptions
+    - Exception documentation
+    - Usage examples
+
+    ## 3. Documentation Standards
+    - DocString format (Python)
+    - JSDoc format (JavaScript/TypeScript)
+    - JavaDoc format (Java)
+    - GoDoc format (Go)
+    - XML comments (C#)
+    - Consistent style
+
+    ## 4. Inline Documentation
+    - Complex algorithm explanations
+    - Business logic rationale
+    - Performance considerations
+    - Security implications
+    - Concurrency notes
+
+    ## 5. External Documentation Needs
+    - README updates needed
+    - Architecture documentation
+    - API reference generation
+    - Changelog entries
+    - Migration guides
+
+    ## 6. Code Self-Documentation
+    - Descriptive naming (reduces comment need)
+    - Clear structure
+    - Self-evident code vs comments
+    - Unnecessary comments
+
+    ## 7. Examples & Usage
+    - Code examples in docs
+    - Common use cases
+    - Edge cases handling examples
+    - Integration examples
+
+    ## 8. Maintenance Notes
+    - Known limitations
+    - Future improvements planned
+    - Deprecated features
+    - Version compatibility
+
+    **Output Format**:
+    For each documentation issue:
+    - **Issue**: Documentation gap or problem
+    - **Impact**: How lack of docs affects users/maintainers
+    - **Suggested**: Recommended documentation
+    - **Example**: Sample documentation text
+
+    **Summary**:
+    - Documentation Score: X/10
+    - Missing Critical Docs: (must add)
+    - Outdated Sections: (need updates)
+    - Over-commented: (remove unnecessary comments)
+    - Recommendations: (doc tools, standards)
+
+# ----------------------------------------------------------------------------
+# DOCUMENTATION REVIEWS
+# ----------------------------------------------------------------------------
+
+- name: code_review_documentation
+  title: Documentation Quality Review
+  description: Comprehensive review of all documentation including README, API docs, design docs, and code comments
+  tags: [code, review, documentation, comments, readme, api-docs, design-docs]
+  system_prompt: |
+    You are a technical writer and documentation expert who understands what makes excellent technical documentation.
+    You review design documents, README files, API documentation, code comments, and architectural documentation with a focus on clarity, completeness, and maintainability.
+  user_prompt: |
+    Review the following documentation:
+
+    {{documentation}}
+
+    Perform a comprehensive documentation review covering:
+
+    ## 1. README Files
+    - Purpose & overview clarity
+    - Installation/setup instructions completeness
+    - Prerequisites and dependencies
+    - Quick start examples
+    - Usage examples and common use cases
+    - Configuration options
+    - Troubleshooting section
+    - Contributing guidelines
+    - License information
+    - Working links and badges
+
+    ## 2. Design Documents
+    - Clear problem statement
+    - Goals and non-goals defined
+    - Architecture overview
+    - System components and interactions
+    - Data models and database design
+    - API design specifications
+    - Sequence/flow diagrams
+    - Technology choices justified
+    - Trade-offs and alternatives
+    - Security and performance considerations
+    - Testing and migration strategies
+    - Open questions identified
+
+    ## 3. API Documentation
+    - API overview and scope
+    - Authentication methods
+    - Endpoint documentation (methods, params, responses)
+    - Request/response examples
+    - Status codes and error handling
+    - Rate limiting information
+    - Versioning and deprecation notices
+    - SDK documentation
+    - Interactive docs (Swagger/OpenAPI)
+
+    ## 4. Code Comments
+    - Comments explain WHY not WHAT
+    - Complex logic explanations
+    - Non-obvious behavior documented
+    - Assumptions and constraints noted
+    - Function/method documentation (docstrings)
+    - TODO/FIXME tracking
+    - No outdated or misleading comments
+    - Minimal over-commenting
+
+    ## 5. Architecture Documentation
+    - System architecture diagrams
+    - Component relationships
+    - Data flow documentation
+    - Deployment architecture
+    - Technology stack
+    - Design patterns used
+    - Architecture Decision Records (ADRs)
+    - Quality attributes (performance, security, scalability)
+
+    ## 6. Developer Documentation
+    - Development environment setup
+    - Build instructions
+    - Testing guide
+    - Debugging tips
+    - Code structure explanation
+    - Coding standards reference
+    - Git workflow
+    - Release process
+
+    ## Output Format:
+
+    ### Overall Assessment
+    **Documentation Quality Score**: X/10
+    **Summary**: [Brief overall evaluation]
+
+    ### Critical Issues (Must Fix)
+    1. **[Category]**: [What's missing/wrong]
+       - **Impact**: [Why it matters]
+       - **Recommendation**: [How to fix]
+       - **Example**: [Sample improved text]
+
+    ### High Priority Improvements
+    - [Important but not blocking issues]
+
+    ### Suggestions (Nice to Have)
+    - [Enhancement opportunities]
+
+    ### Positive Aspects
+    - ✅ [What's done well]
+
+    ### Documentation Checklist
+    - [ ] README complete and current
+    - [ ] API documentation comprehensive
+    - [ ] Design documents up-to-date
+    - [ ] Code comments appropriate
+    - [ ] Architecture documented
+    - [ ] Setup instructions clear
+    - [ ] Examples provided
+    - [ ] Troubleshooting section
+    - [ ] Changelog maintained
+    - [ ] All links working
+
+    ### Metrics Summary
+    - README Completeness: X/10
+    - API Documentation: X/10
+    - Code Comments Quality: X/10
+    - Design Documentation: X/10
+    - Overall Score: X/10
+
+    ### Templates for Missing Docs
+    [Provide templates for any missing documentation]
+
+    ### Priority Action Items
+    1. **Immediate**: [Critical gaps]
+    2. **Short-term**: [Important improvements]
+    3. **Long-term**: [Nice-to-have enhancements]

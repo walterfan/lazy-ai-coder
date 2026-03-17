@@ -1,0 +1,3920 @@
+basePath: /api/v1
+definitions:
+  debug.SessionDetails:
+    properties:
+      age:
+        type: string
+      created_at:
+        type: string
+      idle_time:
+        type: string
+      last_activity:
+        type: string
+      message_count:
+        type: integer
+      messages:
+        items:
+          $ref: '#/definitions/mem.ChatMessage'
+        type: array
+      session_id:
+        type: string
+      total_tokens:
+        type: integer
+    type: object
+  debug.SessionSummary:
+    properties:
+      age:
+        type: string
+      created_at:
+        type: string
+      idle_time:
+        type: string
+      last_activity:
+        type: string
+      message_count:
+        type: integer
+      session_id:
+        type: string
+      total_tokens:
+        type: integer
+    type: object
+  handlers.AuthResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/handlers.UserProfile'
+    type: object
+  handlers.ChangePasswordRequest:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  handlers.CreateCursorCommandRequest:
+    properties:
+      category:
+        type: string
+      command:
+        type: string
+      description:
+        type: string
+      framework:
+        type: string
+      is_template:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      scope:
+        description: '"personal" or "shared"'
+        type: string
+      tags:
+        type: string
+    required:
+    - command
+    - name
+    type: object
+  handlers.CreateCursorRuleRequest:
+    properties:
+      content:
+        type: string
+      description:
+        type: string
+      framework:
+        type: string
+      is_template:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      scope:
+        description: '"personal" or "shared"'
+        type: string
+      tags:
+        type: string
+    required:
+    - content
+    - name
+    type: object
+  handlers.CreateProjectRequest:
+    properties:
+      description:
+        type: string
+      entry_point:
+        type: string
+      git_branch:
+        type: string
+      git_repo:
+        type: string
+      git_url:
+        type: string
+      language:
+        type: string
+      name:
+        type: string
+      scope:
+        description: '"personal" or "shared"'
+        type: string
+    required:
+    - name
+    type: object
+  handlers.CreatePromptRequest:
+    properties:
+      arguments:
+        items:
+          $ref: '#/definitions/models.PromptArgument'
+        type: array
+      description:
+        type: string
+      name:
+        type: string
+      scope:
+        description: '"personal" or "shared"'
+        type: string
+      system_prompt:
+        type: string
+      tags:
+        type: string
+      title:
+        type: string
+      user_prompt:
+        type: string
+    required:
+    - name
+    type: object
+  handlers.CreateRealmRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  handlers.GenerateCursorCommandRequest:
+    properties:
+      category:
+        type: string
+      framework:
+        type: string
+      language:
+        type: string
+      requirements:
+        type: string
+      settings:
+        $ref: '#/definitions/models.Settings'
+      template_id:
+        type: string
+    type: object
+  handlers.GenerateCursorRuleRequest:
+    properties:
+      framework:
+        type: string
+      language:
+        type: string
+      project_context:
+        $ref: '#/definitions/models.ProjectContext'
+      requirements:
+        type: string
+      settings:
+        $ref: '#/definitions/models.Settings'
+      template_id:
+        type: string
+    type: object
+  handlers.ImportCursorCommandRequest:
+    properties:
+      category:
+        type: string
+      command:
+        type: string
+      description:
+        type: string
+      framework:
+        type: string
+      language:
+        type: string
+      name:
+        type: string
+      scope:
+        description: '"personal" or "shared"'
+        type: string
+      tags:
+        type: string
+    required:
+    - command
+    - name
+    type: object
+  handlers.ImportCursorRuleRequest:
+    properties:
+      content:
+        type: string
+      description:
+        type: string
+      framework:
+        type: string
+      language:
+        type: string
+      name:
+        type: string
+      scope:
+        description: '"personal" or "shared"'
+        type: string
+      tags:
+        type: string
+    required:
+    - content
+    - name
+    type: object
+  handlers.ImportProjectsRequest:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/services.ProjectYAML'
+        type: array
+      scope:
+        description: '"personal" or "shared"'
+        type: string
+      update_existing:
+        type: boolean
+    required:
+    - projects
+    type: object
+  handlers.RealmResponse:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      user_count:
+        type: integer
+    type: object
+  handlers.RefineCursorCommandRequest:
+    properties:
+      focus_areas:
+        items:
+          type: string
+        type: array
+      improvements:
+        type: string
+      settings:
+        $ref: '#/definitions/models.Settings'
+    type: object
+  handlers.RefineCursorRuleRequest:
+    properties:
+      focus_areas:
+        items:
+          type: string
+        type: array
+      improvements:
+        type: string
+      settings:
+        $ref: '#/definitions/models.Settings'
+    type: object
+  handlers.RoleInfo:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  handlers.RolesResponse:
+    properties:
+      is_admin:
+        type: boolean
+      is_super_admin:
+        type: boolean
+      roles:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  handlers.SignInRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handlers.SignUpRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  handlers.UpdateCursorCommandRequest:
+    properties:
+      category:
+        type: string
+      command:
+        type: string
+      description:
+        type: string
+      framework:
+        type: string
+      is_template:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      tags:
+        type: string
+    required:
+    - command
+    - name
+    type: object
+  handlers.UpdateCursorRuleRequest:
+    properties:
+      content:
+        type: string
+      description:
+        type: string
+      framework:
+        type: string
+      is_template:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      tags:
+        type: string
+    required:
+    - content
+    - name
+    type: object
+  handlers.UpdateProfileRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+    required:
+    - email
+    - name
+    type: object
+  handlers.UpdateProjectRequest:
+    properties:
+      description:
+        type: string
+      entry_point:
+        type: string
+      git_branch:
+        type: string
+      git_repo:
+        type: string
+      git_url:
+        type: string
+      language:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  handlers.UpdatePromptRequest:
+    properties:
+      arguments:
+        items:
+          $ref: '#/definitions/models.PromptArgument'
+        type: array
+      description:
+        type: string
+      name:
+        type: string
+      system_prompt:
+        type: string
+      tags:
+        type: string
+      title:
+        type: string
+      user_prompt:
+        type: string
+    required:
+    - name
+    type: object
+  handlers.UpdateRealmRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  handlers.UserApprovalRequest:
+    properties:
+      realm_id:
+        type: string
+      role_id:
+        type: string
+    required:
+    - realm_id
+    - role_id
+    type: object
+  handlers.UserListResponse:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_login:
+        type: string
+      name:
+        type: string
+      realm_id:
+        type: string
+      realm_name:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/handlers.RoleInfo'
+        type: array
+      username:
+        type: string
+    type: object
+  handlers.UserProfile:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      realm_id:
+        type: string
+      username:
+        type: string
+    type: object
+  handlers.UserProfileResponse:
+    properties:
+      avatar_url:
+        type: string
+      created_time:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_login_at:
+        type: string
+      name:
+        type: string
+      realm_id:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+      username:
+        type: string
+    type: object
+  handlers.UserUpdateRealmRequest:
+    properties:
+      realm_id:
+        type: string
+    required:
+    - realm_id
+    type: object
+  handlers.UserUpdateRoleRequest:
+    properties:
+      role_id:
+        type: string
+    required:
+    - role_id
+    type: object
+  handlers.ValidateCursorRuleRequest:
+    properties:
+      content:
+        type: string
+    required:
+    - content
+    type: object
+  mcp.JSONRPCRequest:
+    type: object
+  mcp.JSONRPCResponse:
+    properties:
+      error:
+        $ref: '#/definitions/mcp.RPCError'
+      id: {}
+      jsonrpc:
+        type: string
+      result: {}
+    type: object
+  mcp.RPCError:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  mem.ChatMessage:
+    properties:
+      content:
+        type: string
+      role:
+        description: '"user", "assistant", "system"'
+        type: string
+      timestamp:
+        type: string
+      tokens:
+        description: Estimated token count
+        type: integer
+    type: object
+  models.ChatAPIRequest:
+    properties:
+      codePath:
+        type: string
+      computer_language:
+        type: string
+      gitlab_code_branch:
+        type: string
+      gitlab_code_path:
+        type: string
+      gitlab_code_repo:
+        type: string
+      gitlab_mr_id:
+        type: string
+      output_language:
+        description: Keep for backward compatibility
+        type: string
+      output_languages:
+        description: New field for multiple languages
+        items:
+          type: string
+        type: array
+      prompt:
+        $ref: '#/definitions/models.PromptRequest'
+      remember:
+        type: boolean
+      session_id:
+        type: string
+      settings:
+        $ref: '#/definitions/models.Settings'
+      stream:
+        type: boolean
+    type: object
+  models.ChatAPIResponse:
+    properties:
+      answer:
+        type: string
+    type: object
+  models.CodeExample:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      language:
+        type: string
+      title:
+        type: string
+    type: object
+  models.CursorCommand:
+    properties:
+      category:
+        description: e.g., "refactor", "debug", "generate", "review"
+        type: string
+      command:
+        description: The actual command/prompt text
+        type: string
+      created_by:
+        type: string
+      created_time:
+        type: string
+      description:
+        type: string
+      framework:
+        description: e.g., "gin", "vue", "general"
+        type: string
+      id:
+        type: string
+      is_template:
+        description: Template for generation
+        type: boolean
+      language:
+        description: e.g., "go", "typescript", "general"
+        type: string
+      name:
+        type: string
+      realm_id:
+        description: NULL for global templates
+        type: string
+      tags:
+        description: Comma-separated
+        type: string
+      updated_by:
+        type: string
+      updated_time:
+        type: string
+      usage_count:
+        description: Track popularity
+        type: integer
+      user_id:
+        description: NULL for global templates
+        type: string
+    type: object
+  models.CursorRule:
+    properties:
+      content:
+        description: Full .cursorrules content
+        type: string
+      created_by:
+        type: string
+      created_time:
+        type: string
+      description:
+        type: string
+      framework:
+        description: e.g., "gin", "vue", "general"
+        type: string
+      id:
+        type: string
+      is_template:
+        description: Template for generation
+        type: boolean
+      language:
+        description: e.g., "go", "typescript", "general"
+        type: string
+      name:
+        type: string
+      realm_id:
+        description: NULL for global templates
+        type: string
+      tags:
+        description: Comma-separated
+        type: string
+      updated_by:
+        type: string
+      updated_time:
+        type: string
+      usage_count:
+        description: Track popularity
+        type: integer
+      user_id:
+        description: NULL for global templates
+        type: string
+    type: object
+  models.Document:
+    properties:
+      content:
+        type: string
+      created_by:
+        type: string
+      created_time:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      project_id:
+        type: string
+      realm_id:
+        type: string
+      updated_by:
+        type: string
+      updated_time:
+        type: string
+      vector_embedding:
+        description: Store vector as JSON string
+        type: string
+    type: object
+  models.DrawAPIRequest:
+    properties:
+      assistant_prompt:
+        type: string
+      name:
+        type: string
+      system_prompt:
+        type: string
+      user_prompt:
+        type: string
+    type: object
+  models.DrawAPIResponse:
+    properties:
+      path:
+        type: string
+      script:
+        description: PlantUML script if needed
+        type: string
+      type:
+        description: '"uml" or "mindmap"'
+        type: string
+      url:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  models.FrameworkExample:
+    properties:
+      generated_prompt:
+        type: string
+      input:
+        type: string
+      use_case:
+        type: string
+    type: object
+  models.Preset:
+    properties:
+      context_hints:
+        type: string
+      framework:
+        type: string
+      id:
+        type: string
+      language:
+        type: string
+      name:
+        type: string
+      result_hints:
+        type: string
+    type: object
+  models.Project:
+    properties:
+      created_by:
+        type: string
+      created_time:
+        type: string
+      description:
+        type: string
+      entry_point:
+        type: string
+      git_branch:
+        type: string
+      git_repo:
+        type: string
+      git_url:
+        type: string
+      id:
+        type: string
+      language:
+        type: string
+      name:
+        type: string
+      realm_id:
+        type: string
+      updated_by:
+        type: string
+      updated_time:
+        type: string
+      user_id:
+        description: NULL for shared projects
+        type: string
+    type: object
+  models.ProjectContext:
+    properties:
+      build_tool:
+        type: string
+      database:
+        type: string
+      dependencies:
+        items:
+          type: string
+        type: array
+      framework:
+        type: string
+      framework_version:
+        type: string
+      has_tests:
+        type: boolean
+      language:
+        type: string
+      test_framework:
+        type: string
+    type: object
+  models.Prompt:
+    properties:
+      created_by:
+        type: string
+      created_time:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      realm_id:
+        description: NULL for global templates
+        type: string
+      system_prompt:
+        type: string
+      tags:
+        type: string
+      title:
+        description: Human-readable display name
+        type: string
+      updated_by:
+        type: string
+      updated_time:
+        type: string
+      user_id:
+        description: NULL for global templates
+        type: string
+      user_prompt:
+        type: string
+    type: object
+  models.PromptArgument:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      required:
+        type: boolean
+    type: object
+  models.PromptRequest:
+    properties:
+      assistant_prompt:
+        type: string
+      name:
+        type: string
+      system_prompt:
+        type: string
+      user_prompt:
+        type: string
+    type: object
+  models.QualityScore:
+    properties:
+      feedback:
+        items:
+          type: string
+        type: array
+      max_score:
+        type: number
+      score:
+        type: number
+      suggestions:
+        items:
+          type: string
+        type: array
+    type: object
+  models.Realm:
+    properties:
+      created_by:
+        type: string
+      created_time:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_by:
+        type: string
+      updated_time:
+        type: string
+    type: object
+  models.Settings:
+    properties:
+      GITLAB_BASE_URL:
+        type: string
+      GITLAB_TOKEN:
+        type: string
+      LLM_API_KEY:
+        type: string
+      LLM_BASE_URL:
+        type: string
+      LLM_MODEL:
+        type: string
+      LLM_TEMPERATURE:
+        type: string
+    type: object
+  models.SmartPromptRequest:
+    properties:
+      analyze_context:
+        type: boolean
+      gitlab_branch:
+        type: string
+      gitlab_code_path:
+        type: string
+      gitlab_project:
+        type: string
+      input:
+        type: string
+      preset_id:
+        type: string
+      settings:
+        $ref: '#/definitions/models.Settings'
+    type: object
+  models.SmartPromptResponse:
+    properties:
+      action:
+        type: string
+      context:
+        type: string
+      detected_context:
+        $ref: '#/definitions/models.ProjectContext'
+      examples:
+        items:
+          $ref: '#/definitions/models.CodeExample'
+        type: array
+      full_prompt:
+        type: string
+      quality_score:
+        $ref: '#/definitions/models.QualityScore'
+      result:
+        type: string
+    type: object
+  models.User:
+    properties:
+      avatar_url:
+        description: Avatar URL
+        type: string
+      created_by:
+        description: Audit fields
+        type: string
+      created_time:
+        type: string
+      email:
+        type: string
+      gitlab_user_id:
+        description: OAuth fields
+        type: integer
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_login_at:
+        description: Last login time
+        type: string
+      name:
+        description: Full name from GitLab
+        type: string
+      realm_id:
+        type: string
+      token_expires_at:
+        description: Token expiration
+        type: string
+      updated_by:
+        type: string
+      updated_time:
+        type: string
+      username:
+        type: string
+    type: object
+  services.ProjectYAML:
+    properties:
+      description:
+        type: string
+      entryPoint:
+        type: string
+      gitBranch:
+        type: string
+      gitRepo:
+        type: string
+      gitURL:
+        type: string
+      language:
+        type: string
+      name:
+        type: string
+    type: object
+  smartprompt.AutoFillFieldsRequest:
+    properties:
+      framework_id:
+        type: string
+      settings:
+        $ref: '#/definitions/models.Settings'
+      user_input:
+        type: string
+    required:
+    - framework_id
+    - user_input
+    type: object
+  smartprompt.AutoFillFieldsResponse:
+    properties:
+      fields:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  smartprompt.Framework:
+    properties:
+      best_for:
+        type: string
+      description:
+        type: string
+      example:
+        $ref: '#/definitions/models.FrameworkExample'
+      fields:
+        items:
+          $ref: '#/definitions/smartprompt.FrameworkField'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      template:
+        type: string
+    type: object
+  smartprompt.FrameworkField:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      label:
+        type: string
+      options:
+        items:
+          type: string
+        type: array
+      placeholder:
+        type: string
+      required:
+        type: boolean
+      type:
+        description: text, textarea, select
+        type: string
+    type: object
+  smartprompt.GenerateFromFrameworkRequest:
+    properties:
+      fields:
+        additionalProperties:
+          type: string
+        type: object
+      framework_id:
+        type: string
+    required:
+    - fields
+    - framework_id
+    type: object
+  smartprompt.PromptTemplate:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      fields:
+        additionalProperties:
+          type: string
+        description: Pre-filled field values
+        type: object
+      framework:
+        description: Recommended framework ID
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      use_count:
+        type: integer
+    type: object
+  smartprompt.QuickRefineRequest:
+    properties:
+      framework_id:
+        type: string
+      prompt:
+        type: string
+    required:
+    - prompt
+    type: object
+  smartprompt.RefinePromptRequest:
+    properties:
+      prompt:
+        type: string
+      settings:
+        $ref: '#/definitions/models.Settings'
+    required:
+    - prompt
+    type: object
+  smartprompt.RefineWithRequirementsRequest:
+    properties:
+      requirements:
+        type: string
+      settings:
+        $ref: '#/definitions/models.Settings'
+      system_prompt:
+        type: string
+      user_prompt:
+        type: string
+    required:
+    - requirements
+    - system_prompt
+    - user_prompt
+    type: object
+  smartprompt.RefineWithRequirementsResponse:
+    properties:
+      system_prompt:
+        type: string
+      user_prompt:
+        type: string
+    type: object
+  smartprompt.RefinementResponse:
+    properties:
+      assessment:
+        type: string
+      improvement_tips:
+        items:
+          type: string
+        type: array
+      original_prompt:
+        type: string
+      quality_after:
+        type: number
+      quality_before:
+        type: number
+      refined_prompt:
+        type: string
+      suggestions:
+        items:
+          $ref: '#/definitions/smartprompt.RefinementSuggestion'
+        type: array
+    type: object
+  smartprompt.RefinementSuggestion:
+    properties:
+      after:
+        type: string
+      before:
+        type: string
+      description:
+        type: string
+      impact:
+        description: high, medium, low
+        type: string
+      title:
+        type: string
+    type: object
+  smartprompt.TemplateCategory:
+    properties:
+      description:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8888
+info:
+  contact:
+    email: walter.fan@gmail.com
+    name: API Support
+  description: |-
+    API documentation for Lazy AI Coder - GitLab integration, LLM tools, and MCP server
+
+    Features:
+    - LLM chat and code analysis
+    - GitLab integration (read files, review MRs)
+    - MCP (Model Context Protocol) server
+    - PlantUML diagram generation
+    - Session management with memory
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Lazy AI Coder API
+  version: "1.0"
+paths:
+  /api/v1/admin/pending-users:
+    get:
+      consumes:
+      - application/json
+      description: Get all users pending admin approval (super_admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.UserListResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List pending users
+      tags:
+      - admin
+  /api/v1/admin/realms:
+    get:
+      consumes:
+      - application/json
+      description: Get all realms in the system with user counts (super_admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.RealmResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List all realms
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      description: Create a new realm (super_admin only)
+      parameters:
+      - description: Realm creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateRealmRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Realm'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create realm
+      tags:
+      - admin
+  /api/v1/admin/realms/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Soft delete a realm (super_admin only, realm must have no users)
+      parameters:
+      - description: Realm ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete realm
+      tags:
+      - admin
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific realm (super_admin only)
+      parameters:
+      - description: Realm ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Realm'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get realm details
+      tags:
+      - admin
+    put:
+      consumes:
+      - application/json
+      description: Update an existing realm (super_admin only)
+      parameters:
+      - description: Realm ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Realm update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateRealmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Realm'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update realm
+      tags:
+      - admin
+  /api/v1/admin/realms/{id}/users:
+    get:
+      consumes:
+      - application/json
+      description: List all active users in a realm (super_admin only)
+      parameters:
+      - description: Realm ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get users in realm
+      tags:
+      - admin
+  /api/v1/admin/users:
+    get:
+      consumes:
+      - application/json
+      description: Get all users in the system (super_admin only)
+      parameters:
+      - description: Filter by active status
+        in: query
+        name: is_active
+        type: boolean
+      - description: Filter by realm ID
+        in: query
+        name: realm_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.UserListResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List all users
+      tags:
+      - admin
+  /api/v1/admin/users/{id}/approve:
+    post:
+      consumes:
+      - application/json
+      description: Approve a pending user and assign realm and role (super_admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Approval request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UserApprovalRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.UserListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Approve user
+      tags:
+      - admin
+  /api/v1/admin/users/{id}/deactivate:
+    post:
+      consumes:
+      - application/json
+      description: Deactivate an active user (super_admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Deactivate user
+      tags:
+      - admin
+  /api/v1/admin/users/{id}/realm:
+    put:
+      consumes:
+      - application/json
+      description: Change a user's realm assignment (super_admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Realm update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UserUpdateRealmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user realm
+      tags:
+      - admin
+  /api/v1/admin/users/{id}/reject:
+    post:
+      consumes:
+      - application/json
+      description: Reject a pending user application (super_admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Reject user
+      tags:
+      - admin
+  /api/v1/admin/users/{id}/role:
+    put:
+      consumes:
+      - application/json
+      description: Change a user's role assignment (super_admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Role update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UserUpdateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user role
+      tags:
+      - admin
+  /api/v1/auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change user's password (requires authentication)
+      parameters:
+      - description: Change password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Change password
+      tags:
+      - auth
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh an expired or expiring JWT token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Refresh JWT token
+      tags:
+      - auth
+  /api/v1/auth/signin:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Signin request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Sign in with username/password
+      tags:
+      - auth
+  /api/v1/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: Signup request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Sign up with username/password
+      tags:
+      - auth
+  /api/v1/cursor-commands:
+    get:
+      description: Get list of cursor commands with filtering and pagination
+      parameters:
+      - default: all
+        description: 'Scope: all, personal, shared, templates'
+        in: query
+        name: scope
+        type: string
+      - description: Search in name, description, command
+        in: query
+        name: q
+        type: string
+      - description: Filter by tags
+        in: query
+        name: tags
+        type: string
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      - description: Filter by language
+        in: query
+        name: language
+        type: string
+      - description: Filter by framework
+        in: query
+        name: framework
+        type: string
+      - default: created_at
+        description: 'Sort by: created_at, updated_at, name, usage_count'
+        in: query
+        name: sort
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CursorCommand'
+            type: array
+      summary: List cursor commands
+      tags:
+      - cursor-commands
+    post:
+      consumes:
+      - application/json
+      description: Create a new cursor command
+      parameters:
+      - description: Cursor Command data
+        in: body
+        name: command
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateCursorCommandRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CursorCommand'
+      summary: Create cursor command
+      tags:
+      - cursor-commands
+  /api/v1/cursor-commands/{id}:
+    delete:
+      description: Delete a cursor command (soft delete) by ID (UUID) or Name
+      parameters:
+      - description: Cursor Command ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete cursor command
+      tags:
+      - cursor-commands
+    get:
+      description: Get a specific cursor command by ID (UUID) or Name
+      parameters:
+      - description: Cursor Command ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CursorCommand'
+      summary: Get cursor command by ID or Name
+      tags:
+      - cursor-commands
+    put:
+      consumes:
+      - application/json
+      description: Update an existing cursor command by ID (UUID) or Name
+      parameters:
+      - description: Cursor Command ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Cursor Command data
+        in: body
+        name: command
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateCursorCommandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CursorCommand'
+      summary: Update cursor command
+      tags:
+      - cursor-commands
+  /api/v1/cursor-commands/{id}/export:
+    get:
+      description: Export a cursor command as text file
+      parameters:
+      - description: Cursor Command ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Export cursor command
+      tags:
+      - cursor-commands
+  /api/v1/cursor-commands/{id}/refine:
+    post:
+      consumes:
+      - application/json
+      description: Refine an existing cursor command using AI
+      parameters:
+      - description: Cursor Command ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Refinement request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RefineCursorCommandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refine cursor command
+      tags:
+      - cursor-commands
+  /api/v1/cursor-commands/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate a new cursor command using AI
+      parameters:
+      - description: Generation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.GenerateCursorCommandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Generate cursor command
+      tags:
+      - cursor-commands
+  /api/v1/cursor-commands/import:
+    post:
+      consumes:
+      - application/json
+      description: Import a cursor command from text file content
+      parameters:
+      - description: Cursor Command data
+        in: body
+        name: command
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ImportCursorCommandRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CursorCommand'
+      summary: Import cursor command
+      tags:
+      - cursor-commands
+  /api/v1/cursor-rules:
+    get:
+      description: Get list of cursor rules with filtering and pagination
+      parameters:
+      - default: all
+        description: 'Scope: all, personal, shared, templates'
+        in: query
+        name: scope
+        type: string
+      - description: Search in name, description, content
+        in: query
+        name: q
+        type: string
+      - description: Filter by tags
+        in: query
+        name: tags
+        type: string
+      - description: Filter by language
+        in: query
+        name: language
+        type: string
+      - description: Filter by framework
+        in: query
+        name: framework
+        type: string
+      - default: created_at
+        description: 'Sort by: created_at, updated_at, name, usage_count'
+        in: query
+        name: sort
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CursorRule'
+            type: array
+      summary: List cursor rules
+      tags:
+      - cursor-rules
+    post:
+      consumes:
+      - application/json
+      description: Create a new cursor rule
+      parameters:
+      - description: Cursor Rule data
+        in: body
+        name: rule
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateCursorRuleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CursorRule'
+      summary: Create cursor rule
+      tags:
+      - cursor-rules
+  /api/v1/cursor-rules/{id}:
+    delete:
+      description: Delete a cursor rule (soft delete) by ID (UUID) or Name
+      parameters:
+      - description: Cursor Rule ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete cursor rule
+      tags:
+      - cursor-rules
+    get:
+      description: Get a specific cursor rule by ID (UUID) or Name
+      parameters:
+      - description: Cursor Rule ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CursorRule'
+      summary: Get cursor rule by ID or Name
+      tags:
+      - cursor-rules
+    put:
+      consumes:
+      - application/json
+      description: Update an existing cursor rule by ID (UUID) or Name
+      parameters:
+      - description: Cursor Rule ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Cursor Rule data
+        in: body
+        name: rule
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateCursorRuleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CursorRule'
+      summary: Update cursor rule
+      tags:
+      - cursor-rules
+  /api/v1/cursor-rules/{id}/export:
+    get:
+      description: Export a cursor rule as .cursorrules file content
+      parameters:
+      - description: Cursor Rule ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Export cursor rule
+      tags:
+      - cursor-rules
+  /api/v1/cursor-rules/{id}/refine:
+    post:
+      consumes:
+      - application/json
+      description: Refine an existing cursor rule using AI
+      parameters:
+      - description: Cursor Rule ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Refinement request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RefineCursorRuleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refine cursor rule
+      tags:
+      - cursor-rules
+  /api/v1/cursor-rules/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate a new cursor rule using AI
+      parameters:
+      - description: Generation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.GenerateCursorRuleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Generate cursor rule
+      tags:
+      - cursor-rules
+  /api/v1/cursor-rules/import:
+    post:
+      consumes:
+      - application/json
+      description: Import a cursor rule from .cursorrules file content
+      parameters:
+      - description: Cursor Rule data
+        in: body
+        name: rule
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ImportCursorRuleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CursorRule'
+      summary: Import cursor rule
+      tags:
+      - cursor-rules
+  /api/v1/cursor-rules/validate:
+    post:
+      consumes:
+      - application/json
+      description: Validate cursor rule syntax and structure
+      parameters:
+      - description: Validation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ValidateCursorRuleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Validate cursor rule
+      tags:
+      - cursor-rules
+  /api/v1/debug/memory/cleanup:
+    post:
+      description: Force cleanup of sessions that have exceeded the timeout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Trigger manual cleanup of expired sessions
+      tags:
+      - debug
+  /api/v1/debug/memory/sessions:
+    get:
+      description: Get a list of all active memory sessions with summary information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/debug.SessionSummary'
+            type: array
+      summary: List all memory sessions
+      tags:
+      - debug
+  /api/v1/debug/memory/sessions/{session_id}:
+    delete:
+      description: Remove a session and all its messages from memory
+      parameters:
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a specific memory session
+      tags:
+      - debug
+    get:
+      description: Get detailed information including all messages for a specific
+        session
+      parameters:
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/debug.SessionDetails'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get detailed information about a specific session
+      tags:
+      - debug
+  /api/v1/debug/memory/sessions/{session_id}/summarize:
+    post:
+      description: Force summarization of old messages in a session
+      parameters:
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Trigger manual summarization for a session
+      tags:
+      - debug
+  /api/v1/debug/memory/stats:
+    get:
+      description: Get aggregated statistics across all sessions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get overall memory manager statistics
+      tags:
+      - debug
+  /api/v1/documents:
+    get:
+      description: Get list of documents with filtering and pagination
+      parameters:
+      - default: all
+        description: 'Scope: all, personal, shared'
+        in: query
+        name: scope
+        type: string
+      - description: Filter by project ID
+        in: query
+        name: project_id
+        type: string
+      - description: Search in name, path, and content
+        in: query
+        name: q
+        type: string
+      - default: created_at
+        description: 'Sort by: created_at, updated_at, name'
+        in: query
+        name: sort
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List documents
+      tags:
+      - documents
+  /api/v1/documents/{id}:
+    delete:
+      description: Soft-delete a document by ID
+      parameters:
+      - description: Document ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete document
+      tags:
+      - documents
+    get:
+      description: Get a single document with full content
+      parameters:
+      - description: Document ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Document'
+      summary: Get document by ID
+      tags:
+      - documents
+  /api/v1/documents/chunks:
+    get:
+      description: Get all chunks for a specific document by path and project
+      parameters:
+      - description: Project ID
+        in: query
+        name: project_id
+        required: true
+        type: string
+      - description: Document path
+        in: query
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Document'
+            type: array
+      summary: Get all chunks for a document
+      tags:
+      - documents
+  /api/v1/documents/create-from-text:
+    post:
+      consumes:
+      - application/json
+      description: Create a document from user-provided text content
+      parameters:
+      - description: Text document request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create document from text
+      tags:
+      - documents
+  /api/v1/documents/delete-by-path:
+    post:
+      consumes:
+      - application/json
+      description: Soft-delete all chunks of a document by path and project
+      parameters:
+      - description: Delete request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete all chunks of a document
+      tags:
+      - documents
+  /api/v1/documents/load-url:
+    post:
+      consumes:
+      - application/json
+      description: Fetch content from a URL, extract text, and store as document chunks
+      parameters:
+      - description: URL load request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Load document from URL
+      tags:
+      - documents
+  /api/v1/documents/stats:
+    get:
+      description: Get statistics about documents (total chunks, unique documents,
+        etc.)
+      parameters:
+      - description: Filter by project ID
+        in: query
+        name: project_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get document statistics
+      tags:
+      - documents
+  /api/v1/documents/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload one or more files to be processed and stored as document
+        chunks
+      parameters:
+      - description: Files to upload (multiple allowed)
+        in: formData
+        name: files
+        required: true
+        type: file
+      - description: Project ID
+        in: formData
+        name: project_id
+        required: true
+        type: string
+      - default: 1000
+        description: Chunk size
+        in: formData
+        name: chunk_size
+        type: integer
+      - default: 200
+        description: Chunk overlap
+        in: formData
+        name: chunk_overlap
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Upload files
+      tags:
+      - documents
+  /api/v1/profile:
+    get:
+      description: Get the authenticated user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.UserProfileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get current user profile
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      description: Update the authenticated user's profile (email and name)
+      parameters:
+      - description: Profile update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.UserProfileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update user profile
+      tags:
+      - profile
+  /api/v1/profile/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change the authenticated user's password
+      parameters:
+      - description: Password change request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Change password
+      tags:
+      - profile
+  /api/v1/profile/roles:
+    get:
+      description: Get the authenticated user's roles (super_admin, admin, user)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.RolesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get current user roles
+      tags:
+      - profile
+  /api/v1/projects:
+    get:
+      description: Get list of projects with filtering and pagination
+      parameters:
+      - default: all
+        description: 'Scope: all, personal, shared'
+        in: query
+        name: scope
+        type: string
+      - description: Search in name and description
+        in: query
+        name: q
+        type: string
+      - description: Filter by language
+        in: query
+        name: language
+        type: string
+      - default: created_at
+        description: 'Sort by: created_at, updated_at, name'
+        in: query
+        name: sort
+        type: string
+      - default: 50
+        description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Project'
+            type: array
+      summary: List projects
+      tags:
+      - projects
+    post:
+      consumes:
+      - application/json
+      description: Create a new project
+      parameters:
+      - description: Project data
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Project'
+      summary: Create project
+      tags:
+      - projects
+  /api/v1/projects/{id}:
+    delete:
+      description: Delete a project (soft delete)
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete project
+      tags:
+      - projects
+    get:
+      description: Get a specific project by ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Project'
+      summary: Get project by ID
+      tags:
+      - projects
+    put:
+      consumes:
+      - application/json
+      description: Update an existing project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Project data
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Project'
+      summary: Update project
+      tags:
+      - projects
+  /api/v1/projects/export:
+    get:
+      description: Export all accessible projects to YAML format
+      parameters:
+      - default: all
+        description: 'Scope: all, personal, shared'
+        in: query
+        name: scope
+        type: string
+      produces:
+      - application/x-yaml
+      responses:
+        "200":
+          description: YAML file
+          schema:
+            type: string
+      summary: Export projects to YAML
+      tags:
+      - projects
+  /api/v1/projects/import:
+    post:
+      consumes:
+      - application/json
+      description: Import projects from YAML data
+      parameters:
+      - description: Projects data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ImportProjectsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Import projects from YAML
+      tags:
+      - projects
+  /api/v1/prompts:
+    get:
+      description: Get list of prompts with filtering and pagination
+      parameters:
+      - default: all
+        description: 'Scope: all, personal, shared, templates'
+        in: query
+        name: scope
+        type: string
+      - description: Search in name and description
+        in: query
+        name: q
+        type: string
+      - description: Filter by tags (comma-separated for OR logic)
+        in: query
+        name: tags
+        type: string
+      - default: created_at
+        description: 'Sort by: created_at, updated_at, name'
+        in: query
+        name: sort
+        type: string
+      - default: 1
+        description: Page number (1-based, overrides offset)
+        in: query
+        name: pageNumber
+        type: integer
+      - default: 200
+        description: Page size (overrides limit)
+        in: query
+        name: pageSize
+        type: integer
+      - default: 200
+        description: Limit results (deprecated, use pageSize)
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination (deprecated, use pageNumber)
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Prompt'
+            type: array
+      summary: List prompts
+      tags:
+      - prompts
+    post:
+      consumes:
+      - application/json
+      description: Create a new prompt
+      parameters:
+      - description: Prompt data
+        in: body
+        name: prompt
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreatePromptRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Prompt'
+      summary: Create prompt
+      tags:
+      - prompts
+  /api/v1/prompts/{id}:
+    delete:
+      description: Delete a prompt (soft delete) by ID (UUID) or Name
+      parameters:
+      - description: Prompt ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete prompt
+      tags:
+      - prompts
+    get:
+      description: Get a specific prompt by ID (UUID) or Name
+      parameters:
+      - description: Prompt ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Prompt'
+      summary: Get prompt by ID or Name
+      tags:
+      - prompts
+    put:
+      consumes:
+      - application/json
+      description: Update an existing prompt by ID (UUID) or Name
+      parameters:
+      - description: Prompt ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Prompt data
+        in: body
+        name: prompt
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdatePromptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Prompt'
+      summary: Update prompt
+      tags:
+      - prompts
+  /api/v1/smart-prompt/auto-fill-fields:
+    post:
+      consumes:
+      - application/json
+      description: Use LLM to automatically fill framework fields based on user input
+      parameters:
+      - description: Auto-fill Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/smartprompt.AutoFillFieldsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/smartprompt.AutoFillFieldsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Auto-fill framework fields with LLM
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/frameworks:
+    get:
+      description: Get list of all available prompt engineering frameworks (CRISPE,
+        RISEN, CO-STAR, APE, CAR)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/smartprompt.Framework'
+            type: array
+      summary: Get all prompt engineering frameworks
+      tags:
+      - smart-prompt
+    post:
+      consumes:
+      - application/json
+      description: Create a custom prompt engineering framework
+      parameters:
+      - description: Framework data
+        in: body
+        name: framework
+        required: true
+        schema:
+          $ref: '#/definitions/smartprompt.Framework'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/smartprompt.Framework'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new framework
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/frameworks/{id}:
+    delete:
+      description: Delete a prompt engineering framework by ID
+      parameters:
+      - description: Framework ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a framework
+      tags:
+      - smart-prompt
+    get:
+      description: Get details of a specific prompt engineering framework
+      parameters:
+      - description: Framework ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/smartprompt.Framework'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get framework by ID
+      tags:
+      - smart-prompt
+    put:
+      consumes:
+      - application/json
+      description: Update a prompt engineering framework by ID
+      parameters:
+      - description: Framework ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated framework data
+        in: body
+        name: framework
+        required: true
+        schema:
+          $ref: '#/definitions/smartprompt.Framework'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/smartprompt.Framework'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update an existing framework
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate CAR format prompt with GitLab context analysis, code examples,
+        and quality scoring
+      parameters:
+      - description: Smart Prompt Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SmartPromptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SmartPromptResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Generate smart prompt with context detection
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/generate-from-framework:
+    post:
+      consumes:
+      - application/json
+      description: Generate a prompt using a specific framework and field values
+      parameters:
+      - description: Generation Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/smartprompt.GenerateFromFrameworkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Generate prompt from framework
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/presets:
+    get:
+      description: Get list of available prompt generation presets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Preset'
+            type: array
+      summary: Get available presets
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/quick-refine:
+    post:
+      consumes:
+      - application/json
+      description: Get framework-specific quick suggestions without calling LLM
+      parameters:
+      - description: Quick Refinement Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/smartprompt.QuickRefineRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get quick refinement suggestions
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/refine:
+    post:
+      consumes:
+      - application/json
+      description: Use LLM to analyze prompt and provide improvement suggestions
+      parameters:
+      - description: Refinement Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/smartprompt.RefinePromptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/smartprompt.RefinementResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refine prompt with LLM suggestions
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/refine-with-requirements:
+    post:
+      consumes:
+      - application/json
+      description: Use LLM to refine system and user prompts based on user's specific
+        requirements
+      parameters:
+      - description: Refinement Request with Requirements
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/smartprompt.RefineWithRequirementsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/smartprompt.RefineWithRequirementsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refine prompt with user requirements
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/templates:
+    get:
+      description: Get list of all available prompt templates, optionally filtered
+        by category
+      parameters:
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/smartprompt.PromptTemplate'
+            type: array
+      summary: Get all prompt templates
+      tags:
+      - smart-prompt
+    post:
+      consumes:
+      - application/json
+      description: Create a custom prompt template
+      parameters:
+      - description: Template data
+        in: body
+        name: template
+        required: true
+        schema:
+          $ref: '#/definitions/smartprompt.PromptTemplate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/smartprompt.PromptTemplate'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new template
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/templates/{id}:
+    delete:
+      description: Delete a prompt template by ID
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a template
+      tags:
+      - smart-prompt
+    get:
+      description: Get details of a specific prompt template
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/smartprompt.PromptTemplate'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get template by ID
+      tags:
+      - smart-prompt
+    put:
+      consumes:
+      - application/json
+      description: Update a prompt template by ID
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated template data
+        in: body
+        name: template
+        required: true
+        schema:
+          $ref: '#/definitions/smartprompt.PromptTemplate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/smartprompt.PromptTemplate'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update an existing template
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/templates/{id}/use:
+    post:
+      description: Increment use count for a template and return it
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/smartprompt.PromptTemplate'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Use a template
+      tags:
+      - smart-prompt
+  /api/v1/smart-prompt/templates/categories:
+    get:
+      description: Get list of all template categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/smartprompt.TemplateCategory'
+            type: array
+      summary: Get template categories
+      tags:
+      - smart-prompt
+  /draw:
+    post:
+      consumes:
+      - application/json
+      description: Generate PlantUML diagrams (UML and mindmap) from text
+      parameters:
+      - description: Draw Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DrawAPIRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DrawAPIResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Generate diagrams with PlantUML
+      tags:
+      - diagrams
+  /mcp:
+    post:
+      consumes:
+      - application/json
+      description: Handle MCP (Model Context Protocol) JSON-RPC 2.0 requests for tool
+        calls
+      parameters:
+      - description: JSON-RPC Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mcp.JSONRPCRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mcp.JSONRPCResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mcp.JSONRPCResponse'
+      summary: MCP JSON-RPC endpoint
+      tags:
+      - mcp
+  /mcp/events:
+    get:
+      description: Subscribe to real-time MCP server events (prompts/resources updates,
+        tool execution)
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: SSE event stream
+          schema:
+            type: string
+      summary: MCP SSE endpoint
+      tags:
+      - mcp
+  /mcp/info:
+    get:
+      description: Get MCP server information including version, protocol version,
+        and capabilities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get MCP server info
+      tags:
+      - mcp
+  /mcp/prompts:
+    get:
+      description: List all available MCP prompts with their names and descriptions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List MCP prompts
+      tags:
+      - mcp
+  /mcp/resources:
+    get:
+      description: List all available MCP resources with their URIs and descriptions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List MCP resources
+      tags:
+      - mcp
+  /mcp/tools:
+    get:
+      description: List all available MCP tools with their names and descriptions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List MCP tools
+      tags:
+      - mcp
+  /process:
+    post:
+      consumes:
+      - application/json
+      description: Process LLM requests with optional memory, GitLab integration,
+        and streaming
+      parameters:
+      - description: Chat Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChatAPIRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ChatAPIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Process LLM chat request
+      tags:
+      - llm
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

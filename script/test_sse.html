@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP SSE Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .status.connected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .status.disconnected {
+            background-color: #f44336;
+            color: white;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.disconnect {
+            background-color: #f44336;
+        }
+        button.disconnect:hover {
+            background-color: #da190b;
+        }
+        button.clear {
+            background-color: #ff9800;
+        }
+        button.clear:hover {
+            background-color: #e68900;
+        }
+        #events {
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fafafa;
+            border-radius: 4px;
+        }
+        .event {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+            background-color: white;
+        }
+        .event.heartbeat {
+            border-left-color: #2196F3;
+        }
+        .event.prompts-updated {
+            border-left-color: #FF9800;
+        }
+        .event.resources-updated {
+            border-left-color: #9C27B0;
+        }
+        .event.tools-updated {
+            border-left-color: #00BCD4;
+        }
+        .event.error {
+            border-left-color: #f44336;
+        }
+        .event-type {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .event-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .event-data {
+            margin-top: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            background-color: #f5f5f5;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-box {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MCP Server-Sent Events (SSE) Test</h1>
+
+        <div>
+            <strong>Connection Status:</strong>
+            <span id="status" class="status disconnected">Disconnected</span>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="eventCount">0</div>
+                <div class="stat-label">Total Events</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="heartbeatCount">0</div>
+                <div class="stat-label">Heartbeats</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="updateCount">0</div>
+                <div class="stat-label">Updates</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="connectBtn" onclick="connect()">Connect to SSE</button>
+            <button class="disconnect" id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+            <button class="clear" onclick="clearEvents()">Clear Events</button>
+        </div>
+
+        <h2>Event Stream</h2>
+        <div id="events"></div>
+    </div>
+
+    <script>
+        let eventSource = null;
+        let eventCount = 0;
+        let heartbeatCount = 0;
+        let updateCount = 0;
+        const serverUrl = 'http://localhost:9999/api/v1/mcp/events';
+
+        function updateStatus(connected) {
+            const statusEl = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+
+            if (connected) {
+                statusEl.textContent = 'Connected';
+                statusEl.className = 'status connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+            } else {
+                statusEl.textContent = 'Disconnected';
+                statusEl.className = 'status disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        function addEvent(type, data, eventClass = '') {
+            const eventsDiv = document.getElementById('events');
+            const eventDiv = document.createElement('div');
+            eventDiv.className = 'event ' + eventClass;
+
+            const time = new Date().toLocaleTimeString();
+            eventDiv.innerHTML = `
+                <div><span class="event-type">${type}</span> <span class="event-time">${time}</span></div>
+                <div class="event-data">${JSON.stringify(data, null, 2)}</div>
+            `;
+
+            eventsDiv.insertBefore(eventDiv, eventsDiv.firstChild);
+
+            // Update counts
+            eventCount++;
+            document.getElementById('eventCount').textContent = eventCount;
+        }
+
+        function connect() {
+            if (eventSource) {
+                return;
+            }
+
+            addEvent('INFO', { message: 'Connecting to ' + serverUrl }, 'info');
+
+            eventSource = new EventSource(serverUrl);
+
+            // Connection opened
+            eventSource.onopen = () => {
+                updateStatus(true);
+                addEvent('INFO', { message: 'Connection opened successfully' }, 'info');
+            };
+
+            // Connected event
+            eventSource.addEventListener('connected', (event) => {
+                const data = JSON.parse(event.data);
+                addEvent('connected', data, 'connected');
+            });
+
+            // Heartbeat event
+            eventSource.addEventListener('heartbeat', (event) => {
+                const data = JSON.parse(event.data);
+                heartbeatCount++;
+                document.getElementById('heartbeatCount').textContent = heartbeatCount;
+                addEvent('heartbeat', data, 'heartbeat');
+            });
+
+            // Prompts updated event
+            eventSource.addEventListener('prompts/updated', (event) => {
+                const data = JSON.parse(event.data);
+                updateCount++;
+                document.getElementById('updateCount').textContent = updateCount;
+                addEvent('prompts/updated', data, 'prompts-updated');
+            });
+
+            // Resources updated event
+            eventSource.addEventListener('resources/updated', (event) => {
+                const data = JSON.parse(event.data);
+                updateCount++;
+                document.getElementById('updateCount').textContent = updateCount;
+                addEvent('resources/updated', data, 'resources-updated');
+            });
+
+            // Tools updated event
+            eventSource.addEventListener('tools/updated', (event) => {
+                const data = JSON.parse(event.data);
+                updateCount++;
+                document.getElementById('updateCount').textContent = updateCount;
+                addEvent('tools/updated', data, 'tools-updated');
+            });
+
+            // Tool execution event
+            eventSource.addEventListener('tool/execution', (event) => {
+                const data = JSON.parse(event.data);
+                addEvent('tool/execution', data, 'tool-execution');
+            });
+
+            // Error handler
+            eventSource.onerror = (error) => {
+                console.error('SSE Error:', error);
+                addEvent('ERROR', { message: 'Connection error or closed', error: error.toString() }, 'error');
+                updateStatus(false);
+                eventSource = null;
+            };
+        }
+
+        function disconnect() {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+                updateStatus(false);
+                addEvent('INFO', { message: 'Disconnected by user' }, 'info');
+            }
+        }
+
+        function clearEvents() {
+            document.getElementById('events').innerHTML = '';
+            eventCount = 0;
+            heartbeatCount = 0;
+            updateCount = 0;
+            document.getElementById('eventCount').textContent = '0';
+            document.getElementById('heartbeatCount').textContent = '0';
+            document.getElementById('updateCount').textContent = '0';
+        }
+
+        // Auto-connect on load
+        window.addEventListener('load', () => {
+            addEvent('INFO', { message: 'Page loaded. Click "Connect to SSE" to start' }, 'info');
+        });
+    </script>
+</body>
+</html>

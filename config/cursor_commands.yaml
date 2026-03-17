@@ -1,0 +1,327 @@
+# Cursor Commands Templates for Common Development Tasks
+# These are global templates (user_id = NULL, realm_id = NULL) visible to all users
+
+cursor_commands:
+  refactor_extract_method:
+    description: "Extract selected code into a separate method/function"
+    command: "Extract the selected code into a well-named method/function with proper parameters and return type. Ensure the extraction improves code readability and follows single responsibility principle."
+    category: "refactoring"
+    language: ""
+    framework: ""
+    tags: "refactor,extract,clean-code"
+    is_template: true
+
+  refactor_rename_symbol:
+    description: "Rename a variable/function/class with a more descriptive name"
+    command: "Suggest a more descriptive and meaningful name for this symbol following naming conventions for the language. Explain why the new name is better."
+    category: "refactoring"
+    language: ""
+    framework: ""
+    tags: "refactor,rename,readability"
+    is_template: true
+
+  refactor_simplify_logic:
+    description: "Simplify complex conditional logic"
+    command: "Simplify this conditional logic while maintaining the same behavior. Use early returns, guard clauses, or extract complex conditions into well-named functions."
+    category: "refactoring"
+    language: ""
+    framework: ""
+    tags: "refactor,simplify,readability"
+    is_template: true
+
+  refactor_remove_duplication:
+    description: "Remove code duplication by extracting common logic"
+    command: "Identify duplicated code and extract it into a reusable function or method. Ensure the extracted code is properly parameterized and well-documented."
+    category: "refactoring"
+    language: ""
+    framework: ""
+    tags: "refactor,dry,duplication"
+    is_template: true
+
+  add_error_handling:
+    description: "Add comprehensive error handling to code"
+    command: "Add proper error handling to this code. Include validation, try-catch blocks (or language equivalent), meaningful error messages, and logging where appropriate."
+    category: "improvement"
+    language: ""
+    framework: ""
+    tags: "error-handling,robustness"
+    is_template: true
+
+  add_input_validation:
+    description: "Add input validation with clear error messages"
+    command: "Add comprehensive input validation to this function/method. Check for null/undefined, validate types, ranges, and formats. Return clear error messages for invalid inputs."
+    category: "improvement"
+    language: ""
+    framework: ""
+    tags: "validation,security,robustness"
+    is_template: true
+
+  add_logging:
+    description: "Add appropriate logging statements"
+    command: "Add logging statements at appropriate levels (debug, info, warn, error). Log function entry/exit, important operations, and error conditions. Include relevant context in log messages."
+    category: "improvement"
+    language: ""
+    framework: ""
+    tags: "logging,debugging,observability"
+    is_template: true
+
+  optimize_performance:
+    description: "Optimize code for better performance"
+    command: "Analyze this code for performance bottlenecks. Suggest optimizations such as reducing complexity, caching, avoiding unnecessary operations, or using more efficient data structures. Explain the impact of each optimization."
+    category: "optimization"
+    language: ""
+    framework: ""
+    tags: "performance,optimization"
+    is_template: true
+
+  optimize_database_query:
+    description: "Optimize database query performance"
+    command: "Optimize this database query for better performance. Consider indexes, query structure, joins, and fetching strategy. Suggest specific improvements and explain their impact."
+    category: "optimization"
+    language: "sql"
+    framework: ""
+    tags: "database,performance,sql"
+    is_template: true
+
+  write_unit_tests:
+    description: "Generate comprehensive unit tests for selected code"
+    command: "Write comprehensive unit tests for this code. Include happy path, edge cases, and error scenarios. Use appropriate assertions and mocking. Follow the language's testing best practices."
+    category: "testing"
+    language: ""
+    framework: ""
+    tags: "testing,unit-tests,quality"
+    is_template: true
+
+  write_integration_tests:
+    description: "Generate integration tests for component interactions"
+    command: "Write integration tests that verify the interaction between these components. Test realistic scenarios, data flow, and error handling. Include setup and teardown as needed."
+    category: "testing"
+    language: ""
+    framework: ""
+    tags: "testing,integration-tests"
+    is_template: true
+
+  write_test_cases:
+    description: "List comprehensive test cases for functionality"
+    command: "List all test cases that should be written for this functionality. Include happy path, edge cases, boundary conditions, error scenarios, and security considerations. Organize by priority."
+    category: "testing"
+    language: ""
+    framework: ""
+    tags: "testing,test-cases,planning"
+    is_template: true
+
+  write_docstring:
+    description: "Generate comprehensive documentation for function/class"
+    command: "Write a comprehensive docstring/documentation comment for this function/class. Include description, parameters with types, return value, exceptions/errors, usage examples, and any important notes."
+    category: "documentation"
+    language: ""
+    framework: ""
+    tags: "documentation,comments"
+    is_template: true
+
+  write_api_docs:
+    description: "Generate API documentation for endpoint"
+    command: "Write complete API documentation for this endpoint. Include description, HTTP method, URL, request parameters, request body schema, response schema, status codes, error responses, and usage examples."
+    category: "documentation"
+    language: ""
+    framework: ""
+    tags: "documentation,api,openapi"
+    is_template: true
+
+  write_readme:
+    description: "Generate README documentation for project/module"
+    command: "Write a comprehensive README for this project/module. Include overview, features, installation instructions, usage examples, configuration, API reference, and contributing guidelines."
+    category: "documentation"
+    language: ""
+    framework: ""
+    tags: "documentation,readme,markdown"
+    is_template: true
+
+  explain_code:
+    description: "Explain how selected code works"
+    command: "Explain how this code works in detail. Break down the logic step by step, explain the purpose of each section, describe any algorithms or patterns used, and highlight any important edge cases."
+    category: "explanation"
+    language: ""
+    framework: ""
+    tags: "explanation,learning"
+    is_template: true
+
+  explain_algorithm:
+    description: "Explain algorithm implementation and complexity"
+    command: "Explain the algorithm implemented in this code. Describe its approach, time and space complexity, trade-offs, and when it should or shouldn't be used. Provide examples if helpful."
+    category: "explanation"
+    language: ""
+    framework: ""
+    tags: "explanation,algorithm,complexity"
+    is_template: true
+
+  review_security:
+    description: "Review code for security vulnerabilities"
+    command: "Review this code for security vulnerabilities. Check for injection attacks, authentication/authorization issues, data exposure, unsafe operations, and OWASP Top 10. Provide specific recommendations for each issue found."
+    category: "review"
+    language: ""
+    framework: ""
+    tags: "security,review,owasp"
+    is_template: true
+
+  review_best_practices:
+    description: "Review code against language/framework best practices"
+    command: "Review this code against best practices for the language and framework. Check code style, patterns, error handling, performance, and maintainability. Suggest specific improvements."
+    category: "review"
+    language: ""
+    framework: ""
+    tags: "review,best-practices,quality"
+    is_template: true
+
+  review_code_quality:
+    description: "Comprehensive code quality review"
+    command: "Perform a comprehensive code quality review. Check readability, maintainability, testability, error handling, naming, documentation, and adherence to SOLID principles. Rate each aspect and provide actionable feedback."
+    category: "review"
+    language: ""
+    framework: ""
+    tags: "review,quality,solid"
+    is_template: true
+
+  fix_bug:
+    description: "Analyze and fix bug in code"
+    command: "Analyze this code to identify and fix the bug. Explain what's causing the issue, provide the corrected code, and suggest how to prevent similar bugs. Add tests to verify the fix."
+    category: "debugging"
+    language: ""
+    framework: ""
+    tags: "debugging,fix,troubleshooting"
+    is_template: true
+
+  debug_trace:
+    description: "Add debug tracing to understand code flow"
+    command: "Add debug logging/print statements to trace the execution flow of this code. Show variable values at key points, function calls, and decision points. Help identify where the issue occurs."
+    category: "debugging"
+    language: ""
+    framework: ""
+    tags: "debugging,tracing,logging"
+    is_template: true
+
+  generate_boilerplate:
+    description: "Generate boilerplate code for common patterns"
+    command: "Generate boilerplate code following the specified pattern. Include proper structure, error handling, documentation, and follow language conventions. Make it production-ready."
+    category: "generation"
+    language: ""
+    framework: ""
+    tags: "generation,boilerplate,scaffold"
+    is_template: true
+
+  generate_crud_api:
+    description: "Generate CRUD API endpoints for a resource"
+    command: "Generate complete CRUD (Create, Read, Update, Delete) API endpoints for this resource. Include request/response models, validation, error handling, authentication, and proper HTTP methods/status codes."
+    category: "generation"
+    language: ""
+    framework: ""
+    tags: "generation,api,crud"
+    is_template: true
+
+  generate_model:
+    description: "Generate data model/schema with validation"
+    command: "Generate a data model/schema for this entity. Include appropriate fields, types, constraints, validation rules, relationships, and documentation. Follow framework conventions."
+    category: "generation"
+    language: ""
+    framework: ""
+    tags: "generation,model,schema"
+    is_template: true
+
+  convert_to_async:
+    description: "Convert synchronous code to async/await"
+    command: "Convert this synchronous code to use async/await (or language equivalent). Ensure proper error handling, avoid blocking operations, and maintain the same functionality. Add appropriate awaits and async keywords."
+    category: "refactoring"
+    language: ""
+    framework: ""
+    tags: "refactor,async,concurrency"
+    is_template: true
+
+  convert_language:
+    description: "Convert code from one language to another"
+    command: "Convert this code to the specified language. Maintain the same functionality while following the target language's idioms, conventions, and best practices. Add comments explaining language-specific changes."
+    category: "conversion"
+    language: ""
+    framework: ""
+    tags: "conversion,translation,porting"
+    is_template: true
+
+  add_type_hints:
+    description: "Add type annotations/hints to code"
+    command: "Add comprehensive type annotations/hints to this code. Include types for function parameters, return values, and variables where beneficial. Use appropriate generic types and union types as needed."
+    category: "improvement"
+    language: ""
+    framework: ""
+    tags: "types,typescript,python,go"
+    is_template: true
+
+  implement_interface:
+    description: "Implement interface or abstract class"
+    command: "Implement all methods required by this interface/abstract class. Provide meaningful implementations following the interface contract. Include proper error handling and documentation for each method."
+    category: "generation"
+    language: ""
+    framework: ""
+    tags: "generation,interface,implementation"
+    is_template: true
+
+  add_caching:
+    description: "Add caching layer to improve performance"
+    command: "Add a caching layer to this code to improve performance. Choose appropriate caching strategy (memoization, Redis, in-memory, etc.), implement cache invalidation, and handle cache misses gracefully."
+    category: "optimization"
+    language: ""
+    framework: ""
+    tags: "optimization,caching,performance"
+    is_template: true
+
+  add_pagination:
+    description: "Add pagination to list/query endpoint"
+    command: "Add pagination support to this list/query endpoint. Include page size, page number/cursor, total count, and navigation links. Handle edge cases and ensure efficient database queries."
+    category: "improvement"
+    language: ""
+    framework: ""
+    tags: "api,pagination,performance"
+    is_template: true
+
+  add_authentication:
+    description: "Add authentication to endpoint"
+    command: "Add authentication to this endpoint. Implement JWT/OAuth token validation, extract user information, handle unauthorized access, and update endpoint documentation with auth requirements."
+    category: "improvement"
+    language: ""
+    framework: ""
+    tags: "security,authentication,jwt"
+    is_template: true
+
+  add_authorization:
+    description: "Add authorization/permission checks"
+    command: "Add authorization checks to verify the user has permission to perform this action. Implement role-based or attribute-based access control. Return appropriate error messages for unauthorized access."
+    category: "improvement"
+    language: ""
+    framework: ""
+    tags: "security,authorization,rbac"
+    is_template: true
+
+  setup_ci_cd:
+    description: "Generate CI/CD pipeline configuration"
+    command: "Generate a CI/CD pipeline configuration for this project. Include build, test, lint, security scan, and deployment stages. Use appropriate tools and follow best practices for the platform."
+    category: "devops"
+    language: ""
+    framework: ""
+    tags: "devops,ci-cd,automation"
+    is_template: true
+
+  write_docker_file:
+    description: "Generate Dockerfile for application"
+    command: "Generate a production-ready Dockerfile for this application. Use multi-stage builds, optimize layer caching, run as non-root user, and follow Docker best practices. Include docker-compose if needed."
+    category: "devops"
+    language: "dockerfile"
+    framework: "docker"
+    tags: "devops,docker,containers"
+    is_template: true
+
+  migrate_database_schema:
+    description: "Generate database migration script"
+    command: "Generate a database migration script for these schema changes. Include both up and down migrations, handle data migration if needed, and ensure the migration is safe and reversible."
+    category: "database"
+    language: "sql"
+    framework: ""
+    tags: "database,migration,schema"
+    is_template: true

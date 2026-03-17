@@ -1,0 +1,12 @@
+# NOTE: Dependencies are now managed with Poetry
+# Use: poetry install
+# 
+# For legacy pip support, these are the requirements:
+pytest>=7.4.0
+pytest-html>=3.2.0
+requests>=2.31.0
+pytest-cov>=4.1.0
+pytest-timeout>=2.1.0
+pytest-xdist>=3.3.1
+pytest-asyncio>=0.21.0
+

@@ -1,0 +1,2988 @@
+prompts:
+  # === DESIGN & ARCHITECTURE ===
+
+  design_system_architecture:
+    title: Design System Architecture
+    description: Design system architecture with diagrams
+    system_prompt: You are a senior software architect with 15+ years of experience in designing scalable, maintainable systems.
+    user_prompt: |
+      Please design a comprehensive system architecture for {{system}} to solve {{problem}}.
+
+      Requirements:
+      - Technology stack: {{technologies}}
+      - Expected scale: {{scale}}
+      - Key non-functional requirements: {{nfr}}
+
+      Please provide:
+      1. High-level architecture diagram (C4 Context/Container level)
+      2. Component breakdown with responsibilities
+      3. Data flow and integration points
+      4. Technology choices and rationale
+      5. Scalability and performance considerations
+      6. Security architecture
+      7. Deployment strategy
+      8. Monitoring and observability approach
+
+      Include PlantUML diagrams for:
+      - System context diagram
+      - Component diagram
+      - Sequence diagram for key workflows
+    arguments:
+      - name: system
+        description: The system name or type to design architecture for
+        required: true
+      - name: problem
+        description: The problem this system aims to solve
+        required: true
+      - name: technologies
+        description: Technology stack to use (e.g., "Go, PostgreSQL, Redis, Kubernetes")
+        required: true
+      - name: scale
+        description: Expected scale (e.g., "10K users", "1M requests/day")
+        required: true
+      - name: nfr
+        description: Key non-functional requirements (e.g., "HA, 99.9% uptime, <100ms latency")
+        required: true
+    tags: design, architecture
+
+  design_api:
+    title: Design RESTful/GraphQL API
+    description: Design RESTful/GraphQL API
+    system_prompt: You are an API design expert specializing in RESTful and GraphQL APIs following industry best practices.
+    user_prompt: |
+      Please design a {{api_type}} API for {{domain}} with the following requirements:
+
+      Functional Requirements:
+      {{requirements}}
+
+      Please provide:
+      1. API endpoint design (REST) or Schema design (GraphQL)
+      2. Request/Response data models
+      3. Authentication and authorization strategy
+      4. Error handling and status codes
+      5. Versioning strategy
+      6. Rate limiting and pagination approach
+      7. API documentation (OpenAPI/Swagger format)
+      8. Example requests and responses
+
+      Follow best practices for:
+      - Resource naming and URL structure
+      - HTTP methods and status codes
+      - Idempotency and safety
+      - HATEOAS principles (for REST)
+      - Filtering, sorting, and pagination
+    arguments:
+      - name: api_type
+        description: API type (e.g., "REST", "GraphQL", "gRPC")
+        required: true
+      - name: domain
+        description: The domain or business area for this API (e.g., "e-commerce", "social media")
+        required: true
+      - name: requirements
+        description: Functional requirements for the API
+        required: true
+    tags: design, api
+
+  design_database_schema:
+    title: Design Database Schema
+    description: Design database schema with optimization
+    system_prompt: You are a database architect expert in relational and NoSQL database design, normalization, and optimization.
+    user_prompt: |
+      Please design a database schema for {{application}} using {{database_type}}.
+
+      Requirements:
+      {{requirements}}
+
+      Please provide:
+      1. Entity-Relationship Diagram (ERD)
+      2. Table definitions with columns, data types, and constraints
+      3. Indexes strategy for performance
+      4. Relationships and foreign keys
+      5. Normalization level and justification
+      6. Query optimization recommendations
+      7. Sharding/partitioning strategy (if applicable)
+      8. Migration scripts
+
+      Consider:
+      - Data integrity and consistency
+      - Query performance
+      - Scalability
+    arguments:
+      - name: application
+        description: The application or system this database supports
+        required: true
+      - name: database_type
+        description: Database type (e.g., "PostgreSQL", "MongoDB", "Cassandra")
+        required: true
+      - name: requirements
+        description: Data requirements and use cases
+        required: true
+    tags: design, database
+
+  design_microservices:
+    description: Design microservices architecture
+    system_prompt: You are a microservices architecture expert with deep knowledge of distributed systems, domain-driven design, and service mesh patterns.
+    user_prompt: |
+      Please design a microservices architecture for {{application}}.
+
+      Domain: {{domain}}
+      Business capabilities: {{capabilities}}
+
+      Please provide:
+      1. Service decomposition strategy (bounded contexts)
+      2. Service interaction patterns (sync/async)
+      3. Data management strategy (database per service, saga pattern)
+      4. API Gateway and service discovery
+      5. Inter-service communication (REST, gRPC, message queues)
+      6. Distributed transaction handling
+      7. Monitoring and distributed tracing
+      8. Deployment and orchestration (Kubernetes)
+      9. Failure handling and resilience patterns
+
+      Include diagrams showing:
+      - Service boundaries and responsibilities
+      - Communication patterns
+      - Data flow
+    tags: design, microservices
+
+  # === CODE GENERATION & IMPROVEMENT ===
+
+  generate_boilerplate:
+    description: Generate project boilerplate code
+    system_prompt: You are an expert in {{language}} and modern development practices.
+    user_prompt: |
+      Please generate a complete project boilerplate for a {{project_type}} using {{language}} and {{framework}}.
+
+      Include:
+      1. Project structure with folders and files
+      2. Configuration files (package.json, pom.xml, go.mod, etc.)
+      3. Main application entry point
+      4. Example module/component with best practices
+      5. Testing setup with example test
+      6. Logging and error handling utilities
+      7. Environment configuration management
+      8. Build and deployment scripts
+      9. Docker configuration
+      10. README with setup instructions
+
+      Follow best practices for:
+      - Code organization and modularity
+      - Dependency injection
+      - Configuration management
+      - Logging and monitoring
+    tags: code, generate
+
+  implement_design_pattern:
+    description: Implement design pattern with explanation
+    system_prompt: You are a software design patterns expert with deep understanding of Gang of Four patterns and modern architectural patterns.
+    user_prompt: |
+      Please implement the {{pattern}} design pattern in {{language}} for the following use case:
+
+      {{use_case}}
+
+      Provide:
+      1. Complete code implementation
+      2. UML class diagram showing pattern structure
+      3. Explanation of how the pattern solves the problem
+      4. Real-world usage examples
+      5. Pros and cons of using this pattern
+      6. Alternative patterns to consider
+      7. Unit tests demonstrating the pattern
+      8. Performance and scalability considerations
+    tags: code, design-patterns
+
+  refactor_to_solid:
+    description: Refactor code to follow SOLID principles
+    system_prompt: You are a code quality expert specializing in SOLID principles and clean code practices.
+    user_prompt: |
+      Please refactor the following {{language}} code to strictly follow SOLID principles:
+
+      ```
+      {{code}}
+      ```
+
+      For each SOLID principle, explain:
+      1. Single Responsibility Principle - How classes were split
+      2. Open/Closed Principle - How extensibility was improved
+      3. Liskov Substitution Principle - How inheritance was fixed
+      4. Interface Segregation Principle - How interfaces were refined
+      5. Dependency Inversion Principle - How dependencies were inverted
+
+      Provide:
+      - Refactored code with clear comments
+      - Before/After comparison
+      - UML diagrams showing the improved structure
+      - Explanation of each refactoring decision
+    tags: code, refactor, solid
+
+  add_error_handling:
+    description: Add comprehensive error handling
+    system_prompt: You are an expert in error handling, resilience patterns, and defensive programming.
+    user_prompt: |
+      Please add comprehensive error handling to the following {{language}} code:
+
+      ```
+      {{code}}
+      ```
+
+      Implement:
+      1. Try-catch/error handling at appropriate levels
+      2. Custom error types for specific failure scenarios
+      3. Error context and stack traces
+      4. Retry logic with exponential backoff
+      5. Circuit breaker pattern (if external calls)
+      6. Graceful degradation
+      7. Proper logging with error details
+      8. User-friendly error messages
+      9. Recovery strategies
+
+      Ensure code is production-ready with proper error handling.
+    tags: code, error-handling, resilience
+
+  add_observability:
+    description: Add logging, metrics, and tracing
+    system_prompt: You are an observability expert specializing in structured logging, metrics, distributed tracing, and APM.
+    user_prompt: |
+      Please add comprehensive observability to the following {{language}} code for {{component}}:
+
+      ```
+      {{code}}
+      ```
+
+      Implement:
+      1. Structured logging (JSON format) with log levels
+      2. Key metrics (counters, gauges, histograms, timers)
+      3. Distributed tracing with spans and trace IDs
+      4. Performance instrumentation
+      5. Error tracking and monitoring
+      6. Business metrics where applicable
+      7. Health check endpoints
+      8. Debug logging for troubleshooting
+
+      Use appropriate libraries for {{language}}:
+      - Logging: (suggest framework)
+      - Metrics: (suggest framework)
+      - Tracing: (suggest framework)
+
+      Provide dashboard queries for common scenarios.
+    tags: code, observability, monitoring
+
+  # === CODE REVIEW & QUALITY ===
+
+  code_review:
+    title: Request Code Review
+    description: Asks the LLM to analyze code quality and suggest improvements
+    system_prompt: You are an experienced code reviewer with expertise in software engineering best practices.
+    user_prompt: |
+      Please review the following code and provide feedback:
+
+      ```
+      {{code}}
+      ```
+
+      Focus on:
+      - Code quality and readability
+      - Potential bugs or issues
+      - Best practices and improvements
+      - Performance considerations
+
+      Provide specific, actionable suggestions for improvement.
+    arguments:
+      - name: code
+        description: The code to review
+        required: true
+    tags: review, code, quality
+
+  comprehensive_code_review:
+    title: Comprehensive Code Review
+    description: Perform multi-aspect comprehensive code review
+    system_prompt: You are a principal engineer conducting a thorough code review with expertise in security, performance, maintainability, and best practices.
+    user_prompt: |
+      Please perform a comprehensive code review of the following {{language}} code:
+
+      ```
+      {{code}}
+      ```
+
+      Review across multiple dimensions:
+
+      ## 1. Functionality & Correctness
+      - Logic errors and edge cases
+      - Null/undefined handling
+      - Boundary conditions
+      - Data validation
+
+      ## 2. Security
+      - Input validation and sanitization
+      - SQL injection, XSS, CSRF vulnerabilities
+      - Authentication and authorization
+      - Sensitive data handling
+      - Dependency vulnerabilities
+
+      ## 3. Performance
+      - Time/space complexity analysis
+      - Database query optimization
+      - Caching opportunities
+      - Memory leaks
+      - Concurrency issues
+
+      ## 4. Code Quality
+      - SOLID principles adherence
+      - Design patterns usage
+      - Code smells and anti-patterns
+      - Readability and maintainability
+      - Test coverage
+
+      ## 5. Best Practices
+      - Language-specific idioms
+      - Error handling
+      - Logging and monitoring
+      - Documentation
+
+      For each issue found, provide:
+      - Severity (Critical/High/Medium/Low)
+      - Explanation
+      - Code example of the fix
+      - Learning resources
+
+      Provide an overall quality score (0-10) and priority recommendations.
+    arguments:
+      - name: code
+        description: The code to review
+        required: true
+      - name: language
+        description: Programming language of the code
+        required: true
+    tags: review, quality, security
+
+  # === TESTING ===
+
+  write_integration_tests:
+    description: Write integration tests
+    system_prompt: You are a testing expert specializing in integration testing strategies and test automation.
+    user_prompt: |
+      Please write comprehensive integration tests for the following {{language}} {{component}}:
+
+      ```
+      {{code}}
+      ```
+
+      Requirements:
+      - Test framework: {{test_framework}}
+      - Integration points: {{integrations}}
+
+      Create tests that:
+      1. Test API endpoints end-to-end
+      2. Test database integration with test containers
+      3. Test external service integration (with mocking)
+      4. Test async/event-driven flows
+      5. Test error scenarios and retries
+      6. Test data consistency across services
+      7. Setup and teardown procedures
+      8. Test data builders/factories
+
+      Use best practices:
+      - Arrange-Act-Assert pattern
+      - Test isolation and independence
+      - Meaningful test names
+      - Proper assertions
+      - Test containers for databases
+      - WireMock for external APIs
+    tags: test, integration
+
+  write_e2e_tests:
+    description: Write end-to-end tests
+    system_prompt: You are an E2E testing expert with experience in Selenium, Cypress, Playwright, and test automation frameworks.
+    user_prompt: |
+      Please write end-to-end tests for the following user journey in {{application}}:
+
+      User Story:
+      {{user_story}}
+
+      Test Scenarios:
+      {{scenarios}}
+
+      Create E2E tests using {{framework}} that:
+      1. Test complete user workflows
+      2. Test UI interactions and validations
+      3. Test data flow across multiple pages
+      4. Test positive and negative scenarios
+      5. Handle async operations and waiting
+      6. Take screenshots on failures
+      7. Generate test reports
+      8. Support parallel execution
+
+      Include:
+      - Page Object Model (POM) implementation
+      - Reusable test utilities
+      - Test data management
+      - CI/CD integration configuration
+    tags: test, e2e
+
+  write_performance_tests:
+    description: Write performance and load tests
+    system_prompt: You are a performance testing expert with experience in load testing, stress testing, and performance optimization.
+    user_prompt: |
+      Please write performance tests for {{component}} handling {{expected_load}}.
+
+      System under test:
+      {{system_description}}
+
+      Create performance tests using {{tool}} (JMeter, K6, Gatling, Locust) that:
+      1. Simulate realistic user load patterns
+      2. Test various load scenarios:
+         - Normal load
+         - Peak load
+         - Stress testing (breaking point)
+         - Spike testing
+         - Endurance testing
+      3. Measure key metrics:
+         - Response time (p50, p95, p99)
+         - Throughput (requests/sec)
+         - Error rate
+         - Resource utilization
+      4. Include ramp-up and ramp-down phases
+      5. Generate performance reports
+      6. Define SLAs and assertions
+      7. Provide CI/CD integration
+
+      Also provide:
+      - Performance baseline
+      - Bottleneck analysis approach
+      - Optimization recommendations
+    tags: test, performance
+
+  generate_test_data:
+    description: Generate realistic test data
+    system_prompt: You are a test data management expert who creates realistic, comprehensive test data for various testing scenarios.
+    user_prompt: |
+      Please generate realistic test data for {{entity}} in {{domain}}.
+
+      Data requirements:
+      {{requirements}}
+
+      Generate:
+      1. Test data factories/builders in {{language}}
+      2. Valid test data covering:
+         - Happy path scenarios
+         - Edge cases
+         - Boundary values
+      3. Invalid test data for negative testing
+      4. Bulk test data for performance testing
+      5. SQL/NoSQL seed data scripts
+      6. API payload examples
+      7. CSV/JSON data files
+
+      Ensure data:
+      - Follows domain constraints
+      - Represents realistic scenarios
+      - Covers all edge cases
+      - Is privacy-compliant (no real PII)
+      - Supports data-driven testing
+    tags: test, test-data
+
+  # === DEBUGGING & TROUBLESHOOTING ===
+
+  debug_production_issue:
+    description: Debug production issue systematically
+    system_prompt: You are a senior SRE and debugging expert with deep knowledge of production troubleshooting, log analysis, and root cause analysis.
+    user_prompt: |
+      Please help debug the following production issue:
+
+      **Symptoms:**
+      {{symptoms}}
+
+      **Error Messages:**
+      {{error_messages}}
+
+      **Relevant Logs:**
+      {{logs}}
+
+      **System Context:**
+      - Application: {{application}}
+      - Environment: {{environment}}
+      - Recent changes: {{changes}}
+
+      Provide a systematic debugging approach:
+
+      ## 1. Problem Analysis
+      - Symptom analysis
+      - Error pattern identification
+      - Impact assessment
+
+      ## 2. Hypothesis Generation
+      - List 5-7 possible root causes ranked by likelihood
+      - For each hypothesis, explain the reasoning
+
+      ## 3. Investigation Steps
+      - Specific commands to run
+      - Logs to check
+      - Metrics to analyze
+      - Tests to perform
+
+      ## 4. Root Cause Analysis
+      - Most likely root cause
+      - Supporting evidence
+      - Why other hypotheses were ruled out
+
+      ## 5. Resolution
+      - Immediate fix (hotfix if needed)
+      - Long-term solution
+      - Prevention measures
+
+      ## 6. Follow-up
+      - Monitoring to add
+      - Tests to implement
+      - Documentation to update
+    tags: debug, troubleshoot, production
+
+  analyze_performance_issue:
+    description: Analyze and fix performance bottlenecks
+    system_prompt: You are a performance optimization expert with expertise in profiling, benchmarking, and performance tuning across different technology stacks.
+    user_prompt: |
+      Please analyze the following performance issue:
+
+      **Problem:**
+      {{problem}}
+
+      **Performance Metrics:**
+      {{metrics}}
+
+      **Code:**
+      ```
+      {{code}}
+      ```
+
+      Perform analysis:
+
+      ## 1. Performance Profiling
+      - Identify bottlenecks (CPU, memory, I/O, network)
+      - Analyze algorithm complexity
+      - Review database queries
+      - Check resource utilization
+
+      ## 2. Root Cause Identification
+      - Primary bottleneck
+      - Contributing factors
+      - Quantify impact
+
+      ## 3. Optimization Recommendations
+      Priority-ranked optimizations with:
+      - Specific code changes
+      - Expected improvement
+      - Implementation complexity
+      - Risk assessment
+
+      ## 4. Optimized Code
+      - Refactored code with improvements
+      - Before/After performance comparison
+      - Benchmark results
+
+      ## 5. Long-term Improvements
+      - Architecture changes to consider
+      - Caching strategies
+      - Scaling options
+      - Monitoring recommendations
+    tags: debug, performance, optimization
+
+  # === DOCUMENTATION ===
+
+  write_technical_doc:
+    description: Write comprehensive technical documentation
+    system_prompt: You are a technical documentation expert who creates clear, comprehensive documentation for technical audiences.
+    user_prompt: |
+      Please create comprehensive technical documentation for {{component}}.
+
+      **Component Description:**
+      {{description}}
+
+      **Code:**
+      ```
+      {{code}}
+      ```
+
+      Create documentation with:
+
+      ## 1. Overview
+      - Purpose and scope
+      - Key features
+      - Architecture overview
+
+      ## 2. Getting Started
+      - Prerequisites
+      - Installation
+      - Quick start example
+      - Configuration
+
+      ## 3. Architecture & Design
+      - Component diagram
+      - Data flow
+      - Key design decisions
+      - Integration points
+
+      ## 4. API Reference
+      - All public APIs/methods
+      - Parameters and return types
+      - Code examples
+      - Error codes
+
+      ## 5. Usage Guide
+      - Common use cases
+      - Best practices
+      - Code examples
+      - Configuration options
+
+      ## 6. Operations Guide
+      - Deployment
+      - Monitoring
+      - Troubleshooting
+      - Performance tuning
+
+      ## 7. Development Guide
+      - Development setup
+      - Build process
+      - Testing
+      - Contributing guidelines
+
+      Use clear language, diagrams, and plenty of code examples.
+    tags: documentation, technical-writing
+
+  # === DEVOPS & CI/CD ===
+
+  setup_cicd_pipeline:
+    description: Setup CI/CD pipeline
+    system_prompt: You are a DevOps expert specializing in CI/CD, automation, and modern deployment practices.
+    user_prompt: |
+      Please create a complete CI/CD pipeline for {{application}} using {{ci_tool}}.
+
+      **Tech Stack:**
+      {{tech_stack}}
+
+      **Deployment Target:**
+      {{deployment_target}}
+
+      Create pipeline configuration that includes:
+
+      ## 1. Build Stage
+      - Checkout code
+      - Install dependencies
+      - Compile/build application
+      - Run static code analysis
+      - Security scanning
+
+      ## 2. Test Stage
+      - Unit tests
+      - Integration tests
+      - Code coverage reports
+      - Test result publishing
+
+      ## 3. Package Stage
+      - Build Docker image
+      - Tag with version
+      - Security scanning
+      - Push to registry
+
+      ## 4. Deploy Stage
+      - Deploy to staging
+      - Smoke tests
+      - Deploy to production (with approval)
+      - Health checks
+      - Rollback mechanism
+
+      ## 5. Post-Deployment
+      - Monitoring integration
+      - Notification setup
+      - Deployment metrics
+
+      Include:
+      - Pipeline configuration file
+      - Docker files
+      - Kubernetes manifests (if applicable)
+      - Scripts for automation
+      - Documentation
+    tags: devops, cicd, automation
+
+  setup_monitoring:
+    description: Setup comprehensive monitoring and alerting
+    system_prompt: You are a Site Reliability Engineer expert in observability, monitoring, and incident management.
+    user_prompt: |
+      Please setup comprehensive monitoring for {{application}}.
+
+      **System Description:**
+      {{description}}
+
+      **SLOs:**
+      {{slos}}
+
+      Create monitoring setup including:
+
+      ## 1. Metrics Collection
+      - Application metrics (RED method)
+        - Request rate
+        - Error rate
+        - Duration (latency)
+      - System metrics (USE method)
+        - Utilization
+        - Saturation
+        - Errors
+      - Business metrics
+
+      ## 2. Logging
+      - Structured logging setup
+      - Log aggregation configuration
+      - Log retention policy
+      - Search and analysis queries
+
+      ## 3. Tracing
+      - Distributed tracing setup
+      - Trace sampling strategy
+      - Trace analysis queries
+
+      ## 4. Alerting
+      - SLO-based alerts
+      - Error budget alerts
+      - Threshold-based alerts
+      - Alert routing and escalation
+
+      ## 5. Dashboards
+      - Service health dashboard
+      - SLO dashboard
+      - Troubleshooting dashboard
+      - Business metrics dashboard
+
+      ## 6. Runbooks
+      - Common issues and resolutions
+      - Escalation procedures
+      - On-call playbook
+
+      Provide configurations for:
+      - Prometheus/Grafana
+      - ELK/EFK stack
+      - Jaeger/Zipkin
+      - PagerDuty/Opsgenie
+    tags: devops, monitoring, sre
+
+  # === SECURITY ===
+
+  security_audit:
+    description: Perform comprehensive security audit
+    system_prompt: You are a security expert specializing in application security, penetration testing, and secure code review.
+    user_prompt: |
+      Please perform a comprehensive security audit of the following code:
+
+      ```
+      {{code}}
+      ```
+
+      **Application Context:**
+      {{context}}
+
+      Audit for:
+
+      ## 1. OWASP Top 10 Vulnerabilities
+      - Injection (SQL, NoSQL, OS, LDAP)
+      - Broken Authentication
+      - Sensitive Data Exposure
+      - XML External Entities (XXE)
+      - Broken Access Control
+      - Security Misconfiguration
+      - Cross-Site Scripting (XSS)
+      - Insecure Deserialization
+      - Using Components with Known Vulnerabilities
+      - Insufficient Logging & Monitoring
+
+      ## 2. Security Best Practices
+      - Input validation and sanitization
+      - Output encoding
+      - Authentication mechanisms
+      - Authorization checks
+      - Session management
+      - Cryptography usage
+      - Error handling
+      - Secure configuration
+
+      ## 3. Infrastructure Security
+      - API security
+      - Database security
+      - Network security
+      - Container security
+
+      For each issue found:
+      - Severity rating (Critical/High/Medium/Low)
+      - Exploit scenario
+      - Impact assessment
+      - Remediation code
+      - Testing approach
+
+      Provide:
+      - Executive summary
+      - Detailed findings
+      - Remediation plan
+      - Security checklist
+    tags: security, audit, owasp
+
+  implement_auth:
+    description: Implement secure authentication and authorization
+    system_prompt: You are a security expert specializing in authentication, authorization, and identity management.
+    user_prompt: |
+      Please implement secure authentication and authorization for {{application}} using {{auth_method}}.
+
+      **Requirements:**
+      {{requirements}}
+
+      Implement:
+
+      ## 1. Authentication
+      - User registration with validation
+      - Login with password hashing (bcrypt/Argon2)
+      - JWT/Session token management
+      - Token refresh mechanism
+      - Multi-factor authentication (optional)
+      - Password reset flow
+      - Account lockout after failed attempts
+
+      ## 2. Authorization
+      - Role-based access control (RBAC)
+      - Permission system
+      - Resource-level authorization
+      - API endpoint protection
+      - Admin vs. user roles
+
+      ## 3. Security Features
+      - CSRF protection
+      - XSS prevention
+      - Rate limiting
+      - Secure session management
+      - Secure cookie configuration
+      - Input validation and sanitization
+
+      ## 4. Best Practices
+      - Password strength requirements
+      - Secure password storage
+      - Audit logging
+      - Security headers
+      - HTTPS enforcement
+
+      Provide:
+      - Complete implementation code
+      - Database schema
+      - API endpoints
+      - Test cases
+      - Security checklist
+    tags: security, authentication, authorization
+
+  # === MIGRATION & MODERNIZATION ===
+
+  migrate_to_microservices:
+    description: Migrate monolith to microservices
+    system_prompt: You are a software architect expert in microservices migration, domain-driven design, and gradual migration strategies.
+    user_prompt: |
+      Please create a migration plan to move {{monolith}} from monolithic architecture to microservices.
+
+      **Current System:**
+      {{current_system}}
+
+      **Business Domains:**
+      {{domains}}
+
+      Create a migration strategy:
+
+      ## 1. Assessment
+      - Current architecture analysis
+      - Identify bounded contexts
+      - Define service boundaries
+      - Dependency mapping
+
+      ## 2. Migration Strategy
+      - Strangler pattern approach
+      - Service extraction order (priority)
+      - Data migration strategy
+      - API versioning strategy
+
+      ## 3. Service Decomposition
+      For each microservice:
+      - Service responsibilities
+      - API contracts
+      - Data ownership
+      - Dependencies
+
+      ## 4. Implementation Phases
+      - Phase 1: Extract first service (low-risk)
+      - Phase 2: Core services
+      - Phase 3: Remaining services
+      - Phase 4: Decommission monolith
+
+      ## 5. Technical Approach
+      - API Gateway pattern
+      - Service mesh (if needed)
+      - Inter-service communication
+      - Distributed transaction handling
+      - Monitoring and observability
+
+      ## 6. Risk Mitigation
+      - Rollback strategies
+      - Feature flags
+      - Parallel run periods
+      - Testing strategy
+
+      Provide:
+      - Migration roadmap with timeline
+      - Effort estimates
+      - Risk assessment
+      - Success metrics
+    tags: architecture, migration, microservices
+
+  upgrade_dependencies:
+    description: Upgrade dependencies safely
+    system_prompt: You are a software maintenance expert specializing in dependency management, version upgrades, and breaking change migration.
+    user_prompt: |
+      Please create a plan to upgrade {{package}} from version {{old_version}} to {{new_version}}.
+
+      **Current Code:**
+      ```
+      {{code}}
+      ```
+
+      Create upgrade plan:
+
+      ## 1. Impact Analysis
+      - Breaking changes review
+      - Affected code areas
+      - Dependency conflicts
+      - Risk assessment
+
+      ## 2. Migration Steps
+      - Pre-upgrade checklist
+      - Step-by-step upgrade procedure
+      - Code changes required
+      - Configuration changes
+      - Database migrations (if any)
+
+      ## 3. Code Updates
+      - Updated code with changes
+      - API changes handled
+      - Deprecated API replacements
+      - New features adoption
+
+      ## 4. Testing Strategy
+      - Unit test updates
+      - Integration test updates
+      - Regression testing plan
+      - Performance testing
+
+      ## 5. Deployment Plan
+      - Staging deployment
+      - Canary deployment
+      - Rollback plan
+      - Monitoring plan
+
+      ## 6. Documentation
+      - Change log
+      - Updated documentation
+      - Team communication
+
+      Provide:
+      - Complete migration code
+      - Test coverage
+      - Rollback procedure
+    tags: maintenance, upgrade, dependencies
+
+  # === DATABASE ===
+
+  optimize_database_queries:
+    description: Optimize slow database queries
+    system_prompt: You are a database optimization expert with deep knowledge of query optimization, indexing strategies, and database performance tuning.
+    user_prompt: |
+      Please optimize the following slow database queries:
+
+      **Database:** {{database_type}}
+
+      **Slow Queries:**
+      ```sql
+      {{queries}}
+      ```
+
+      **Execution Plans:**
+      {{execution_plans}}
+
+      Provide optimization:
+
+      ## 1. Query Analysis
+      - Execution plan interpretation
+      - Identify bottlenecks (table scans, missing indexes, etc.)
+      - Query complexity analysis
+
+      ## 2. Index Recommendations
+      - Missing indexes to create
+      - Index type (B-tree, hash, full-text, etc.)
+      - Composite indexes
+      - Index maintenance considerations
+
+      ## 3. Query Optimization
+      - Rewritten queries with improvements
+      - JOIN optimization
+      - Subquery optimization
+      - Use of CTEs where appropriate
+      - Pagination improvements
+
+      ## 4. Schema Improvements
+      - Table structure optimization
+      - Normalization/denormalization suggestions
+      - Partitioning strategy
+
+      ## 5. Application-Level Optimization
+      - Caching strategy
+      - N+1 query elimination
+      - Batch operations
+      - Read replicas usage
+
+      ## 6. Monitoring
+      - Queries to monitor
+      - Metrics to track
+      - Alert thresholds
+
+      Provide:
+      - Optimized queries
+      - Index creation scripts
+      - Performance comparison (before/after)
+      - Implementation guide
+    tags: database, optimization, performance
+
+  # === AI/ML Related ===
+
+  implement_feature_extraction:
+    description: Implement feature extraction for ML
+    system_prompt: You are a machine learning engineer expert in feature engineering, data preprocessing, and ML pipelines.
+    user_prompt: |
+      Please implement feature extraction for {{ml_task}} using {{framework}}.
+
+      **Dataset Description:**
+      {{dataset}}
+
+      **Target Variable:**
+      {{target}}
+
+      Implement:
+
+      ## 1. Data Exploration
+      - Statistical analysis
+      - Missing value analysis
+      - Outlier detection
+      - Correlation analysis
+
+      ## 2. Feature Engineering
+      - Numerical features
+        - Scaling/normalization
+        - Binning/discretization
+        - Polynomial features
+      - Categorical features
+        - One-hot encoding
+        - Label encoding
+        - Target encoding
+      - Text features
+        - TF-IDF
+        - Word embeddings
+      - Time series features
+        - Lag features
+        - Rolling statistics
+      - Domain-specific features
+
+      ## 3. Feature Selection
+      - Correlation-based selection
+      - Feature importance
+      - Dimensionality reduction (PCA, etc.)
+
+      ## 4. Pipeline Implementation
+      - sklearn Pipeline
+      - Feature transformers
+      - Cross-validation setup
+
+      ## 5. Validation
+      - Train/test split
+      - Feature distribution comparison
+      - Data leakage prevention
+
+      Provide:
+      - Complete pipeline code
+      - Feature analysis visualizations
+      - Performance metrics
+    tags: ml, feature-engineering, data-science
+
+  # Keep existing prompts that are good...
+  # (Selected best prompts from original file)
+
+  summarize:
+    description: Summarize code with UML and mindmap diagrams
+    system_prompt: You are an expert in {{language}} and a professional code summarizer with expertise in creating clear visual representations.
+    user_prompt: |
+      Please provide a comprehensive summary of the following code with multiple views:
+
+      ## 1. High-Level Summary
+      - Purpose and functionality
+      - Key components and their roles
+      - Main algorithms and data structures
+      - External dependencies
+
+      ## 2. UML Class Diagram
+      Generate PlantUML class diagram showing:
+      ```plantuml
+      @startuml
+      ' Classes, interfaces, and relationships
+      @enduml
+      ```
+
+      ## 3. Component/Package Diagram
+      Show high-level architecture:
+      ```plantuml
+      @startuml
+      ' Components and their dependencies
+      @enduml
+      ```
+
+      ## 4. Key Workflows (Sequence Diagram)
+      For main operations, show interactions:
+      ```plantuml
+      @startuml
+      ' Sequence of operations
+      @enduml
+      ```
+
+      ## 5. Mindmap Overview
+      Create mindmap showing code organization:
+      ```plantuml
+      @startmindmap
+      * {{Component Name}}
+      ** Architecture
+      *** Layers/Components
+      ** Key Features
+      *** Feature 1
+      *** Feature 2
+      ** Dependencies
+      ** Design Patterns
+      @endmindmap
+      ```
+
+      ## 6. Code Metrics
+      - Lines of code
+      - Cyclomatic complexity
+      - Test coverage areas
+
+      Code to analyze:
+      ```
+      {{code}}
+      ```
+    tags: code, analysis, documentation
+
+  write_go_unit_test:
+    description: Write Go unit tests with best practices
+    system_prompt: You are an expert Go developer specializing in testing, mocking, and Go best practices.
+    user_prompt: |
+      You are tasked with generating comprehensive, production-quality unit tests for Go code.
+
+      **Testing Requirements:**
+
+      1. **Test Framework & Tools**
+         - Use standard `testing` package
+         - Include `testify/assert` for readable assertions
+         - Use `testify/mock` for mocking when needed
+         - Add `github.com/stretchr/testify/suite` for test suites when appropriate
+
+      2. **Test Structure**
+         - File naming: `<filename>_test.go`
+         - Function naming: `TestFunctionName` for unit tests
+         - Benchmark naming: `BenchmarkFunctionName` for benchmarks
+         - Example naming: `ExampleFunctionName` for examples
+
+      3. **Test Coverage**
+         - Success cases with typical inputs
+         - Edge cases (empty, nil, boundary values)
+         - Error cases and error handling
+         - Concurrent scenarios (if applicable)
+         - Context cancellation (if using context)
+
+      4. **Table-Driven Tests**
+         - Use table-driven approach for multiple scenarios
+         - Structure: `tests := []struct{ name, input, want, wantErr }`
+         - Use `t.Run(tt.name, func(t *testing.T) {})` for subtests
+
+      5. **Mocking Strategy**
+         - Interface-based mocking for dependencies
+         - Mock external services, databases, APIs
+         - Use dependency injection
+         - Verify mock expectations
+
+      6. **Best Practices**
+         - Tests should be deterministic
+         - No external dependencies (network, file system, databases)
+         - Use test fixtures and builders
+         - Clean setup and teardown
+         - Clear, descriptive test names
+         - Use `t.Helper()` for test helper functions
+         - Add comments for complex test scenarios
+
+      7. **Special Considerations**
+         - For goroutines: use sync.WaitGroup, channels, or time.After for coordination
+         - For race conditions: ensure tests can run with `-race` flag
+         - For HTTP handlers: use `httptest.NewRecorder` and `httptest.NewRequest`
+         - For time-dependent code: allow time to be injectable/mockable
+
+      8. **Coverage Goals**
+         - Aim for >80% code coverage
+         - Focus on critical paths and business logic
+         - Don't test trivial getters/setters
+         - Ensure error paths are tested
+
+      **Go Code to Test:**
+      ```go
+      {{code}}
+      ```
+
+      Please generate:
+      1. Complete test file with package declaration and imports
+      2. All necessary mocks and test helpers
+      3. Table-driven tests for main functions
+      4. Edge case and error scenario tests
+      5. Example functions if the API is public
+      6. Benchmarks for performance-critical code
+      7. Test helper functions with `t.Helper()`
+    tags: test, go, unit-test
+
+  write_java_unit_test:
+    description: Write Java unit tests with Spring Boot support
+    system_prompt: You are an expert Java developer specializing in testing with JUnit 5, Mockito, Spring Boot Test, and testing best practices.
+    user_prompt: |
+      Generate production-quality unit tests for the following Java code.
+
+      **Testing Stack:**
+      - JUnit 5 (Jupiter)
+      - Mockito for mocking
+      - AssertJ for fluent assertions
+      - Spring Boot Test (if Spring components)
+      - MockMvc for controllers
+
+      **Test Requirements:**
+
+      1. **Test Structure**
+         - Use `@ExtendWith(MockitoExtension.class)` or `@SpringBootTest`
+         - Clear test method naming: `should_ExpectedBehavior_When_Condition()`
+         - Organize with `@Nested` classes for related tests
+
+      2. **Mocking Strategy**
+         - Use `@Mock` for dependencies
+         - Use `@InjectMocks` for class under test
+         - Use `@MockBean` for Spring beans
+         - Verify interactions with `verify()`
+
+      3. **Test Coverage**
+         - Happy path scenarios
+         - Error conditions and exceptions
+         - Boundary values and edge cases
+         - Null handling
+         - Validation scenarios
+
+      4. **For Service Classes:**
+         - Mock all dependencies
+         - Test business logic thoroughly
+         - Verify repository/DAO calls
+         - Test transaction boundaries
+         - Test exception handling
+
+      5. **For Controllers:**
+         - Use `@WebMvcTest` for focused tests
+         - Use `MockMvc` for endpoint testing
+         - Test request mapping
+         - Test request/response serialization
+         - Test validation
+         - Test error responses
+
+      6. **For Repositories:**
+         - Use `@DataJpaTest` with H2/TestContainers
+         - Test custom queries
+         - Test relationships and cascading
+         - Verify transaction behavior
+
+      7. **Best Practices:**
+         - Follow AAA pattern (Arrange-Act-Assert)
+         - Use Given-When-Then in BDD style
+         - One assertion per test (when possible)
+         - Use `@BeforeEach` for setup
+         - Use `@ParameterizedTest` for multiple inputs
+         - Clear, descriptive test names
+
+      **Java Code:**
+      ```java
+      {{code}}
+      ```
+
+      Generate:
+      1. Complete test class with annotations
+      2. Setup and teardown methods
+      3. Comprehensive test methods
+      4. Mock configurations
+      5. Test data builders/fixtures
+      6. Helper methods for common operations
+    tags: test, java, unit-test, spring
+
+  review_merge_request:
+    description: Comprehensive merge request review
+    system_prompt: You are a senior software engineer conducting a thorough merge request review with focus on quality, security, and maintainability.
+    user_prompt: |
+      Please review the following merge request/pull request:
+
+      **MR Title:** {{mr_title}}
+      **Description:** {{mr_description}}
+
+      **Changes:**
+      {{code}}
+
+      Perform comprehensive review:
+
+      ## 1. Code Changes Review
+      - Correctness and logic
+      - Edge cases handling
+      - Error handling
+      - Performance implications
+      - Security concerns
+
+      ## 2. Code Quality
+      - Readability and clarity
+      - Naming conventions
+      - Code duplication
+      - Complexity (cyclomatic)
+      - SOLID principles adherence
+
+      ## 3. Testing
+      - Test coverage (unit, integration)
+      - Test quality and assertions
+      - Missing test scenarios
+      - Test maintainability
+
+      ## 4. Design & Architecture
+      - Architectural consistency
+      - Design patterns usage
+      - API design
+      - Database schema changes
+      - Backward compatibility
+
+      ## 5. Documentation
+      - Code comments quality
+      - API documentation
+      - README updates
+      - Changelog entries
+
+      ## 6. DevOps & Operations
+      - Configuration changes
+      - Migration scripts
+      - Deployment considerations
+      - Monitoring/logging additions
+      - Performance implications
+
+      ## 7. Security Review
+      - Input validation
+      - Authentication/authorization
+      - Sensitive data handling
+      - Dependency vulnerabilities
+      - Secure coding practices
+
+      Provide:
+      - Overall assessment (APPROVE/REQUEST_CHANGES/COMMENT)
+      - Blocking issues (must fix before merge)
+      - Non-blocking suggestions
+      - Positive feedback (what's done well)
+      - Learning resources for improvement
+    tags: review, code-review, merge-request
+
+  write_rca:
+    description: Write comprehensive Root Cause Analysis
+    system_prompt: You are an experienced Site Reliability Engineer and incident management expert skilled at conducting thorough root cause analyses.
+    user_prompt: |
+      Please create a comprehensive Root Cause Analysis (RCA) for the following incident:
+
+      **Incident Information:**
+      - Description: {{incident_description}}
+      - Impact: {{incident_affection}}
+      - Detection: {{incident_detection_method}}
+      - Root Cause: {{incident_reason}}
+      - Resolution: {{incident_solution}}
+      - Duration: {{duration}}
+      - Affected Users: {{affected_users}}
+
+      **Generate RCA Document:**
+
+      # Root Cause Analysis - {{incident_title}}
+
+      ## Executive Summary
+      [Provide a 2-3 paragraph executive summary suitable for leadership]
+
+      ## Incident Overview
+
+      | Metric | Value |
+      |--------|-------|
+      | Incident ID | {{incident_id}} |
+      | Severity | {{severity}} |
+      | Impact Start | {{start_time}} UTC |
+      | Impact End | {{end_time}} UTC |
+      | Total Duration | X hours Y minutes |
+      | Affected Users | {{affected_users}} |
+      | Detection Method | {{detection_method}} |
+      | Status | Resolved |
+
+      ## Impact Assessment
+
+      ### User Impact
+      - Number of affected users/accounts
+      - Service degradation details
+      - Business impact
+
+      ### System Impact
+      - Affected services/components
+      - Downstream dependencies
+      - Data integrity concerns
+
+      ## Timeline (UTC)
+
+      | Time | Event | Cumulative Impact |
+      |------|-------|-------------------|
+      | T+0min  | [Incident start] | 0min |
+      | T+Xmin  | [Detection] | Xmin |
+      | T+Ymin  | [Investigation begins] | Ymin |
+      | T+Zmin  | [Root cause identified] | Zmin |
+      | T+Amin  | [Fix deployed] | Amin |
+      | T+Bmin  | [Service restored] | Bmin |
+
+      ## Root Cause Analysis
+
+      ### Five Whys
+      1. Why did {{initial_symptom}}?
+         - Because {{reason1}}
+      2. Why {{reason1}}?
+         - Because {{reason2}}
+      3. Why {{reason2}}?
+         - Because {{reason3}}
+      4. Why {{reason3}}?
+         - Because {{reason4}}
+      5. Why {{reason4}}?
+         - Because {{root_cause}}
+
+      ### Root Cause
+      [Detailed explanation of the root cause]
+
+      ### Contributing Factors
+      - Factor 1: [Description]
+      - Factor 2: [Description]
+      - Factor 3: [Description]
+
+      ## Detection Analysis
+
+      ### How was it detected?
+      - [ ] Automated monitoring/alerting
+      - [ ] User reports
+      - [ ] Internal discovery
+      - [ ] Third-party notification
+
+      ### Detection Gaps
+      [What should have alerted us earlier?]
+
+      ## Resolution
+
+      ### Immediate Actions Taken
+      1. [Action 1]
+      2. [Action 2]
+      3. [Action 3]
+
+      ### Why Resolution Worked
+      [Explain why the fix addressed the root cause]
+
+      ## Prevention & Follow-up
+
+      ### Immediate Action Items (1-2 weeks)
+
+      | Action | Owner | Due Date | Priority | Status |
+      |--------|-------|----------|----------|--------|
+      | [Action] | [@owner] | YYYY-MM-DD | High | Pending |
+
+      ### Short-term Action Items (1-3 months)
+
+      | Action | Owner | Due Date | Priority | Status |
+      |--------|-------|----------|----------|--------|
+      | [Action] | [@owner] | YYYY-MM-DD | Medium | Pending |
+
+      ### Long-term Improvements (3-6 months)
+
+      | Action | Owner | Due Date | Priority | Status |
+      |--------|-------|----------|----------|--------|
+      | [Action] | [@owner] | YYYY-MM-DD | Low | Pending |
+
+      ### Process Improvements
+      - [Process change 1]
+      - [Process change 2]
+
+      ### Technical Improvements
+      - [Technical improvement 1]
+      - [Technical improvement 2]
+
+      ## Lessons Learned
+
+      ### What Went Well
+      - [Positive aspect 1]
+      - [Positive aspect 2]
+
+      ### What Could Be Improved
+      - [Improvement area 1]
+      - [Improvement area 2]
+
+      ### Knowledge Sharing
+      - [Key learning 1]
+      - [Key learning 2]
+
+      ## Appendix
+
+      ### Related Incidents
+      - [Related incident 1]
+      - [Related incident 2]
+
+      ### Graphs & Metrics
+      [Attach relevant graphs showing the incident impact]
+
+      ### Logs & Evidence
+      [Key log entries or evidence]
+
+      ### References
+      - [Reference docs]
+      - [Related tickets]
+    tags: tools, rca, incident-management
+
+  # === BUG FIXING & DEBUGGING ===
+
+  fix_bug:
+    description: Systematic bug fixing with root cause analysis
+    system_prompt: You are an expert debugger and software engineer skilled in identifying and fixing bugs systematically.
+    user_prompt: |
+      Please fix the following bug in {{language}} code:
+
+      **Bug Description:**
+      {{issue}}
+
+      **Code Purpose:**
+      {{explain}}
+
+      **Current Code:**
+      ```
+      {{code}}
+      ```
+
+      Provide systematic bug fix:
+
+      ## 1. Bug Analysis
+      - Symptom description
+      - Root cause identification
+      - Impact assessment
+      - Why the bug exists (design flaw, edge case, race condition, etc.)
+
+      ## 2. Fix Strategy
+      - Immediate fix approach
+      - Alternative solutions considered
+      - Why this fix is the best option
+      - Side effects and risks
+
+      ## 3. Fixed Code
+      - Complete corrected code
+      - Highlighted changes
+      - Detailed explanation of each fix
+
+      ## 4. Prevention
+      - How to prevent similar bugs in the future
+      - Additional validations or checks to add
+      - Test cases to cover this scenario
+
+      ## 5. Testing
+      - Unit tests for the bug fix
+      - Integration test scenarios
+      - Manual testing steps
+
+      Ensure the fix is production-ready and includes proper error handling.
+    tags: code, debug, bug-fix
+
+  # === CODE CONVERSION & TRANSFORMATION ===
+
+  convert_code:
+    description: Convert code between programming languages
+    system_prompt: You are a polyglot programmer expert in {{language1}} and {{language2}} with deep understanding of language idioms and best practices.
+    user_prompt: |
+      Please convert the following {{language1}} code to {{language2}}:
+
+      **Original Code ({{language1}}):**
+      ```
+      {{code}}
+      ```
+
+      Provide comprehensive code conversion:
+
+      ## 1. Converted Code ({{language2}})
+      - Complete working code in target language
+      - Follow {{language2}} idioms and conventions
+      - Use appropriate {{language2}} libraries and patterns
+
+      ## 2. Language Differences
+      - Key differences between {{language1}} and {{language2}}
+      - How specific features were translated
+      - Idiom conversions (e.g., Python list comprehension → Java streams)
+
+      ## 3. Library Mappings
+      - {{language1}} libraries used → {{language2}} equivalents
+      - Any additional dependencies needed
+      - Installation instructions for new dependencies
+
+      ## 4. Performance Considerations
+      - Performance comparison between languages
+      - Optimization opportunities in {{language2}}
+      - Memory usage differences
+
+      ## 5. Testing Strategy
+      - Test cases to verify equivalence
+      - Example inputs and expected outputs
+      - Integration testing recommendations
+
+      Ensure the converted code maintains the same functionality and handles edge cases properly.
+    tags: code, convert, migration
+
+  # === CODE EXPLANATION ===
+
+  explain_code_comprehensive:
+    description: Comprehensive code explanation with diagrams
+    system_prompt: You are an expert code analyst and educator who excels at explaining complex code in simple terms.
+    user_prompt: |
+      Please provide a comprehensive explanation of the following {{language}} code:
+
+      ```
+      {{code}}
+      ```
+
+      ## 1. High-Level Summary
+      - What does this code do? (in 2-3 sentences)
+      - Primary purpose and use case
+      - Where would this be used?
+
+      ## 2. Detailed Walkthrough
+      For each major section/function:
+      - Purpose and responsibility
+      - Input and output
+      - Key logic and algorithms
+      - Edge cases handled
+      - Error handling approach
+
+      ## 3. Code Flow Diagram
+      Generate PlantUML activity or sequence diagram:
+      ```plantuml
+      @startuml
+      ' Show the flow of execution
+      @enduml
+      ```
+
+      ## 4. Mindmap Overview
+      Generate PlantUML mindmap:
+      ```plantuml
+      @startmindmap
+      * {{Component}}
+      ** Purpose
+      *** What it does
+      ** Structure
+      *** Classes/Functions
+      ** Dependencies
+      *** External libs
+      ** Key Concepts
+      *** Algorithms
+      *** Patterns
+      @endmindmap
+      ```
+
+      ## 5. Key Concepts & Patterns
+      - Design patterns used
+      - Algorithms employed
+      - Data structures utilized
+      - Best practices demonstrated
+
+      ## 6. Potential Issues
+      - Code smells or concerns
+      - Performance considerations
+      - Security implications
+      - Maintainability aspects
+
+      ## 7. Learning Points
+      - What can developers learn from this code?
+      - Interesting techniques demonstrated
+      - Common patterns to reuse
+
+      Make explanations beginner-friendly but technically accurate.
+    tags: code, explanation, learning
+
+  explain_architecture_detailed:
+    description: Explain framework/system architecture comprehensively
+    system_prompt: You are a software architecture expert who excels at explaining complex systems and frameworks.
+    user_prompt: |
+      Please explain the architecture of {{framework}} in {{language}} for {{domain}}.
+
+      Provide comprehensive architecture explanation:
+
+      ## 1. Overview
+      - What is {{framework}}?
+      - Primary use cases and problems it solves
+      - Key features and benefits
+      - When to use it vs alternatives
+
+      ## 2. High-Level Architecture
+      Generate C4 Container diagram:
+      ```plantuml
+      @startuml
+      ' Show main components and their relationships
+      @enduml
+      ```
+
+      ## 3. Core Components
+      For each major component:
+      - Purpose and responsibility
+      - How it fits into the overall architecture
+      - Key interfaces and contracts
+      - Dependencies and interactions
+
+      ## 4. Main Workflow
+      Generate sequence diagram for primary workflow:
+      ```plantuml
+      @startuml
+      actor User
+      participant "Component A" as A
+      participant "Component B" as B
+      ' Show main workflow
+      @enduml
+      ```
+
+      ## 5. Design Patterns Used
+      - Architecture patterns (MVC, MVVM, Hexagonal, etc.)
+      - Creational patterns
+      - Structural patterns
+      - Behavioral patterns
+
+      ## 6. Code Examples
+      Provide practical examples showing:
+      - Basic setup and configuration
+      - Common use cases
+      - Integration examples
+      - Best practices
+
+      ## 7. Pros & Cons
+      - Advantages
+      - Limitations
+      - Trade-offs
+      - When NOT to use it
+
+      ## 8. Learning Resources
+      - Official documentation links
+      - Tutorial recommendations
+      - Best books/courses
+      - Community resources
+
+      Make it accessible for intermediate developers while providing depth for experts.
+    tags: design, architecture, learning
+
+  # === CODE COMPLETION ===
+
+  fill_in_the_middle_advanced:
+    description: Intelligent code completion with context awareness
+    system_prompt: You are an expert {{language}} developer with deep understanding of code patterns, idioms, and best practices.
+    user_prompt: |
+      Please complete the following {{language}} code snippet based on the provided context:
+
+      **Code with TODOs:**
+      ```
+      {{code}}
+      ```
+
+      Provide comprehensive completion:
+
+      ## 1. Completed Code
+      - Fill in all TODO/incomplete sections
+      - Maintain consistency with existing code style
+      - Follow language idioms and best practices
+      - Add proper error handling
+
+      ## 2. Implementation Explanation
+      For each completed section:
+      - Why this implementation?
+      - Alternative approaches considered
+      - Trade-offs made
+      - Edge cases handled
+
+      ## 3. Unit Tests
+      Generate comprehensive tests:
+      - Test happy path scenarios
+      - Test edge cases
+      - Test error conditions
+      - Test integration points
+
+      ## 4. Documentation
+      - Add inline comments for complex logic
+      - Generate function/method documentation
+      - Include usage examples
+      - Document any assumptions made
+
+      ## 5. Performance & Optimization
+      - Time complexity analysis
+      - Space complexity analysis
+      - Optimization opportunities
+      - Scalability considerations
+
+      Ensure code is production-ready with proper validation, error handling, and logging.
+    tags: code, completion, generation
+
+  # === FUNCTION WRITING ===
+
+  write_function_comprehensive:
+    description: Write production-ready functions with full documentation
+    system_prompt: You are an expert {{language}} developer who writes clean, well-tested, production-ready code.
+    user_prompt: |
+      Please write a {{function_name}} function in {{language}} with the following requirements:
+
+      **Purpose:** {{function_desc}}
+
+      **Input Parameters:** {{input_parameters}}
+
+      **Return Value:** {{output_result}}
+
+      **Additional Requirements:**
+      {{requirements}}
+
+      Provide complete function implementation:
+
+      ## 1. Function Implementation
+      ```{{language}}
+      # Complete, production-ready function code
+      ```
+
+      ## 2. Function Documentation
+      - Purpose and description
+      - Parameter details (type, constraints, default values)
+      - Return value description
+      - Exceptions/errors that can be raised
+      - Usage examples
+      - Time/space complexity
+
+      ## 3. Implementation Details
+      - Algorithm explanation
+      - Design decisions
+      - Edge cases handled
+      - Performance considerations
+
+      ## 4. Comprehensive Unit Tests
+      ```{{language}}
+      # Complete test suite covering:
+      # - Happy path
+      # - Edge cases (empty, null, boundary values)
+      # - Error scenarios
+      # - Performance tests if applicable
+      ```
+
+      ## 5. Usage Examples
+      Provide 3-5 practical examples:
+      ```{{language}}
+      # Example 1: Basic usage
+      # Example 2: Edge case
+      # Example 3: Complex scenario
+      ```
+
+      ## 6. Alternative Implementations
+      - Other approaches considered
+      - Pros/cons of each
+      - When to use alternatives
+
+      Ensure code follows SOLID principles and is fully tested.
+    tags: code, write, function
+
+  # === JAVASCRIPT/FRONTEND TESTING ===
+
+  write_vue_unit_test:
+    description: Write comprehensive Vue 3 component tests
+    system_prompt: You are an expert Vue.js 3, JavaScript/TypeScript developer and testing specialist.
+    user_prompt: |
+      Please write comprehensive unit tests for the following Vue 3 component:
+
+      ```
+      {{code}}
+      ```
+
+      **Testing Requirements:**
+
+      ## Test Framework Setup
+      - Vue Test Utils (latest)
+      - Vitest or Jest
+      - TypeScript support if applicable
+      - Testing library setup
+
+      ## Test Coverage Areas
+
+      ### 1. Component Mounting & Rendering
+      - Shallow mount tests
+      - Full mount tests
+      - Conditional rendering
+      - Slot testing
+      - Dynamic component testing
+
+      ### 2. Props Testing
+      - Required props
+      - Optional props with defaults
+      - Prop validation
+      - Prop reactivity
+
+      ### 3. Data & Computed Properties
+      - Initial state
+      - Reactive data changes
+      - Computed property calculations
+      - Watchers (if used)
+
+      ### 4. Methods & Event Handlers
+      - User interactions (clicks, input, etc.)
+      - Event emissions (v-model, custom events)
+      - Method calls and side effects
+      - Async operations
+
+      ### 5. Composables & Lifecycle
+      - Composables usage (if any)
+      - Lifecycle hooks (onMounted, onUnmounted, etc.)
+      - Provide/inject testing
+
+      ### 6. Store Integration (Pinia/Vuex)
+      - Store state access
+      - Store actions
+      - Store mutations
+      - Mock store for testing
+
+      ### 7. API/Service Mocking
+      - Mock external API calls
+      - Mock service dependencies
+      - Test loading states
+      - Test error states
+
+      ### 8. Accessibility Testing
+      - ARIA attributes
+      - Keyboard navigation
+      - Screen reader compatibility
+
+      ## Test Structure
+      ```typescript
+      import { mount, shallowMount } from '@vue/test-utils'
+      import { describe, it, expect, vi, beforeEach } from 'vitest'
+      import ComponentName from './ComponentName.vue'
+
+      describe('ComponentName', () => {
+        // Setup and teardown
+
+        describe('Rendering', () => {
+          // Rendering tests
+        })
+
+        describe('Props', () => {
+          // Props tests
+        })
+
+        describe('User Interactions', () => {
+          // Event and interaction tests
+        })
+
+        describe('State Management', () => {
+          // State tests
+        })
+      })
+      ```
+
+      Provide:
+      1. Complete test file with all imports
+      2. Mock setup and helpers
+      3. Test utilities and factories
+      4. >80% code coverage
+      5. Clear, descriptive test names
+    tags: test, javascript, vue, frontend
+
+  # === LOGGING & METRICS ===
+
+  add_logging_and_metrics:
+    description: Add comprehensive observability to code
+    system_prompt: You are an SRE and observability expert specializing in structured logging, metrics, and monitoring.
+    user_prompt: |
+      Please add comprehensive logging and metrics to the following {{language}} code:
+
+      **Component:** {{explain}}
+
+      **Code:**
+      ```
+      {{code}}
+      ```
+
+      Add complete observability:
+
+      ## 1. Structured Logging
+      - Use structured logging (JSON format)
+      - Add appropriate log levels (DEBUG, INFO, WARN, ERROR)
+      - Include correlation IDs and request tracing
+      - Log key decision points and state transitions
+      - Log entry/exit of important functions
+      - Include contextual information (user ID, tenant ID, etc.)
+
+      ## 2. Metrics Implementation
+      Add metrics for:
+      - **Counters**: Request counts, error counts, success counts
+      - **Gauges**: Active connections, queue size, resource usage
+      - **Histograms**: Request duration, response size, batch size
+      - **Timers**: Function execution time, external call latency
+
+      ## 3. Distributed Tracing
+      - Add trace spans for key operations
+      - Include span attributes (tags)
+      - Track parent-child relationships
+      - Capture errors in spans
+
+      ## 4. Error Tracking
+      - Structured error logging
+      - Error categorization (client vs server)
+      - Stack traces for exceptions
+      - Error rate tracking
+
+      ## 5. Performance Monitoring
+      - Track slow operations
+      - Monitor resource utilization
+      - Database query performance
+      - External API call latency
+
+      ## 6. Business Metrics
+      - Track business-level events
+      - User actions and behaviors
+      - Feature usage statistics
+      - Conversion tracking
+
+      ## 7. Implementation Code
+      Provide updated code with:
+      - Logging framework setup
+      - Metrics collection code
+      - Tracing instrumentation
+      - Configuration examples
+
+      ## 8. Dashboard Queries
+      Provide sample queries for:
+      - Grafana dashboards
+      - Prometheus alerts
+      - Log aggregation queries
+      - SLO monitoring
+
+      ## 9. Best Practices
+      - Log levels usage guide
+      - What to log vs what not to log
+      - PII handling in logs
+      - Log retention considerations
+      - Performance impact minimization
+
+      Use appropriate libraries for {{language}}:
+      - Logging: (suggest framework)
+      - Metrics: (suggest framework)
+      - Tracing: (suggest framework)
+    tags: operation, observability, logging, metrics
+
+  # === FRAMEWORK RECOMMENDATIONS ===
+
+  recommend_framework_comprehensive:
+    description: Comprehensive framework recommendation with comparison
+    system_prompt: You are a software architecture expert with deep knowledge of frameworks, libraries, and technology ecosystems across multiple languages.
+    user_prompt: |
+      Please recommend the best {{language}} framework for {{function}} with {{feature}} capabilities.
+
+      Evaluation Criteria (4L Principle):
+      1. **Lots of users**: Large community and adoption
+      2. **Lots of learning materials**: Documentation, tutorials, courses
+      3. **Lots of successful cases**: Production usage, case studies
+      4. **License is free**: Open source, permissive license
+
+      ## 1. Recommended Framework: [Framework Name]
+
+      ### Overview
+      - What it is and who maintains it
+      - Current version and maturity
+      - License type
+      - GitHub stars and contributors
+
+      ### Why This Framework?
+      - Strengths for your use case
+      - Community size and activity
+      - Enterprise adoption
+      - Learning curve
+
+      ## 2. Framework Comparison
+
+      Create comparison table:
+
+      | Framework | Pros | Cons | Community Size | Learning Resources | Use Cases | License |
+      |-----------|------|------|----------------|-------------------|-----------|---------|
+      | Framework A | ... | ... | ... | ... | ... | ... |
+      | Framework B | ... | ... | ... | ... | ... | ... |
+      | Framework C | ... | ... | ... | ... | ... | ... |
+
+      ## 3. Detailed Analysis of Top Choice
+
+      ### Technical Features
+      - Core features
+      - Performance characteristics
+      - Scalability
+      - Integration ecosystem
+
+      ### Community & Support
+      - Community size
+      - Active maintainers
+      - Issue response time
+      - Commercial support availability
+
+      ### Learning Resources
+      - Official documentation quality
+      - Tutorial availability
+      - Books and courses
+      - Video content
+      - Code examples and templates
+
+      ### Production Readiness
+      - Companies using it in production
+      - Success stories and case studies
+      - Stability and reliability
+      - Security track record
+
+      ### Migration & Integration
+      - Migration path from other frameworks
+      - Integration with existing tools
+      - Ecosystem compatibility
+
+      ## 4. Getting Started Guide
+      - Installation instructions
+      - "Hello World" example
+      - Project structure best practices
+      - Configuration tips
+
+      ## 5. When NOT to Use This Framework
+      - Scenarios where alternatives are better
+      - Known limitations
+      - Trade-offs to consider
+
+      ## 6. Alternative Frameworks
+      For each alternative:
+      - Name and brief description
+      - When to consider it instead
+      - Key differentiators
+
+      ## 7. Learning Path
+      - Beginner resources
+      - Intermediate tutorials
+      - Advanced topics
+      - Best practices guides
+
+      Provide data-driven recommendations with statistics where possible.
+    tags: design, frameworks, recommendations
+
+  # === SCRIPT WRITING ===
+
+  write_automation_script:
+    description: Write production-ready automation scripts
+    system_prompt: You are an expert in {{language}} scripting, automation, and DevOps practices.
+    user_prompt: |
+      Please write a {{language}} script for {{purpose}} using {{tool}}.
+
+      **Script Purpose:** {{explain}}
+
+      **Requirements:**
+      {{requirements}}
+
+      Provide comprehensive script:
+
+      ## 1. Complete Script
+      ```{{language}}
+      # Production-ready script with:
+      # - Proper shebang
+      # - Error handling
+      # - Logging
+      # - Configuration
+      # - Documentation
+      ```
+
+      ## 2. Script Features
+      - Command-line argument parsing
+      - Configuration file support
+      - Environment variable usage
+      - Comprehensive error handling
+      - Logging with levels
+      - Dry-run mode
+      - Verbose mode for debugging
+      - Exit codes for different scenarios
+
+      ## 3. Usage Documentation
+      ```bash
+      # Usage examples:
+
+      # Basic usage:
+      ./script.sh [options]
+
+      # With configuration file:
+      ./script.sh --config config.yaml
+
+      # Dry-run mode:
+      ./script.sh --dry-run
+
+      # Verbose mode:
+      ./script.sh --verbose
+      ```
+
+      ## 4. Configuration File
+      Provide example configuration:
+      ```yaml
+      # config.yaml
+      # Configuration options with comments
+      ```
+
+      ## 5. Error Handling
+      - Input validation
+      - File/directory checks
+      - Network error handling
+      - Rollback on failure
+      - Cleanup procedures
+
+      ## 6. Testing
+      - Unit tests for functions
+      - Integration test scenarios
+      - Test data and fixtures
+      - CI/CD integration
+
+      ## 7. Deployment
+      - Installation instructions
+      - Cron job setup (if applicable)
+      - Systemd service setup (if applicable)
+      - Container deployment (if applicable)
+
+      ## 8. Security Considerations
+      - Secrets management
+      - File permissions
+      - Input sanitization
+      - Audit logging
+
+      ## 9. Troubleshooting Guide
+      - Common issues and solutions
+      - Debug mode usage
+      - Log location
+      - Known limitations
+
+      Ensure script is idempotent, well-documented, and production-ready.
+    tags: code, write, automation, script
+
+  # === DOCUMENTATION ===
+
+  write_api_documentation:
+    description: Write comprehensive API documentation
+    system_prompt: You are an API documentation expert who creates clear, comprehensive, developer-friendly documentation.
+    user_prompt: |
+      Please write comprehensive API documentation for the following {{language}} code:
+
+      ```
+      {{code}}
+      ```
+
+      Create documentation in the recommended format for {{language}}:
+      - C++: Doxygen
+      - Python: Sphinx with docstrings
+      - Java: Javadoc
+      - Go: Godoc
+      - Rust: Rustdoc
+      - JavaScript/TypeScript: JSDoc/TSDoc
+
+      ## 1. API Overview
+      - Purpose and scope
+      - Main capabilities
+      - Architecture overview
+      - Authentication/authorization
+
+      ## 2. API Reference
+      For each endpoint/class/module:
+
+      ### Function/Method Documentation
+      - Description
+      - Parameters (type, required/optional, constraints, default values)
+      - Return values (type, description)
+      - Exceptions/errors
+      - Side effects
+      - Thread safety
+      - Performance characteristics
+
+      ### Code Examples
+      - Basic usage
+      - Common scenarios
+      - Advanced usage
+      - Error handling examples
+
+      ## 3. Data Models
+      - Request/response schemas
+      - Data types and structures
+      - Validation rules
+      - Example payloads
+
+      ## 4. Authentication & Authorization
+      - Authentication methods
+      - API key usage
+      - OAuth flows
+      - Permissions and scopes
+
+      ## 5. Error Handling
+      - Error codes and meanings
+      - Error response format
+      - Troubleshooting guide
+      - Common issues
+
+      ## 6. Rate Limiting & Quotas
+      - Rate limits
+      - Quota information
+      - Headers for limit tracking
+      - Best practices
+
+      ## 7. Versioning
+      - Current version
+      - Version history
+      - Deprecation notices
+      - Migration guides
+
+      ## 8. Code Examples by Language
+      Provide examples in multiple languages:
+      - Python
+      - JavaScript/TypeScript
+      - Java
+      - cURL
+
+      ## 9. SDKs & Libraries
+      - Official SDKs
+      - Community libraries
+      - Installation instructions
+
+      ## 10. Testing & Sandbox
+      - Test environment
+      - Sample API keys
+      - Postman collection
+      - OpenAPI/Swagger spec
+
+      ## 11. Best Practices
+      - Usage recommendations
+      - Performance optimization
+      - Security best practices
+      - Common patterns
+
+      ## 12. Changelog
+      - Recent changes
+      - Breaking changes
+      - New features
+      - Bug fixes
+
+      Include interactive examples and ensure documentation is beginner-friendly.
+    tags: code, write, documentation, api
+
+  update_code_comments:
+    description: Improve and update code comments systematically
+    system_prompt: You are a code documentation expert who improves code readability through clear, comprehensive comments.
+    user_prompt: |
+      Please update and improve the comments in the following {{language}} code:
+
+      ```
+      {{code}}
+      ```
+
+      **Comment Improvement Guidelines:**
+
+      ## 1. File-Level Documentation
+      - File purpose and overview
+      - Module/package description
+      - Author and version information
+      - Copyright and license
+      - Dependencies and requirements
+
+      ## 2. Class/Struct Documentation
+      - Class purpose and responsibility
+      - Design pattern used (if applicable)
+      - Usage examples
+      - Important notes and caveats
+      - Relationships with other classes
+
+      ## 3. Function/Method Documentation
+      For each function:
+      - Brief description (one line)
+      - Detailed description (if complex)
+      - Parameters with types and descriptions
+      - Return value with type and description
+      - Exceptions/errors that can be raised
+      - Side effects
+      - Example usage
+      - Time/space complexity (for algorithms)
+      - Thread safety information
+
+      ## 4. Inline Comments
+      - Explain WHY, not WHAT (code shows what)
+      - Document non-obvious logic
+      - Explain complex algorithms
+      - Highlight edge cases handled
+      - Warn about potential pitfalls
+      - Explain magic numbers with named constants
+
+      ## 5. TODO Comments
+      - Add TODO for known issues
+      - Include ticket/issue numbers
+      - Describe what needs to be done
+      - Estimate effort level
+
+      ## 6. Code Examples in Comments
+      For public APIs, include usage examples:
+      ```{{language}}
+      /**
+       * Example usage:
+       * @example
+       * const result = myFunction(param1, param2);
+       * console.log(result);
+       */
+      ```
+
+      ## 7. Remove or Update
+      - Remove outdated comments
+      - Remove obvious comments
+      - Remove commented-out code (use version control)
+      - Update comments that don't match current code
+
+      ## 8. Follow Language Conventions
+      - Use language-specific documentation style
+      - Follow team/project conventions
+      - Use consistent formatting
+      - Proper grammar and spelling
+
+      ## 9. Special Annotations
+      - @deprecated for deprecated code
+      - @see for related methods
+      - @since for versioning
+      - @throws for exceptions
+      - @param for parameters
+      - @return for return values
+
+      Provide the updated code with improved comments while maintaining all functionality.
+    tags: tools, documentation, comments
+
+  write_readme_comprehensive:
+    description: Write professional comprehensive README
+    system_prompt: You are a senior technical writer who creates exceptional README documentation that helps developers quickly understand and use projects.
+    user_prompt: |
+      Please create a comprehensive, professional README.md for this project:
+
+      **Project Information:**
+      {{code}}
+
+      Create README with the following structure:
+
+      # Project Title
+      [![Build Status](badge)] [![License](badge)] [![Version](badge)]
+
+      > Compelling one-line description
+
+      ## ✨ Key Features
+      - Feature 1
+      - Feature 2
+      - Feature 3
+
+      ## 🚀 Quick Start (5 minutes)
+      ```bash
+      # Prerequisites
+      # Installation
+      # Minimal example
+      # Expected output
+      ```
+
+      ## 📋 Table of Contents
+      - [Installation](#installation)
+      - [Usage](#usage)
+      - [Examples](#examples)
+      - [API Reference](#api-reference)
+      - [Architecture](#architecture)
+      - [Contributing](#contributing)
+      - [License](#license)
+
+      ## 💻 Installation
+
+      ### Prerequisites
+      - System requirements
+      - Required tools and versions
+      - Dependency checks
+
+      ### Using Package Manager
+      ```bash
+      # npm, pip, maven, cargo, etc.
+      ```
+
+      ### From Source
+      ```bash
+      # Clone and build instructions
+      ```
+
+      ### Docker
+      ```bash
+      # Docker instructions
+      ```
+
+      ## 📖 Usage
+
+      ### Basic Usage
+      ```{{language}}
+      # Simple examples with explanations
+      ```
+
+      ### Configuration
+      - Configuration file format
+      - Environment variables
+      - Command-line options
+
+      ### Advanced Features
+      ```{{language}}
+      # Advanced usage examples
+      ```
+
+      ## 🎯 Examples
+
+      ### Example 1: Basic Case
+      ```{{language}}
+      # Complete working example
+      ```
+
+      ### Example 2: Advanced Case
+      ```{{language}}
+      # Advanced example
+      ```
+
+      ### Example 3: Integration
+      ```{{language}}
+      # Integration example
+      ```
+
+      ## 🏗️ Architecture
+
+      ### System Overview
+      ```
+      High-level architecture diagram
+      ```
+
+      ### Core Components
+      - Component descriptions
+      - Interactions
+
+      ### Design Decisions
+      - Key design choices
+      - Trade-offs made
+      - Rationale
+
+      ## 🔌 API Reference
+
+      ### Public API
+      - Method signatures
+      - Parameters
+      - Return values
+      - Examples
+
+      ### Configuration API
+      - Configuration options
+      - Defaults
+      - Examples
+
+      ## 🧪 Testing
+
+      ### Running Tests
+      ```bash
+      # Test commands
+      ```
+
+      ### Writing Tests
+      - Test guidelines
+      - Example tests
+
+      ## 🚀 Deployment
+
+      ### Production Deployment
+      - Deployment steps
+      - Best practices
+      - Scaling considerations
+
+      ### CI/CD Integration
+      - CI/CD setup
+      - Pipeline examples
+
+      ## 🔧 Troubleshooting
+
+      ### Common Issues
+      | Issue | Cause | Solution |
+      |-------|-------|----------|
+      | ... | ... | ... |
+
+      ### Debug Mode
+      ```bash
+      # Enable debugging
+      ```
+
+      ## 📊 Performance
+
+      ### Benchmarks
+      - Performance metrics
+      - Comparison with alternatives
+
+      ### Optimization Tips
+      - Performance tuning
+      - Best practices
+
+      ## 🔒 Security
+
+      ### Security Considerations
+      - Security features
+      - Best practices
+      - Vulnerability reporting
+
+      ## 🤝 Contributing
+
+      We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+      ### Development Setup
+      ```bash
+      # Developer environment setup
+      ```
+
+      ### Coding Standards
+      - Style guide
+      - Best practices
+
+      ### Pull Request Process
+      1. Fork the repo
+      2. Create feature branch
+      3. Make changes
+      4. Submit PR
+
+      ## 📚 Documentation
+
+      - [Full Documentation](link)
+      - [API Reference](link)
+      - [Tutorials](link)
+      - [FAQ](link)
+
+      ## 🗺️ Roadmap
+
+      - [ ] Feature 1 (Q1 2025)
+      - [ ] Feature 2 (Q2 2025)
+      - [ ] Feature 3 (Q3 2025)
+
+      ## 📜 Changelog
+
+      See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+      ## 📄 License
+
+      This project is licensed under the [License Name](LICENSE).
+
+      ## 👏 Acknowledgments
+
+      - Contributors
+      - Inspirations
+      - Third-party libraries
+
+      ## 💬 Support
+
+      - [Issues](link) - Bug reports and feature requests
+      - [Discussions](link) - Questions and ideas
+      - [Discord/Slack](link) - Chat with community
+      - [Email](email) - Direct support
+
+      ## 🌟 Star History
+
+      [![Star History Chart](chart)]
+
+      ---
+
+      Made with ❤️ by [Team/Author]
+
+      Ensure all links work and all code examples are tested!
+    tags: code, write, readme, documentation
+
+  # === ADDITIONAL USEFUL PROMPTS ===
+
+  code_optimization_comprehensive:
+    description: Optimize code for performance, readability, and maintainability
+    system_prompt: You are a performance optimization and code quality expert.
+    user_prompt: |
+      Please optimize the following {{language}} code for {{purpose}}:
+
+      **Current Code:**
+      ```
+      {{code}}
+      ```
+
+      **Context:** {{explain}}
+
+      Provide comprehensive optimization:
+
+      ## 1. Performance Analysis
+      - Current performance characteristics
+      - Bottlenecks identified
+      - Algorithm complexity (current)
+      - Memory usage analysis
+
+      ## 2. Optimized Code
+      ```{{language}}
+      # Highly optimized version
+      ```
+
+      ## 3. Optimization Techniques Applied
+      For each optimization:
+      - What was changed
+      - Why it improves performance
+      - Performance gain (estimated)
+      - Trade-offs made
+
+      ## 4. Before/After Comparison
+      | Metric | Before | After | Improvement |
+      |--------|--------|-------|-------------|
+      | Time Complexity | O(n²) | O(n log n) | 10x faster |
+      | Space Complexity | O(n) | O(1) | 5x less memory |
+      | Lines of Code | 50 | 30 | 40% reduction |
+
+      ## 5. Benchmark Results
+      ```
+      Benchmark results showing actual performance
+      ```
+
+      ## 6. Additional Improvements
+      - Code readability enhancements
+      - Maintainability improvements
+      - Error handling additions
+      - Documentation updates
+
+      ## 7. Best Practices Applied
+      - Language-specific optimizations
+      - Design pattern improvements
+      - SOLID principles
+      - Clean code practices
+
+      ## 8. Further Optimization Opportunities
+      - Ideas for future improvements
+      - When to consider them
+      - Complexity vs benefit analysis
+
+      Ensure optimized code maintains correctness and handles all edge cases.
+    tags: code, optimization, performance
+
+  generate_user_story:
+    description: Generate comprehensive user stories from requirements
+    system_prompt: You are a product manager and agile expert who writes excellent user stories that drive development.
+    user_prompt: |
+      Please create comprehensive user stories based on the following requirements:
+
+      **User Role:** {{userRole}}
+      **Feature Description:** {{featureDescription}}
+
+      Generate user stories following best practices:
+
+      ## 1. User Stories
+
+      ### Story 1: [Story Title]
+      **As a** {{userRole}}
+      **I want** [goal]
+      **So that** [business value]
+
+      **Acceptance Criteria:**
+      - [ ] Criterion 1 (Given-When-Then format)
+      - [ ] Criterion 2
+      - [ ] Criterion 3
+
+      **Definition of Done:**
+      - [ ] Code implemented and reviewed
+      - [ ] Unit tests written (>80% coverage)
+      - [ ] Integration tests added
+      - [ ] Documentation updated
+      - [ ] Accepted by Product Owner
+
+      **Story Points:** [1, 2, 3, 5, 8]
+      **Priority:** [High, Medium, Low]
+      **Dependencies:** [Other stories]
+
+      **Technical Notes:**
+      - Implementation approach
+      - API endpoints needed
+      - Database schema changes
+      - Third-party integrations
+
+      **UI/UX Notes:**
+      - Mockups/wireframes
+      - User flow
+      - Edge cases to consider
+
+      ### Story 2: [Next Story]
+      [Same format...]
+
+      ## 2. Story Map
+      ```
+      Visualize user journey and story relationships
+      ```
+
+      ## 3. Acceptance Test Scenarios
+      For each story:
+      ```gherkin
+      Feature: [Feature name]
+
+        Scenario: [Scenario name]
+          Given [context]
+          When [action]
+          Then [expected outcome]
+          And [additional outcome]
+      ```
+
+      ## 4. Story Prioritization
+      | Story | Business Value | Effort | Priority | Sprint |
+      |-------|----------------|--------|----------|--------|
+      | Story 1 | High | 5 | P0 | Sprint 1 |
+      | Story 2 | Medium | 3 | P1 | Sprint 1 |
+
+      ## 5. Epic Breakdown
+      - Epic title
+      - Stories that compose it
+      - Overall goals
+
+      ## 6. Non-Functional Requirements
+      - Performance requirements
+      - Security requirements
+      - Scalability needs
+      - Accessibility requirements
+
+      ## 7. Risks & Mitigations
+      - Technical risks
+      - Business risks
+      - Mitigation strategies
+
+      Ensure stories are:
+      - **Independent**: Can be developed separately
+      - **Negotiable**: Flexible on details
+      - **Valuable**: Deliver business value
+      - **Estimable**: Can be sized
+      - **Small**: Fit in one sprint
+      - **Testable**: Clear acceptance criteria
+    tags: tools, agile, user-stories
+
+  report_bug_comprehensive:
+    description: Create comprehensive bug reports
+    system_prompt: You are a QA engineer who creates detailed, actionable bug reports that developers love.
+    user_prompt: |
+      Please create a comprehensive bug report based on the following information:
+
+      **Bug Summary:** {{bugSummary}}
+      **Steps to Reproduce:** {{stepsToReproduce}}
+      **Environment:** {{environment}}
+
+      # Bug Report: [Clear, Descriptive Title]
+
+      ## 📋 Summary
+      [One-paragraph description of the bug and its impact]
+
+      ## 🎯 Priority & Severity
+      - **Priority:** [P0-Critical / P1-High / P2-Medium / P3-Low]
+      - **Severity:** [Blocker / Critical / Major / Minor / Trivial]
+      - **Type:** [Bug / Regression / Performance / Security]
+
+      ## 🔄 Steps to Reproduce
+      1. Step 1 with specific details
+      2. Step 2 with exact inputs
+      3. Step 3 with conditions
+      4. Observe the issue
+
+      **Frequency:** [Always / Sometimes / Rarely]
+      **Reproducibility:** [100% / 50% / Random]
+
+      ## ✅ Expected Behavior
+      [Detailed description of what should happen]
+
+      ## ❌ Actual Behavior
+      [Detailed description of what actually happens]
+
+      ## 💻 Environment
+      - **OS:** [Windows 11 / macOS 14.2 / Ubuntu 22.04]
+      - **Browser:** [Chrome 120.0 / Firefox 121.0]
+      - **Application Version:** [v2.3.1]
+      - **Build Number:** [#4567]
+      - **Device:** [Desktop / Mobile / Tablet]
+      - **Screen Resolution:** [1920x1080]
+      - **Additional Software:** [Relevant installed software]
+
+      ## 📸 Visual Evidence
+      **Screenshots:**
+      - [Attach screenshot 1]
+      - [Attach screenshot 2]
+
+      **Video Recording:**
+      - [Link to screen recording]
+
+      **GIF/Animation:**
+      - [For quick reproduction demo]
+
+      ## 🔍 Additional Context
+
+      ### Console Logs
+      ```
+      [Error logs from console]
+      ```
+
+      ### Network Activity
+      - Failed request: `POST /api/endpoint`
+      - Status code: `500`
+      - Response: `{"error": "..."}`
+
+      ### Stack Trace
+      ```
+      [Full stack trace if available]
+      ```
+
+      ### Database State
+      ```sql
+      -- Relevant database records
+      ```
+
+      ## 🔗 Related Information
+      - **Related Issues:** #123, #456
+      - **Related PRs:** #789
+      - **Related Documentation:** [Link]
+      - **Customer Reports:** [Ticket numbers]
+
+      ## 💡 Possible Cause
+      [Your hypothesis about what might be causing the issue]
+
+      ## 🛠️ Suggested Fix
+      [If you have ideas for fixing the issue]
+
+      ## ✨ Workaround
+      [Temporary workaround if one exists]
+
+      ## 🧪 Test Cases Affected
+      - Test case 1
+      - Test case 2
+
+      ## 👥 Impact Assessment
+      - **Users Affected:** [Number or percentage]
+      - **Business Impact:** [Revenue / User experience / Brand]
+      - **Customer Complaints:** [Count]
+
+      ## 📊 Metrics
+      - **Error Rate:** [Percentage]
+      - **Occurrence Count:** [Last 24h / 7d / 30d]
+      - **First Occurrence:** [Date and time]
+      - **Last Occurrence:** [Date and time]
+
+      ## 🏷️ Labels
+      `bug` `needs-investigation` `frontend` `backend` `database`
+
+      ## 📝 Notes
+      [Any other relevant information]
+
+      ---
+      **Reported by:** [Your name]
+      **Date:** [YYYY-MM-DD]
+      **Ticket ID:** [AUTO-GENERATED]
+    tags: tools, testing, bug-report
+

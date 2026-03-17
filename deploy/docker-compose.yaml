@@ -1,0 +1,126 @@
+services:
+  pgvector:
+    image: ankane/pgvector
+    container_name: pgvector
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgvector-data:/var/lib/postgresql/data
+    networks:
+      - pgvector-net
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - pgvector-net
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+
+  pgweb:
+    image: sosedoff/pgweb
+    container_name: pgweb
+    # Remove port exposure as nginx will handle it
+    expose:
+      - "8081"
+    ports:
+      - "8081:8081"
+    environment:
+      - PGWEB_DATABASE_URL=${DB_URL}
+    depends_on:
+      - pgvector
+    networks:
+      - pgvector-net
+    restart: unless-stopped
+
+  plantuml:
+    image: plantuml/plantuml-server:jetty
+    container_name: plantuml-server
+    # Remove port exposure as nginx will handle it
+    expose:
+      - "8080"
+    ports:
+      - "8000:8080"
+    networks:
+      - pgvector-net
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-logs:/var/log/nginx
+    depends_on:
+      - lazy-ai-coder
+      - plantuml
+      - pgweb
+    networks:
+      - pgvector-net
+    restart: unless-stopped
+
+  lazy-ai-coder:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        GOPROXY: ${GOPROXY}
+    container_name: lazy-ai-coder
+    # Remove port exposure as nginx will handle it
+    expose:
+      - "8888"
+    ports:
+      - "8888:8888"
+    environment:
+      - PLANTUML_URL=${PLANTUML_URL}
+    depends_on:
+      - plantuml
+      - pgvector
+    networks:
+      - pgvector-net
+    volumes:
+      - ./images:/root/web/images
+      - ./.env:/root/.env
+      - ./db:/root/db
+    restart: unless-stopped
+
+  jupyterlab:
+    image: jupyter/scipy-notebook:latest
+    container_name: jupyterlab
+    ports:
+      - "8889:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=${JUPYTER_PASSWORD}
+      - GRANT_SUDO=yes
+    volumes:
+      - ./notebooks:/home/jovyan/notebooks
+    networks:
+      - pgvector-net
+    restart: unless-stopped
+    user: root
+    command: start-notebook.sh --NotebookApp.token='${JUPYTER_PASSWORD}' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url='/jupyter'
+
+volumes:
+  pgvector-data:
+  nginx-logs:
+  redis-data:
+
+networks:
+  pgvector-net:
+    driver: bridge

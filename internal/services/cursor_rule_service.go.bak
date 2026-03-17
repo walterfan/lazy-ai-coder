@@ -1,0 +1,256 @@
+package services
+
+import (
+	"errors"
+	"fmt"
+	"strings"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+
+	"github.com/walterfan/lazy-ai-coder/pkg/models"
+)
+
+// CursorRuleService handles cursor rule CRUD operations with user isolation
+type CursorRuleService struct {
+	db *gorm.DB
+}
+
+// NewCursorRuleService creates a new cursor rule service
+func NewCursorRuleService(db *gorm.DB) *CursorRuleService {
+	return &CursorRuleService{db: db}
+}
+
+// CursorRuleScope represents the scope for querying cursor rules
+type CursorRuleScope string
+
+const (
+	CursorRuleScopeAll       CursorRuleScope = "all"       // Personal + Shared + Templates
+	CursorRuleScopePersonal  CursorRuleScope = "personal"  // User's personal rules
+	CursorRuleScopeShared    CursorRuleScope = "shared"    // Realm shared rules
+	CursorRuleScopeTemplates CursorRuleScope = "templates" // Global templates
+)
+
+// ListCursorRules retrieves cursor rules based on scope and filters
+func (s *CursorRuleService) ListCursorRules(userID, realmID *string, scope CursorRuleScope, nameFilter, tagsFilter, languageFilter, frameworkFilter string, sortBy string, limit, offset int) ([]models.CursorRule, int64, error) {
+	query := s.db.Model(&models.CursorRule{}).Where("deleted_at IS NULL")
+
+	// Apply scope filtering
+	switch scope {
+	case CursorRuleScopePersonal:
+		if userID == nil || *userID == "" {
+			return nil, 0, errors.New("user_id required for personal scope")
+		}
+		query = query.Where("user_id = ?", *userID)
+
+	case CursorRuleScopeShared:
+		if realmID == nil || *realmID == "" {
+			return nil, 0, errors.New("realm_id required for shared scope")
+		}
+		query = query.Where("realm_id = ? AND user_id IS NULL", *realmID)
+
+	case CursorRuleScopeTemplates:
+		query = query.Where("user_id IS NULL AND realm_id IS NULL")
+
+	case CursorRuleScopeAll:
+		// Return personal + shared + templates
+		if userID != nil && *userID != "" && realmID != nil && *realmID != "" {
+			query = query.Where(
+				"(user_id = ?) OR (realm_id = ? AND user_id IS NULL) OR (user_id IS NULL AND realm_id IS NULL)",
+				*userID, *realmID,
+			)
+		} else if realmID != nil && *realmID != "" {
+			// No user, show shared + templates
+			query = query.Where(
+				"(realm_id = ? AND user_id IS NULL) OR (user_id IS NULL AND realm_id IS NULL)",
+				*realmID,
+			)
+		} else {
+			// Only templates
+			query = query.Where("user_id IS NULL AND realm_id IS NULL")
+		}
+	}
+
+	// Apply name filter
+	if nameFilter != "" {
+		query = query.Where("LOWER(name) LIKE ? OR LOWER(description) LIKE ? OR LOWER(content) LIKE ?",
+			"%"+strings.ToLower(nameFilter)+"%",
+			"%"+strings.ToLower(nameFilter)+"%",
+			"%"+strings.ToLower(nameFilter)+"%")
+	}
+
+	// Apply tags filter
+	if tagsFilter != "" {
+		query = query.Where("LOWER(tags) LIKE ?", "%"+strings.ToLower(tagsFilter)+"%")
+	}
+
+	// Apply language filter
+	if languageFilter != "" {
+		query = query.Where("LOWER(language) = ?", strings.ToLower(languageFilter))
+	}
+
+	// Apply framework filter
+	if frameworkFilter != "" {
+		query = query.Where("LOWER(framework) = ?", strings.ToLower(frameworkFilter))
+	}
+
+	// Get total count
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to count cursor rules: %w", err)
+	}
+
+	// Apply sorting
+	switch sortBy {
+	case "name":
+		query = query.Order("name ASC")
+	case "usage_count":
+		query = query.Order("usage_count DESC")
+	case "updated_at":
+		query = query.Order("updated_time DESC")
+	default:
+		query = query.Order("created_time DESC")
+	}
+
+	// Apply pagination
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if offset > 0 {
+		query = query.Offset(offset)
+	}
+
+	var rules []models.CursorRule
+	if err := query.Find(&rules).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to list cursor rules: %w", err)
+	}
+
+	return rules, total, nil
+}
+
+// GetCursorRuleByID retrieves a cursor rule by ID or Name
+func (s *CursorRuleService) GetCursorRuleByID(id string, userID, realmID *string) (*models.CursorRule, error) {
+	var rule models.CursorRule
+	// Support lookup by both ID (UUID) and Name for backward compatibility
+	query := s.db.Where("(id = ? OR name = ?) AND deleted_at IS NULL", id, id)
+
+	// Access control: user can only access their own rules, shared rules, or templates
+	if userID != nil && *userID != "" && realmID != nil && *realmID != "" {
+		query = query.Where(
+			"(user_id = ?) OR (realm_id = ? AND user_id IS NULL) OR (user_id IS NULL AND realm_id IS NULL)",
+			*userID, *realmID,
+		)
+	}
+
+	if err := query.First(&rule).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("cursor rule not found")
+		}
+		return nil, fmt.Errorf("failed to get cursor rule: %w", err)
+	}
+
+	return &rule, nil
+}
+
+// CreateCursorRule creates a new cursor rule
+func (s *CursorRuleService) CreateCursorRule(name, description, content, language, framework, tags string, isTemplate bool, userID, realmID *string, createdBy string) (*models.CursorRule, error) {
+	rule := &models.CursorRule{
+		ID:          uuid.New().String(),
+		UserID:      userID,
+		RealmID:     realmID,
+		Name:        name,
+		Description: description,
+		Content:     content,
+		Language:    language,
+		Framework:   framework,
+		Tags:        tags,
+		IsTemplate:  isTemplate,
+		UsageCount:  0,
+		CreatedBy:   createdBy,
+		UpdatedBy:   createdBy,
+	}
+
+	if err := s.db.Create(rule).Error; err != nil {
+		return nil, fmt.Errorf("failed to create cursor rule: %w", err)
+	}
+
+	return rule, nil
+}
+
+// UpdateCursorRule updates an existing cursor rule
+func (s *CursorRuleService) UpdateCursorRule(id, name, description, content, language, framework, tags string, isTemplate bool, updatedBy string, userID, realmID *string) (*models.CursorRule, error) {
+	// Get existing rule (supports lookup by ID or name)
+	rule, err := s.GetCursorRuleByID(id, userID, realmID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Authorization: user can only update their own rules
+	if userID != nil && *userID != "" {
+		if rule.UserID == nil || *rule.UserID != *userID {
+			return nil, errors.New("unauthorized: you can only update your own cursor rules")
+		}
+	}
+
+	// Additional realm isolation check
+	if realmID != nil && *realmID != "" {
+		if rule.RealmID == nil || *rule.RealmID != *realmID {
+			return nil, errors.New("unauthorized: cursor rule belongs to different realm")
+		}
+	}
+
+	// Update fields - use the actual UUID ID from the fetched rule
+	updates := map[string]interface{}{
+		"name":        name,
+		"description": description,
+		"content":     content,
+		"language":    language,
+		"framework":   framework,
+		"tags":        tags,
+		"is_template": isTemplate,
+		"updated_by":  updatedBy,
+	}
+
+	if err := s.db.Model(&models.CursorRule{}).Where("id = ?", rule.ID).Updates(updates).Error; err != nil {
+		return nil, fmt.Errorf("failed to update cursor rule: %w", err)
+	}
+
+	// Fetch updated rule using the actual ID
+	return s.GetCursorRuleByID(rule.ID, userID, realmID)
+}
+
+// DeleteCursorRule soft-deletes a cursor rule
+func (s *CursorRuleService) DeleteCursorRule(id string, userID, realmID *string) error {
+	// Get existing rule (supports lookup by ID or name)
+	rule, err := s.GetCursorRuleByID(id, userID, realmID)
+	if err != nil {
+		return err
+	}
+
+	// Authorization: user can only delete their own rules
+	if userID != nil && *userID != "" {
+		if rule.UserID == nil || *rule.UserID != *userID {
+			return errors.New("unauthorized: you can only delete your own cursor rules")
+		}
+	}
+
+	// Additional realm isolation check
+	if realmID != nil && *realmID != "" {
+		if rule.RealmID == nil || *rule.RealmID != *realmID {
+			return errors.New("unauthorized: cursor rule belongs to different realm")
+		}
+	}
+
+	// Soft delete - use the actual UUID ID from the fetched rule
+	if err := s.db.Model(&models.CursorRule{}).Where("id = ?", rule.ID).Update("deleted_at", gorm.Expr("CURRENT_TIMESTAMP")).Error; err != nil {
+		return fmt.Errorf("failed to delete cursor rule: %w", err)
+	}
+
+	return nil
+}
+
+// IncrementUsageCount increments the usage count for a cursor rule
+func (s *CursorRuleService) IncrementUsageCount(id string) error {
+	return s.db.Model(&models.CursorRule{}).Where("id = ?", id).Update("usage_count", gorm.Expr("usage_count + 1")).Error
+}
+

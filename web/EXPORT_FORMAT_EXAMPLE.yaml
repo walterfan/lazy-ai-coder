@@ -1,0 +1,52 @@
+# Example of Exported Prompts with Arguments
+
+prompts:
+  code_review:
+    title: Request Code Review
+    description: Asks the LLM to analyze code quality and suggest improvements
+    system_prompt: You are an experienced code reviewer with expertise in software engineering best practices.
+    user_prompt: |
+      Please review the following code:
+      {{code}}
+
+      Focus on:
+      - Code quality and readability
+      - Potential bugs or issues
+      - Security vulnerabilities
+      - Performance considerations
+      - Best practices
+    arguments:
+      - name: code
+        description: The code to review
+        required: true
+    tags: review, code, quality
+
+  generate_test:
+    title: Generate Unit Tests
+    description: Generates unit tests for a given function
+    system_prompt: You are a test-driven development expert.
+    user_prompt: |
+      Generate comprehensive unit tests for the following function:
+
+      Language: {{language}}
+      Function: {{function_code}}
+
+      Test Framework: {{test_framework}}
+    arguments:
+      - name: language
+        description: Programming language
+        required: true
+      - name: function_code
+        description: The function code to test
+        required: true
+      - name: test_framework
+        description: Test framework to use (e.g., pytest, jest)
+        required: false
+    tags: testing, tdd, code
+
+  simple_prompt:
+    description: A simple prompt without arguments
+    system_prompt: You are a helpful assistant.
+    user_prompt: |
+      Help me with: {{topic}}
+    tags: general

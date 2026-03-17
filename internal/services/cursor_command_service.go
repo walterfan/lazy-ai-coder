@@ -1,0 +1,286 @@
+package services
+
+import (
+	"errors"
+	"fmt"
+	"strings"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+
+	"github.com/walterfan/lazy-ai-coder/pkg/models"
+	"github.com/walterfan/lazy-ai-coder/pkg/authz"
+)
+
+// CursorCommandService handles cursor command CRUD operations with user isolation
+type CursorCommandService struct {
+	db *gorm.DB
+}
+
+// NewCursorCommandService creates a new cursor command service
+func NewCursorCommandService(db *gorm.DB) *CursorCommandService {
+	return &CursorCommandService{db: db}
+}
+
+// CursorCommandScope represents the scope for querying cursor commands
+type CursorCommandScope string
+
+const (
+	CursorCommandScopeAll       CursorCommandScope = "all"       // Personal + Shared + Templates
+	CursorCommandScopePersonal  CursorCommandScope = "personal"  // User's personal commands
+	CursorCommandScopeShared    CursorCommandScope = "shared"    // Realm shared commands
+	CursorCommandScopeTemplates CursorCommandScope = "templates" // Global templates
+)
+
+// ListCursorCommands retrieves cursor commands based on scope and filters
+func (s *CursorCommandService) ListCursorCommands(userID, realmID *string, scope CursorCommandScope, nameFilter, tagsFilter, categoryFilter, languageFilter, frameworkFilter string, sortBy string, limit, offset int) ([]models.CursorCommand, int64, error) {
+	query := s.db.Model(&models.CursorCommand{}).Where("deleted_at IS NULL")
+
+	// Apply scope filtering
+	switch scope {
+	case CursorCommandScopePersonal:
+		if userID == nil || *userID == "" {
+			return nil, 0, errors.New("user_id required for personal scope")
+		}
+		query = query.Where("user_id = ?", *userID)
+
+	case CursorCommandScopeShared:
+		if realmID == nil || *realmID == "" {
+			return nil, 0, errors.New("realm_id required for shared scope")
+		}
+		query = query.Where("realm_id = ? AND user_id IS NULL", *realmID)
+
+	case CursorCommandScopeTemplates:
+		query = query.Where("user_id IS NULL AND realm_id IS NULL")
+
+	case CursorCommandScopeAll:
+		// Return personal + shared + templates
+		if userID != nil && *userID != "" && realmID != nil && *realmID != "" {
+			query = query.Where(
+				"(user_id = ?) OR (realm_id = ? AND user_id IS NULL) OR (user_id IS NULL AND realm_id IS NULL)",
+				*userID, *realmID,
+			)
+		} else if realmID != nil && *realmID != "" {
+			// No user, show shared + templates
+			query = query.Where(
+				"(realm_id = ? AND user_id IS NULL) OR (user_id IS NULL AND realm_id IS NULL)",
+				*realmID,
+			)
+		} else {
+			// Only templates
+			query = query.Where("user_id IS NULL AND realm_id IS NULL")
+		}
+	}
+
+	// Apply name filter
+	if nameFilter != "" {
+		query = query.Where("LOWER(name) LIKE ? OR LOWER(description) LIKE ? OR LOWER(command) LIKE ?",
+			"%"+strings.ToLower(nameFilter)+"%",
+			"%"+strings.ToLower(nameFilter)+"%",
+			"%"+strings.ToLower(nameFilter)+"%")
+	}
+
+	// Apply tags filter
+	if tagsFilter != "" {
+		query = query.Where("LOWER(tags) LIKE ?", "%"+strings.ToLower(tagsFilter)+"%")
+	}
+
+	// Apply category filter
+	if categoryFilter != "" {
+		query = query.Where("LOWER(category) = ?", strings.ToLower(categoryFilter))
+	}
+
+	// Apply language filter
+	if languageFilter != "" {
+		query = query.Where("LOWER(language) = ?", strings.ToLower(languageFilter))
+	}
+
+	// Apply framework filter
+	if frameworkFilter != "" {
+		query = query.Where("LOWER(framework) = ?", strings.ToLower(frameworkFilter))
+	}
+
+	// Get total count
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to count cursor commands: %w", err)
+	}
+
+	// Apply sorting
+	switch sortBy {
+	case "name":
+		query = query.Order("name ASC")
+	case "usage_count":
+		query = query.Order("usage_count DESC")
+	case "updated_at":
+		query = query.Order("updated_time DESC")
+	default:
+		query = query.Order("created_time DESC")
+	}
+
+	// Apply pagination
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if offset > 0 {
+		query = query.Offset(offset)
+	}
+
+	var commands []models.CursorCommand
+	if err := query.Find(&commands).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to list cursor commands: %w", err)
+	}
+
+	return commands, total, nil
+}
+
+// GetCursorCommandByID retrieves a cursor command by ID or Name
+func (s *CursorCommandService) GetCursorCommandByID(id string, userID, realmID *string) (*models.CursorCommand, error) {
+	var command models.CursorCommand
+	// Support lookup by both ID (UUID) and Name for backward compatibility
+	query := s.db.Where("(id = ? OR name = ?) AND deleted_at IS NULL", id, id)
+
+	// Access control: user can only access their own commands, shared commands, or templates
+	if userID != nil && *userID != "" && realmID != nil && *realmID != "" {
+		query = query.Where(
+			"(user_id = ?) OR (realm_id = ? AND user_id IS NULL) OR (user_id IS NULL AND realm_id IS NULL)",
+			*userID, *realmID,
+		)
+	}
+
+	if err := query.First(&command).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("cursor command not found")
+		}
+		return nil, fmt.Errorf("failed to get cursor command: %w", err)
+	}
+
+	return &command, nil
+}
+
+// CreateCursorCommand creates a new cursor command
+func (s *CursorCommandService) CreateCursorCommand(name, description, command, category, language, framework, tags string, isTemplate bool, userID, realmID *string, createdBy string) (*models.CursorCommand, error) {
+	cmd := &models.CursorCommand{
+		ID:          uuid.New().String(),
+		UserID:      userID,
+		RealmID:     realmID,
+		Name:        name,
+		Description: description,
+		Command:     command,
+		Category:    category,
+		Language:    language,
+		Framework:   framework,
+		Tags:        tags,
+		IsTemplate:   isTemplate,
+		UsageCount:  0,
+		CreatedBy:   createdBy,
+		UpdatedBy:   createdBy,
+	}
+
+	if err := s.db.Create(cmd).Error; err != nil {
+		return nil, fmt.Errorf("failed to create cursor command: %w", err)
+	}
+
+	return cmd, nil
+}
+
+// UpdateCursorCommand updates an existing cursor command
+func (s *CursorCommandService) UpdateCursorCommand(id, name, description, command, category, language, framework, tags string, isTemplate bool, updatedBy string, userID, realmID *string) (*models.CursorCommand, error) {
+	// Get existing command (supports lookup by ID or name)
+	cmd, err := s.GetCursorCommandByID(id, userID, realmID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Authorization check
+	userIDStr := ""
+	if userID != nil {
+		userIDStr = *userID
+	}
+
+	// Super admins can edit any cursor command
+	isSuperAdmin := authz.IsSuperAdmin(s.db, userIDStr)
+
+	if !isSuperAdmin {
+		// Non-super-admin authorization: user can only update their own commands
+		if userID != nil && *userID != "" {
+			if cmd.UserID == nil || *cmd.UserID != *userID {
+				return nil, errors.New("unauthorized: you can only update your own cursor commands")
+			}
+		}
+
+		// Additional realm isolation check for non-super-admins
+		if realmID != nil && *realmID != "" {
+			if cmd.RealmID == nil || *cmd.RealmID != *realmID {
+				return nil, errors.New("unauthorized: cursor command belongs to different realm")
+			}
+		}
+	}
+
+	// Update fields - use the actual UUID ID from the fetched command
+	updates := map[string]interface{}{
+		"name":        name,
+		"description": description,
+		"command":     command,
+		"category":    category,
+		"language":    language,
+		"framework":   framework,
+		"tags":        tags,
+		"is_template": isTemplate,
+		"updated_by":  updatedBy,
+	}
+
+	if err := s.db.Model(&models.CursorCommand{}).Where("id = ?", cmd.ID).Updates(updates).Error; err != nil {
+		return nil, fmt.Errorf("failed to update cursor command: %w", err)
+	}
+
+	// Fetch updated command using the actual ID
+	return s.GetCursorCommandByID(cmd.ID, userID, realmID)
+}
+
+// DeleteCursorCommand soft-deletes a cursor command
+func (s *CursorCommandService) DeleteCursorCommand(id string, userID, realmID *string) error {
+	// Get existing command (supports lookup by ID or name)
+	cmd, err := s.GetCursorCommandByID(id, userID, realmID)
+	if err != nil {
+		return err
+	}
+
+	// Authorization check
+	userIDStr := ""
+	if userID != nil {
+		userIDStr = *userID
+	}
+
+	// Super admins can delete any cursor command
+	isSuperAdmin := authz.IsSuperAdmin(s.db, userIDStr)
+
+	if !isSuperAdmin {
+		// Non-super-admin authorization: user can only delete their own commands
+		if userID != nil && *userID != "" {
+			if cmd.UserID == nil || *cmd.UserID != *userID {
+				return errors.New("unauthorized: you can only delete your own cursor commands")
+			}
+		}
+
+		// Additional realm isolation check for non-super-admins
+		if realmID != nil && *realmID != "" {
+			if cmd.RealmID == nil || *cmd.RealmID != *realmID {
+				return errors.New("unauthorized: cursor command belongs to different realm")
+			}
+		}
+	}
+
+	// Soft delete - use the actual UUID ID from the fetched command
+	if err := s.db.Model(&models.CursorCommand{}).Where("id = ?", cmd.ID).Update("deleted_at", gorm.Expr("CURRENT_TIMESTAMP")).Error; err != nil {
+		return fmt.Errorf("failed to delete cursor command: %w", err)
+	}
+
+	return nil
+}
+
+// IncrementUsageCount increments the usage count for a cursor command
+func (s *CursorCommandService) IncrementUsageCount(id string) error {
+	return s.db.Model(&models.CursorCommand{}).Where("id = ?", id).Update("usage_count", gorm.Expr("usage_count + 1")).Error
+}
+

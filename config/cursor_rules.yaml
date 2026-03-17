@@ -1,0 +1,739 @@
+# Cursor Rules Templates for Common Languages and Frameworks
+# These are global templates (user_id = NULL, realm_id = NULL) visible to all users
+
+cursor_rules:
+  python_general:
+    description: "General Python best practices and PEP 8 style guide"
+    language: "python"
+    framework: ""
+    tags: "python,pep8,best-practices"
+    is_template: true
+    content: |
+      # Python Best Practices
+
+      ## Code Style
+      - Follow PEP 8 style guide
+      - Use 4 spaces for indentation (never tabs)
+      - Maximum line length: 79 characters for code, 72 for docstrings
+      - Use snake_case for variables and functions
+      - Use PascalCase for classes
+      - Use UPPER_CASE for constants
+
+      ## Type Hints
+      - Always use type hints for function parameters and return values
+      - Use `typing` module for complex types
+
+      ## Documentation
+      - Write docstrings for all public modules, functions, classes, and methods
+      - Use Google or NumPy docstring format
+
+      ## Error Handling
+      - Be specific with exception types
+      - Avoid bare `except:` clauses
+      - Use context managers (`with` statements) for resource management
+
+      ## Best Practices
+      - Use list/dict comprehensions where appropriate
+      - Prefer `pathlib` over `os.path`
+      - Use `logging` instead of `print()` for debugging
+      - Write unit tests with pytest
+      - Use virtual environments
+
+  python_fastapi:
+    description: "FastAPI best practices for building modern APIs"
+    language: "python"
+    framework: "fastapi"
+    tags: "python,fastapi,api,rest"
+    is_template: true
+    content: |
+      # FastAPI Best Practices
+
+      ## Project Structure
+      ```
+      app/
+        __init__.py
+        main.py
+        api/
+          __init__.py
+          routes/
+          dependencies.py
+        models/
+        schemas/
+        services/
+        core/
+          config.py
+          security.py
+      ```
+
+      ## API Design
+      - Use Pydantic models for request/response validation
+      - Define clear schemas in `schemas/` directory
+      - Separate business logic into `services/`
+      - Use dependency injection for common dependencies
+
+      ## Path Operations
+      - Use appropriate HTTP methods (GET, POST, PUT, DELETE, PATCH)
+      - Include response models with `response_model` parameter
+      - Add status codes with `status_code` parameter
+      - Use tags for API documentation organization
+
+      ## Error Handling
+      - Use HTTPException for client errors
+      - Create custom exception handlers
+      - Return consistent error response format
+
+      ## Security
+      - Use OAuth2 with JWT tokens for authentication
+      - Implement rate limiting
+      - Enable CORS only for trusted origins
+      - Validate all input data with Pydantic
+
+      ## Performance
+      - Use async/await for I/O operations
+      - Implement caching with Redis
+      - Use database connection pooling
+      - Add query pagination
+
+  javascript_react:
+    description: "React best practices and modern patterns"
+    language: "javascript"
+    framework: "react"
+    tags: "javascript,react,frontend,hooks"
+    is_template: true
+    content: |
+      # React Best Practices
+
+      ## Component Structure
+      - Prefer functional components over class components
+      - Use hooks (useState, useEffect, useContext, etc.)
+      - Keep components small and focused (Single Responsibility)
+      - Extract reusable logic into custom hooks
+
+      ## File Organization
+      ```
+      src/
+        components/
+          Button/
+            Button.jsx
+            Button.test.jsx
+            Button.module.css
+        hooks/
+        services/
+        utils/
+        pages/
+        App.jsx
+      ```
+
+      ## State Management
+      - Use local state for component-specific data
+      - Use Context API for shared state across multiple components
+      - Consider Redux/Zustand for complex global state
+      - Lift state up only when necessary
+
+      ## Performance
+      - Use React.memo() for expensive components
+      - Use useMemo() and useCallback() to prevent unnecessary re-renders
+      - Lazy load routes and components with React.lazy()
+      - Avoid inline functions in JSX when possible
+
+      ## Code Style
+      - Use PropTypes or TypeScript for type checking
+      - Destructure props in function parameters
+      - Use meaningful variable and function names
+      - Keep JSX readable with proper indentation
+
+      ## Testing
+      - Write unit tests with Jest and React Testing Library
+      - Test user interactions, not implementation details
+      - Aim for high test coverage
+
+  typescript_general:
+    description: "TypeScript best practices and type safety guidelines"
+    language: "typescript"
+    framework: ""
+    tags: "typescript,types,best-practices"
+    is_template: true
+    content: |
+      # TypeScript Best Practices
+
+      ## Type Annotations
+      - Always annotate function parameters and return types
+      - Use interfaces for object shapes
+      - Use type aliases for unions and complex types
+      - Avoid using `any` - use `unknown` if type is truly unknown
+
+      ## Type Safety
+      - Enable strict mode in tsconfig.json
+      - Use discriminated unions for variant types
+      - Leverage type guards for narrowing
+      - Use optional chaining (?.) and nullish coalescing (??)
+
+      ## Code Organization
+      - Keep types in separate `.types.ts` files
+      - Use barrel exports (index.ts) for cleaner imports
+      - Prefer `interface` over `type` for object shapes
+      - Use enums or const objects for constants
+
+      ## Generics
+      - Use generics for reusable type-safe functions
+      - Constrain generics with `extends` when needed
+      - Name generic parameters descriptively (not just `T`)
+
+      ## Best Practices
+      - Use readonly for immutable data
+      - Leverage utility types (Partial, Pick, Omit, etc.)
+      - Avoid type assertions unless necessary
+      - Document complex types with JSDoc comments
+
+  golang_general:
+    description: "Go best practices and idiomatic patterns"
+    language: "go"
+    framework: ""
+    tags: "go,golang,best-practices"
+    is_template: true
+    content: |
+      # Go Best Practices
+
+      ## Code Style
+      - Run `gofmt` and `goimports` before committing
+      - Follow Effective Go guidelines
+      - Use short, descriptive variable names
+      - Use camelCase for unexported names, PascalCase for exported
+
+      ## Project Structure
+      ```
+      project/
+        cmd/
+          myapp/
+            main.go
+        internal/
+          handlers/
+          services/
+        pkg/
+          models/
+          utils/
+        go.mod
+        go.sum
+      ```
+
+      ## Error Handling
+      - Always handle errors explicitly
+      - Return errors, don't panic
+      - Wrap errors with context using fmt.Errorf with %w
+      - Create custom error types when needed
+
+      ## Concurrency
+      - Use goroutines and channels for concurrent operations
+      - Always close channels when done writing
+      - Use sync.WaitGroup for waiting on multiple goroutines
+      - Avoid goroutine leaks - ensure they terminate
+
+      ## Interfaces
+      - Keep interfaces small and focused
+      - Accept interfaces, return structs
+      - Define interfaces where they're used, not where implemented
+
+      ## Testing
+      - Write table-driven tests
+      - Use testify for assertions
+      - Aim for high test coverage
+      - Use build tags for integration tests
+
+  java_springboot:
+    description: "Spring Boot best practices for enterprise Java applications"
+    language: "java"
+    framework: "spring-boot"
+    tags: "java,spring-boot,enterprise"
+    is_template: true
+    content: |
+      # Spring Boot Best Practices
+
+      ## Project Structure
+      ```
+      src/main/java/com/company/project/
+        Application.java
+        controller/
+        service/
+        repository/
+        model/
+        dto/
+        config/
+        exception/
+        util/
+      ```
+
+      ## Dependency Injection
+      - Use constructor injection over field injection
+      - Mark service classes with @Service
+      - Use @Autowired on constructors (or omit for single constructor)
+      - Keep dependencies minimal and focused
+
+      ## REST Controllers
+      - Use @RestController for REST endpoints
+      - Use proper HTTP methods and status codes
+      - Validate input with @Valid and Bean Validation
+      - Return ResponseEntity for full control
+
+      ## Data Access
+      - Use Spring Data JPA for database operations
+      - Define repositories with JpaRepository
+      - Use DTOs for API responses (don't expose entities)
+      - Implement pagination for large datasets
+
+      ## Error Handling
+      - Create custom exception classes
+      - Use @ControllerAdvice for global exception handling
+      - Return consistent error response structure
+
+      ## Configuration
+      - Use application.yml over application.properties
+      - Externalize configuration with @ConfigurationProperties
+      - Use profiles for environment-specific configs
+
+      ## Testing
+      - Write unit tests with JUnit 5 and Mockito
+      - Use @SpringBootTest for integration tests
+      - Test REST endpoints with MockMvc
+
+  vue3_composition:
+    description: "Vue 3 Composition API best practices"
+    language: "javascript"
+    framework: "vue3"
+    tags: "vue,vue3,composition-api,frontend"
+    is_template: true
+    content: |
+      # Vue 3 Composition API Best Practices
+
+      ## Component Structure
+      - Use `<script setup>` for cleaner syntax
+      - Use Composition API over Options API
+      - Extract reusable logic into composables
+      - Keep components focused and small
+
+      ## Reactivity
+      - Use `ref()` for primitive values
+      - Use `reactive()` for objects
+      - Use `computed()` for derived state
+      - Use `watch()` and `watchEffect()` for side effects
+
+      ## File Organization
+      ```
+      src/
+        components/
+        composables/
+        views/
+        router/
+        stores/
+        services/
+        utils/
+        App.vue
+        main.js
+      ```
+
+      ## State Management
+      - Use Pinia for global state management
+      - Define stores in `stores/` directory
+      - Use composables for shared component logic
+      - Keep stores focused on specific domains
+
+      ## Props and Events
+      - Define props with TypeScript or PropTypes
+      - Use `defineProps()` in script setup
+      - Emit events with `defineEmits()`
+      - Follow naming conventions (kebab-case for events)
+
+      ## Performance
+      - Use `v-memo` for expensive lists
+      - Lazy load routes with dynamic imports
+      - Use `shallowRef`/`shallowReactive` for large objects
+      - Avoid unnecessary reactivity
+
+      ## TypeScript
+      - Use TypeScript for type safety
+      - Define interfaces for props and emits
+      - Type your composables and stores
+
+  rust_general:
+    description: "Rust best practices and idiomatic patterns"
+    language: "rust"
+    framework: ""
+    tags: "rust,systems,safety"
+    is_template: true
+    content: |
+      # Rust Best Practices
+
+      ## Ownership and Borrowing
+      - Understand ownership rules thoroughly
+      - Prefer borrowing over cloning
+      - Use references (&T) when you don't need ownership
+      - Use mut sparingly - default to immutability
+
+      ## Error Handling
+      - Use Result<T, E> for recoverable errors
+      - Use Option<T> for nullable values
+      - Use ? operator for error propagation
+      - Create custom error types with thiserror
+      - Avoid panic! in library code
+
+      ## Code Style
+      - Run `cargo fmt` before committing
+      - Run `cargo clippy` and fix all warnings
+      - Follow Rust naming conventions
+      - Use snake_case for variables and functions
+
+      ## Project Structure
+      ```
+      src/
+        main.rs or lib.rs
+        models/
+        services/
+        utils/
+      tests/
+      ```
+
+      ## Traits
+      - Implement standard traits (Debug, Clone, etc.)
+      - Use trait bounds to constrain generics
+      - Prefer trait objects over generics when appropriate
+
+      ## Concurrency
+      - Use std::thread for basic threading
+      - Use Mutex<T> or RwLock<T> for shared state
+      - Consider tokio for async/await
+      - Avoid data races with ownership system
+
+      ## Testing
+      - Write unit tests in same file with #[cfg(test)]
+      - Write integration tests in tests/ directory
+      - Use assert_eq! and assert! macros
+      - Test error cases, not just happy paths
+
+  sql_best_practices:
+    description: "SQL best practices for database queries and schema design"
+    language: "sql"
+    framework: ""
+    tags: "sql,database,queries,performance"
+    is_template: true
+    content: |
+      # SQL Best Practices
+
+      ## Query Optimization
+      - Use indexes on frequently queried columns
+      - Avoid SELECT * - specify only needed columns
+      - Use WHERE clauses to filter data early
+      - Use LIMIT for pagination
+      - Avoid N+1 queries - use JOINs or batch queries
+
+      ## Schema Design
+      - Normalize to 3NF to reduce redundancy
+      - Use appropriate data types
+      - Add NOT NULL constraints where applicable
+      - Define primary keys on all tables
+      - Use foreign keys for referential integrity
+
+      ## Naming Conventions
+      - Use snake_case for table and column names
+      - Use plural names for tables (users, orders)
+      - Use descriptive names (created_at, not ca)
+      - Prefix foreign keys with table name (user_id)
+
+      ## Indexes
+      - Create indexes on foreign keys
+      - Create composite indexes for multi-column queries
+      - Don't over-index - each index has overhead
+      - Monitor and drop unused indexes
+
+      ## Transactions
+      - Use transactions for related operations
+      - Keep transactions short
+      - Use appropriate isolation levels
+      - Handle deadlocks gracefully
+
+      ## Security
+      - Never concatenate user input into SQL
+      - Use parameterized queries/prepared statements
+      - Apply principle of least privilege
+      - Encrypt sensitive data
+
+  docker_best_practices:
+    description: "Docker best practices for containerization"
+    language: "dockerfile"
+    framework: "docker"
+    tags: "docker,containers,devops"
+    is_template: true
+    content: |
+      # Docker Best Practices
+
+      ## Dockerfile Structure
+      - Use specific base image tags, avoid :latest
+      - Use multi-stage builds to reduce image size
+      - Order instructions from least to most frequently changing
+      - Combine RUN commands to reduce layers
+
+      ## Security
+      - Don't run containers as root
+      - Use USER instruction to set non-root user
+      - Don't store secrets in images
+      - Scan images for vulnerabilities
+      - Use minimal base images (alpine, distroless)
+
+      ## Performance
+      - Leverage build cache effectively
+      - Use .dockerignore to exclude unnecessary files
+      - Minimize layer size
+      - Clean up package manager caches
+
+      ## Example Dockerfile
+      ```dockerfile
+      FROM node:18-alpine AS builder
+      WORKDIR /app
+      COPY package*.json ./
+      RUN npm ci
+      COPY . .
+      RUN npm run build
+
+      FROM node:18-alpine
+      RUN addgroup -g 1001 -S nodejs
+      RUN adduser -S nodejs -u 1001
+      WORKDIR /app
+      COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+      COPY --from=builder /app/node_modules ./node_modules
+      USER nodejs
+      EXPOSE 3000
+      CMD ["node", "dist/main.js"]
+      ```
+
+      ## Docker Compose
+      - Use version-controlled docker-compose.yml
+      - Use environment variables for configuration
+      - Define health checks
+      - Use volumes for persistent data
+      - Use networks to isolate services
+
+  api_design_rest:
+    description: "RESTful API design best practices"
+    language: ""
+    framework: "rest"
+    tags: "api,rest,design,http"
+    is_template: true
+    content: |
+      # RESTful API Design Best Practices
+
+      ## HTTP Methods
+      - GET: Retrieve resources (idempotent, safe)
+      - POST: Create new resources
+      - PUT: Update entire resource (idempotent)
+      - PATCH: Partial update
+      - DELETE: Remove resource (idempotent)
+
+      ## URL Structure
+      - Use nouns, not verbs: /users not /getUsers
+      - Use plural nouns: /users not /user
+      - Use hierarchical structure: /users/123/orders
+      - Use query parameters for filtering: /users?role=admin
+      - Use kebab-case: /user-profiles not /user_profiles
+
+      ## Status Codes
+      - 200 OK: Successful GET, PUT, PATCH
+      - 201 Created: Successful POST
+      - 204 No Content: Successful DELETE
+      - 400 Bad Request: Invalid input
+      - 401 Unauthorized: Missing authentication
+      - 403 Forbidden: Authenticated but not authorized
+      - 404 Not Found: Resource doesn't exist
+      - 500 Internal Server Error: Server error
+
+      ## Request/Response Format
+      - Use JSON for request and response bodies
+      - Include Content-Type header
+      - Return consistent error format
+      - Include pagination metadata
+      - Use ISO 8601 for dates
+
+      ## Versioning
+      - Use URL versioning: /api/v1/users
+      - Or header versioning: Accept: application/vnd.api+json;version=1
+      - Document breaking changes
+      - Support old versions during migration
+
+      ## Security
+      - Use HTTPS always
+      - Implement authentication (JWT, OAuth)
+      - Implement authorization
+      - Rate limit requests
+      - Validate all inputs
+      - Use CORS properly
+
+      ## Documentation
+      - Use OpenAPI/Swagger
+      - Include examples
+      - Document error responses
+      - Keep docs up to date
+
+  testing_best_practices:
+    description: "General testing best practices across languages"
+    language: ""
+    framework: ""
+    tags: "testing,quality,tdd,bdd"
+    is_template: true
+    content: |
+      # Testing Best Practices
+
+      ## Test Types
+      - Unit Tests: Test individual functions/classes
+      - Integration Tests: Test component interactions
+      - E2E Tests: Test complete user workflows
+      - Follow test pyramid: Many unit, some integration, few E2E
+
+      ## Test Structure
+      - Use AAA pattern: Arrange, Act, Assert
+      - One assertion per test (generally)
+      - Use descriptive test names
+      - Keep tests simple and readable
+
+      ## Test Coverage
+      - Aim for 80%+ code coverage
+      - Focus on critical paths
+      - Don't just chase numbers
+      - Test edge cases and error conditions
+
+      ## TDD Workflow
+      1. Write failing test
+      2. Write minimal code to pass
+      3. Refactor
+      4. Repeat
+
+      ## Mocking
+      - Mock external dependencies
+      - Use dependency injection
+      - Don't over-mock
+      - Verify interactions when appropriate
+
+      ## Test Data
+      - Use factories or builders
+      - Avoid test data coupling
+      - Use realistic data
+      - Clean up after tests
+
+      ## CI/CD
+      - Run tests automatically on commits
+      - Run fast tests first
+      - Fail builds on test failures
+      - Monitor flaky tests
+
+  git_workflow:
+    description: "Git workflow and commit best practices"
+    language: ""
+    framework: "git"
+    tags: "git,version-control,workflow"
+    is_template: true
+    content: |
+      # Git Best Practices
+
+      ## Commit Messages
+      - Use conventional commits format
+      - Start with type: feat, fix, docs, refactor, test, chore
+      - Keep subject line under 50 characters
+      - Use imperative mood: "Add feature" not "Added feature"
+      - Include body for complex changes
+      - Reference issues: "Fixes #123"
+
+      ## Example:
+      ```
+      feat: add user authentication with JWT
+
+      - Implement JWT token generation
+      - Add login and signup endpoints
+      - Create authentication middleware
+
+      Closes #45
+      ```
+
+      ## Branching Strategy
+      - main/master: Production-ready code
+      - develop: Integration branch
+      - feature/: New features (feature/user-auth)
+      - bugfix/: Bug fixes (bugfix/login-error)
+      - hotfix/: Urgent production fixes
+
+      ## Best Practices
+      - Commit early and often
+      - Keep commits atomic and focused
+      - Never commit secrets or credentials
+      - Pull before push
+      - Use .gitignore properly
+      - Don't commit generated files
+
+      ## Pull Requests
+      - Write clear PR descriptions
+      - Keep PRs small and focused
+      - Include tests for new features
+      - Request reviews from relevant people
+      - Address review comments
+      - Squash commits if needed
+
+      ## Code Review
+      - Review promptly
+      - Be constructive and respectful
+      - Focus on logic, not style (use linters)
+      - Approve only if you understand changes
+      - Test changes locally if needed
+
+  security_general:
+    description: "General security best practices for web applications"
+    language: ""
+    framework: ""
+    tags: "security,owasp,authentication,authorization"
+    is_template: true
+    content: |
+      # Security Best Practices
+
+      ## OWASP Top 10
+      1. Injection: Use parameterized queries
+      2. Broken Authentication: Use strong auth mechanisms
+      3. Sensitive Data Exposure: Encrypt data at rest and in transit
+      4. XML External Entities: Disable XXE in parsers
+      5. Broken Access Control: Implement proper authorization
+      6. Security Misconfiguration: Secure defaults, minimize attack surface
+      7. XSS: Sanitize and escape user input
+      8. Insecure Deserialization: Validate serialized data
+      9. Components with Known Vulnerabilities: Keep dependencies updated
+      10. Insufficient Logging: Log security events
+
+      ## Authentication
+      - Use bcrypt/argon2 for password hashing
+      - Implement multi-factor authentication
+      - Use secure session management
+      - Implement account lockout
+      - Use HTTPS for all auth endpoints
+
+      ## Authorization
+      - Implement principle of least privilege
+      - Use role-based or attribute-based access control
+      - Check authorization on every request
+      - Don't rely on client-side checks
+
+      ## Input Validation
+      - Validate all user input
+      - Use allowlists, not denylists
+      - Sanitize data before output
+      - Validate file uploads
+
+      ## API Security
+      - Use API keys or OAuth tokens
+      - Implement rate limiting
+      - Use CORS properly
+      - Validate Content-Type
+      - Sign and verify tokens (JWT)
+
+      ## Data Protection
+      - Encrypt sensitive data at rest
+      - Use TLS/SSL for data in transit
+      - Don't log sensitive data
+      - Implement secure deletion
+
+      ## Dependencies
+      - Keep dependencies up to date
+      - Use dependency scanning tools
+      - Remove unused dependencies
+      - Review security advisories

@@ -1,0 +1,128 @@
+# Contributing to AwesomeCLI
+
+Thank you for your interest in contributing! We welcome your help. 🎉
+
+_Last updated: 2025-07-21_
+
+---
+
+## 🧭 Table of Contents
+
+- [Code Style & Formatting](#code-style--formatting)
+- [Pre‑commit Hooks](#pre-commit-hooks)
+- [Branching & Pull Requests](#branching--pull-requests)
+- [Commit Message Guidelines](#commit-message-guidelines)
+- [Testing](#testing)
+- [Pull Request Checklist](#pull-request-checklist)
+- [Code of Conduct](#code-of-conduct)
+- [Getting Help](#getting-help)
+
+---
+
+## Code Style & Formatting
+
+We follow the **Google C++ Style Guide** (2‑space indents, CamelCase types, `lower_snake_case` for functions/variables, braces on same line) :contentReference[oaicite:1]{index=1}.
+
+- Apply formatting with:
+  ```bash
+  clang-format -i file.cpp file.h
+  cpplint file.cpp file.h
+````
+
+* Pointers declared as `T* ptr`.
+* Always use braces for control statements.
+* Avoid tabs; use spaces.
+
+---
+
+## Pre-commit Hooks
+
+Use `clang-format` in Git hooks:
+
+```yaml
+repos:
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: Format C++ code
+        entry: clang-format -i
+        language: system
+        types: [c, cpp, h]
+```
+
+Install with:
+
+```bash
+pre-commit install
+pre-commit run --all-files
+```
+
+---
+
+## Branching & Pull Requests
+
+* Branch from `main` using clear names, e.g. `issue123-add-parser`.
+* Rebase frequently.
+* Use descriptive PR titles.
+* Squash related commits where appropriate.
+* Include tests and documentation updates when needed.
+
+---
+
+## Commit Message Guidelines
+
+* Use imperative mood in headings (max 50 chars).
+* Include a body wrapped at \~72 chars, referencing issues:
+
+  ```
+  Add parser for new format
+
+  - Handle JSON and YAML
+  - Includes unit tests
+
+  Fixes #123
+  ```
+
+---
+
+## Testing
+
+* Create tests under `tests/`.
+* Run tests via:
+
+  ```bash
+  mkdir -p build && cd build
+  cmake ..
+  make test
+  ```
+* Every feature or bug fix must include tests.
+
+---
+
+## Pull Request Checklist
+
+* \[ ] Code is formatted and linted
+* \[ ] New features have tests
+* \[ ] Documentation is updated (README, examples)
+* \[ ] CI pipelines are passing
+
+---
+
+## Code of Conduct
+
+Our project adheres to a Contributor Code of Conduct based on the PurpleBooth template. Please be respectful, inclusive, and welcoming. ([Illinois Wesleyan University][1], [opentitan.org][2], [CONTRIBUTING.md][3], [Google Groups][4], [Gist][5])
+
+---
+
+## Getting Help
+
+If you have questions or need guidance, please open an issue or contact the maintainers directly.
+
+---
+
+### 📚 References
+
+* Google C++ Style Guide ([Google GitHub][6], [opentitan.org][2])
+* cpplint (Google’s lint for C++) ([Wikipedia][7])
+* PurpleBooth Code of Conduct template ([Gist][5])
+

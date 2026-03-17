@@ -1,0 +1,42 @@
+# Environment and secrets (never commit)
+.env
+.env.local
+.env.*.local
+deploy/.env
+!deploy/.env.example
+!example.env
+
+# Database files (may contain user data)
+*.db
+db/*.db
+
+# Logs
+*.log
+server*.log
+
+# Build artifacts
+/lazy-ai-coder
+/dist
+.lazy-ai-coder.pid
+
+# Optional: local config override (if you use config.local.yaml)
+config/config.local.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+*.egg-info/
+.eggs/
+
+# IDE / OS
+.DS_Store
+.idea
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node (frontend uses web/; root may have tooling)
+node_modules/

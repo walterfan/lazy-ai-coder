@@ -1,0 +1,15 @@
+# Database Configuration
+database:
+  type: sqlite  # sqlite, postgres, mysql
+  host: localhost
+  port: 5432
+  username: walter
+  password: ""
+  database: lazy_ai_coder
+  ssl_mode: disable
+  charset: utf8mb4
+  file_path: ./db/lazy_ai_coder.db
+
+
+# Reference to external prompts file
+prompts_file: config/prompts.yaml
