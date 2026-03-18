@@ -255,7 +255,7 @@ See `tests/README.md` for complete testing documentation.
 
 ## Usage
 
-Open http://10.100.212.8:8888 or other host you use
+Open http://192.168.0.108:8888 or other host you use
 
 * You can use this tool to help you to understand and write code, e.g.
   * Explain or summarize the code in natural language, and draw a UML or mindmap diagram
@@ -332,7 +332,7 @@ See `IMPORT_COMMAND_GUIDE.md` for details.
 1. create .env like below
 
 ```
-PLANTUML_URL="http://10.100.212.8:8000"
+PLANTUML_URL="http://192.168.0.108:8000"
 
 ADMIN_USERNAME="{{your_admin_username}}"
 ADMIN_PASSWORD="{{your_admin_password}}"
