@@ -79,6 +79,7 @@ func GetAllModels() []interface{} {
 		&CursorCommand{},
 		&LLMModel{},
 		&CodeMateArtifact{},
+		&SkillRating{},
 	}
 }
 

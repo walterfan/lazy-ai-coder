@@ -27,7 +27,8 @@ type Item struct {
 
 // Loader scans the assets directory for commands, rules, and skills
 type Loader struct {
-	root string // absolute path to assets directory
+	root      string   // absolute path to assets directory
+	ossRoots  []string // absolute paths to additional OSS skill directories
 }
 
 // NewLoader creates a loader with the given assets root (e.g. "assets" or "/app/assets")
@@ -46,42 +47,96 @@ func NewLoader(assetsRoot string) (*Loader, error) {
 	return &Loader{root: abs}, nil
 }
 
-// safePath ensures path is under loader.root and has no path traversal
+// AddOSSRoot registers an additional directory tree that contains SKILL.md files.
+// The category for discovered skills is derived from the top-level folder name.
+func (l *Loader) AddOSSRoot(absPath string) {
+	l.ossRoots = append(l.ossRoots, absPath)
+}
+
+// safePath ensures path is under loader.root (or an oss root) and has no path traversal
 func (l *Loader) safePath(rel string) (string, bool) {
 	rel = filepath.Clean(rel)
 	if rel == "." || strings.HasPrefix(rel, "..") {
 		return "", false
 	}
+
+	// Try assets root first
 	abs := filepath.Join(l.root, rel)
 	abs = filepath.Clean(abs)
 	rootClean := filepath.Clean(l.root)
-	if abs != rootClean && !strings.HasPrefix(abs, rootClean+string(os.PathSeparator)) {
-		return "", false
+	if abs == rootClean || strings.HasPrefix(abs, rootClean+string(os.PathSeparator)) {
+		return abs, true
 	}
-	return abs, true
+
+	// Try each oss root
+	for _, ossRoot := range l.ossRoots {
+		abs = filepath.Join(ossRoot, rel)
+		abs = filepath.Clean(abs)
+		clean := filepath.Clean(ossRoot)
+		if abs == clean || strings.HasPrefix(abs, clean+string(os.PathSeparator)) {
+			return abs, true
+		}
+	}
+
+	return "", false
 }
 
-// ListCommands returns all .md files under assets/commands
-func (l *Loader) ListCommands() ([]Item, error) {
-	dir := filepath.Join(l.root, "commands")
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
+// resolveAbsPath resolves an absolute path if it falls under any known root.
+// Used for reading files whose absolute path is already known from discovery.
+func (l *Loader) resolveAbsPath(abs string) bool {
+	abs = filepath.Clean(abs)
+	rootClean := filepath.Clean(l.root)
+	if strings.HasPrefix(abs, rootClean+string(os.PathSeparator)) {
+		return true
+	}
+	for _, ossRoot := range l.ossRoots {
+		clean := filepath.Clean(ossRoot)
+		if strings.HasPrefix(abs, clean+string(os.PathSeparator)) {
+			return true
 		}
-		return nil, err
+	}
+	return false
+}
+
+// ListCommands returns all .md files under assets/commands (recursive, category from subfolder)
+func (l *Loader) ListCommands() ([]Item, error) {
+	root := filepath.Join(l.root, "commands")
+	if _, err := os.Stat(root); os.IsNotExist(err) {
+		return nil, nil
 	}
 	var out []Item
-	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(strings.ToLower(e.Name()), ".md") {
-			continue
-		}
-		rel := filepath.Join("commands", e.Name())
-		item, err := l.itemFromFile(rel, TypeCommand, e.Name(), "")
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			continue
+			if os.IsNotExist(err) {
+				return nil
+			}
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if !strings.HasSuffix(strings.ToLower(filepath.Base(path)), ".md") {
+			return nil
+		}
+		rel, err := filepath.Rel(l.root, path)
+		if err != nil {
+			return nil
+		}
+		rel = filepath.ToSlash(rel)
+		parts := strings.Split(rel, "/")
+		category := ""
+		if len(parts) >= 3 {
+			category = parts[1]
+		}
+		item, err := l.itemFromFile(rel, TypeCommand, filepath.Base(path), category)
+		if err != nil {
+			return nil
 		}
 		out = append(out, item)
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 	return out, nil
 }
@@ -130,48 +185,70 @@ func (l *Loader) ListRules() ([]Item, error) {
 	return out, nil
 }
 
-// ListSkills returns all SKILL.md files under assets/skills (recursive)
+// ListSkills returns all SKILL.md files under assets/skills and all OSS roots (recursive)
 func (l *Loader) ListSkills() ([]Item, error) {
-	root := filepath.Join(l.root, "skills")
-	if _, err := os.Stat(root); os.IsNotExist(err) {
-		return nil, nil
-	}
 	var out []Item
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			if os.IsNotExist(err) {
+
+	// 1. Scan assets/skills (category = subfolder name, e.g. "walterfan")
+	assetsSkillsDir := filepath.Join(l.root, "skills")
+	if _, err := os.Stat(assetsSkillsDir); err == nil {
+		_ = filepath.Walk(assetsSkillsDir, func(path string, info os.FileInfo, err error) error {
+			if err != nil || info.IsDir() || filepath.Base(path) != "SKILL.md" {
 				return nil
 			}
-			return err
-		}
-		if info.IsDir() {
+			rel, err := filepath.Rel(l.root, path)
+			if err != nil {
+				return nil
+			}
+			rel = filepath.ToSlash(rel)
+			parts := strings.Split(rel, "/")
+			category := ""
+			if len(parts) >= 2 {
+				category = parts[1]
+			}
+			skillName := "Skill"
+			if len(parts) >= 3 {
+				skillName = parts[len(parts)-2]
+			}
+			item, err := l.itemFromFile(rel, TypeSkill, skillName, category)
+			if err != nil {
+				return nil
+			}
+			out = append(out, item)
 			return nil
-		}
-		if filepath.Base(path) != "SKILL.md" {
+		})
+	}
+
+	// 2. Scan each OSS root for SKILL.md files
+	for _, ossRoot := range l.ossRoots {
+		category := filepath.Base(ossRoot)
+		_ = filepath.Walk(ossRoot, func(path string, info os.FileInfo, err error) error {
+			if err != nil || info.IsDir() || filepath.Base(path) != "SKILL.md" {
+				return nil
+			}
+			// Skip hidden directories (e.g. .git)
+			relToOss, _ := filepath.Rel(ossRoot, path)
+			for _, seg := range strings.Split(filepath.ToSlash(relToOss), "/") {
+				if strings.HasPrefix(seg, ".") {
+					return nil
+				}
+			}
+			skillName := filepath.Base(filepath.Dir(path))
+			if skillName == "." || skillName == category {
+				skillName = "Skill"
+			}
+			// Build a virtual path: oss/<category>/...relative to ossRoot
+			rel := filepath.ToSlash(filepath.Join("oss", category, relToOss))
+			item, err := l.itemFromFileAbs(path, rel, TypeSkill, skillName, category)
+			if err != nil {
+				return nil
+			}
+			out = append(out, item)
 			return nil
-		}
-		rel, err := filepath.Rel(l.root, path)
-		if err != nil {
-			return nil
-		}
-		rel = filepath.ToSlash(rel)
-		parts := strings.Split(rel, "/")
-		category := ""
-		if len(parts) >= 2 {
-			category = parts[1] // e.g. awesome, anthropics
-		}
-		skillName := "Skill"
-		if len(parts) >= 3 {
-			skillName = parts[len(parts)-2]
-		}
-		item, err := l.itemFromFile(rel, TypeSkill, skillName, category)
-		if err != nil {
-			return nil
-		}
-		out = append(out, item)
-		return nil
-	})
-	return out, err
+		})
+	}
+
+	return out, nil
 }
 
 func (l *Loader) itemFromFile(rel, assetType, name, category string) (Item, error) {
@@ -179,6 +256,10 @@ func (l *Loader) itemFromFile(rel, assetType, name, category string) (Item, erro
 	if !ok {
 		return Item{}, os.ErrInvalid
 	}
+	return l.itemFromFileAbs(abs, rel, assetType, name, category)
+}
+
+func (l *Loader) itemFromFileAbs(abs, rel, assetType, name, category string) (Item, error) {
 	data, err := os.ReadFile(abs)
 	if err != nil {
 		return Item{}, err
@@ -202,19 +283,46 @@ func firstN(s string, n int) string {
 	return strings.TrimSpace(string(runes[:n])) + "..."
 }
 
-// ReadFile returns the full content of an asset by relative path (e.g. commands/bug.fix.md)
+// ReadFile returns the full content of an asset by relative path.
+// Supports paths under assets/ (e.g. "commands/bug.fix.md") and
+// virtual oss paths (e.g. "oss/anthropics-skills/skills/pdf/SKILL.md").
 func (l *Loader) ReadFile(relPath string) ([]byte, string, error) {
 	relPath = filepath.ToSlash(filepath.Clean(relPath))
+
+	// Handle oss/ virtual paths: oss/<category>/<rest>
+	if strings.HasPrefix(relPath, "oss/") {
+		parts := strings.SplitN(relPath, "/", 3)
+		if len(parts) < 3 {
+			return nil, "", os.ErrInvalid
+		}
+		category := parts[1]
+		rest := parts[2]
+		for _, ossRoot := range l.ossRoots {
+			if filepath.Base(ossRoot) == category {
+				abs := filepath.Clean(filepath.Join(ossRoot, rest))
+				if !strings.HasPrefix(abs, filepath.Clean(ossRoot)+string(os.PathSeparator)) {
+					return nil, "", os.ErrPermission
+				}
+				data, err := os.ReadFile(abs)
+				if err != nil {
+					return nil, "", err
+				}
+				return data, filepath.Base(abs), nil
+			}
+		}
+		return nil, "", os.ErrNotExist
+	}
+
+	// Normal assets/ path
 	abs, ok := l.safePath(relPath)
 	if !ok {
-		return nil, "", os.ErrPermission // path traversal or outside assets
+		return nil, "", os.ErrPermission
 	}
 	data, err := os.ReadFile(abs)
 	if err != nil {
 		return nil, "", err
 	}
-	base := filepath.Base(abs)
-	return data, base, nil
+	return data, filepath.Base(abs), nil
 }
 
 // SkillFolderFromPath derives the skill folder relative path from a SKILL.md path.
@@ -228,13 +336,37 @@ func SkillFolderFromPath(skillPath string) string {
 }
 
 // ZipSkillFolder creates an in-memory zip of the entire skill directory.
-// skillDir is the relative path to the skill folder under the assets root,
-// e.g. "skills/awesome/continuous-learning-v2".
-// Returns the zip bytes and a suggested filename like "continuous-learning-v2.zip".
+// skillDir is the relative path to the skill folder under the assets root
+// (e.g. "skills/walterfan/my-skill") or under an OSS root (e.g. "oss/gstack/learn").
 func (l *Loader) ZipSkillFolder(skillDir string) ([]byte, string, error) {
-	abs, ok := l.safePath(skillDir)
-	if !ok {
-		return nil, "", os.ErrPermission
+	var abs string
+	skillDir = filepath.ToSlash(filepath.Clean(skillDir))
+
+	if strings.HasPrefix(skillDir, "oss/") {
+		parts := strings.SplitN(skillDir, "/", 3)
+		if len(parts) < 3 {
+			return nil, "", os.ErrInvalid
+		}
+		found := false
+		for _, ossRoot := range l.ossRoots {
+			if filepath.Base(ossRoot) == parts[1] {
+				abs = filepath.Clean(filepath.Join(ossRoot, parts[2]))
+				if !strings.HasPrefix(abs, filepath.Clean(ossRoot)+string(os.PathSeparator)) {
+					return nil, "", os.ErrPermission
+				}
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, "", os.ErrNotExist
+		}
+	} else {
+		var ok bool
+		abs, ok = l.safePath(skillDir)
+		if !ok {
+			return nil, "", os.ErrPermission
+		}
 	}
 	info, err := os.Stat(abs)
 	if err != nil {

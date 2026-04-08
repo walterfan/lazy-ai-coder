@@ -164,6 +164,68 @@ export interface Document {
   deleted_at?: string;
 }
 
+// Code Knowledge Graph Types
+export interface CodeKGRepo {
+  id: string;
+  name: string;
+  url: string;
+  local_path: string;
+  branch: string;
+  last_commit: string;
+  last_sync: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CodeKGEntity {
+  id: string;
+  repo_id: string;
+  entity_type: string;
+  name: string;
+  file_path: string;
+  start_line: number;
+  end_line: number;
+  signature: string;
+  doc_string: string;
+  body?: string;
+  summary: string;
+  language: string;
+  created_at?: string;
+}
+
+export interface CodeKGSearchResult {
+  entities: CodeKGEntity[];
+  answer: string;
+}
+
+export interface CodeKGSyncStatus {
+  job_id: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'idle';
+  total_files: number;
+  processed_files: number;
+  entities_created: number;
+  entities_updated: number;
+  entities_deleted: number;
+  error?: string;
+}
+
+export interface CodeKGEntityPage {
+  data: CodeKGEntity[];
+  total: number;
+  page: number;
+}
+
+export interface CodeKGKnowledgeDoc {
+  id: string;
+  repo_id: string;
+  doc_type: string;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
 // Export cursor rule types
 export * from './cursorRule';
 export * from './cursorCommand';

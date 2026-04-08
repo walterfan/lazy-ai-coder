@@ -70,6 +70,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/ChatHistoryView.vue'),
   },
   {
+    path: '/codekg',
+    name: 'CodeKG',
+    component: () => import('@/views/CodeKGView.vue'),
+  },
+  {
     path: '/tools',
     name: 'Tools',
     component: () => import('@/views/ToolsView.vue'),

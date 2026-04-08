@@ -18,6 +18,8 @@ interface ChatRecordState {
   confirmLoading: boolean;
   sessionId: string;
   error: string | null;
+  /** Partial markdown text being received from SSE stream */
+  streamingText: string;
 
   // History state (for future use)
   records: ChatRecordSummary[];
@@ -34,6 +36,7 @@ export const useChatRecordStore = defineStore('ChatRecord', {
     confirmLoading: false,
     sessionId: '',
     error: null,
+    streamingText: '',
     records: [],
     totalRecords: 0,
     page: 1,
@@ -65,7 +68,7 @@ export const useChatRecordStore = defineStore('ChatRecord', {
     },
 
     // Submit user input (adds a turn; backend uses session for multi-round context)
-    async submit(input: string) {
+    async submit(input: string, skillContext?: string) {
       if (!input.trim()) {
         showToast('Please enter some text', 'warning');
         return;
@@ -80,6 +83,7 @@ export const useChatRecordStore = defineStore('ChatRecord', {
         const payload: Record<string, string | undefined> = {
           user_input: input.trim(),
           session_id: this.sessionId || undefined,
+          skill_context: skillContext || undefined,
         };
         if (settingsStore.LLM_API_KEY) {
           payload.LLM_API_KEY = settingsStore.LLM_API_KEY;
@@ -108,6 +112,114 @@ export const useChatRecordStore = defineStore('ChatRecord', {
         showToast(message, 'danger');
       } finally {
         this.submitLoading = false;
+      }
+    },
+
+    // Submit user input in streaming mode via SSE
+    async submitStream(input: string, skillContext?: string) {
+      if (!input.trim()) {
+        showToast('Please enter some text', 'warning');
+        return;
+      }
+
+      this.submitLoading = true;
+      this.error = null;
+      this.streamingText = '';
+
+      const turnIndex = this.turns.length;
+      this.turns.push({ userInput: input.trim(), response: null, streamContent: '', streaming: true });
+
+      try {
+        const settingsStore = useSettingsStore();
+        const payload: Record<string, string | undefined> = {
+          user_input: input.trim(),
+          session_id: this.sessionId || undefined,
+          skill_context: skillContext || undefined,
+        };
+        if (settingsStore.LLM_API_KEY) {
+          payload.LLM_API_KEY = settingsStore.LLM_API_KEY;
+          if (settingsStore.LLM_BASE_URL) payload.LLM_BASE_URL = settingsStore.LLM_BASE_URL;
+          if (settingsStore.LLM_MODEL) payload.LLM_MODEL = settingsStore.LLM_MODEL;
+          if (settingsStore.LLM_TEMPERATURE) payload.LLM_TEMPERATURE = settingsStore.LLM_TEMPERATURE;
+        }
+
+        const baseUrl = import.meta.env.VITE_API_BASE_URL
+          ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/v1\/?$/, '') + '/api/v1'
+          : '/api/v1';
+
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const token = localStorage.getItem('auth_token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const resp = await fetch(`${baseUrl}/chat-record/stream`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        });
+
+        if (!resp.ok || !resp.body) {
+          const text = await resp.text();
+          throw new Error(text || `HTTP ${resp.status}`);
+        }
+
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data: ')) continue;
+            const data = trimmed.slice(6);
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.session_id) {
+                this.sessionId = parsed.session_id;
+                continue;
+              }
+              if (parsed.error) {
+                this.error = parsed.error;
+                showToast(parsed.error, 'danger');
+                continue;
+              }
+              if (parsed.content !== undefined) {
+                this.streamingText += parsed.content;
+                if (this.turns[turnIndex]) {
+                  this.turns[turnIndex].streamContent = this.streamingText;
+                }
+              }
+            } catch {
+              // ignore non-JSON SSE lines
+            }
+          }
+        }
+
+        // Finalize: mark turn as no longer streaming
+        if (this.turns[turnIndex]) {
+          this.turns[turnIndex].streaming = false;
+          this.turns[turnIndex].streamContent = this.streamingText;
+        }
+      } catch (error: unknown) {
+        if (this.turns[turnIndex] && !this.streamingText) {
+          this.turns.splice(turnIndex, 1);
+        } else if (this.turns[turnIndex]) {
+          this.turns[turnIndex].streaming = false;
+        }
+        const message = error instanceof Error ? error.message : 'Streaming failed';
+        this.error = message;
+        showToast(message, 'danger');
+      } finally {
+        this.submitLoading = false;
+        this.streamingText = '';
       }
     },
 

@@ -73,6 +73,24 @@
             >Controls randomness (0.0 = deterministic, 2.0 = very random)</small
           >
         </div>
+
+        <button @click="testLLM" class="btn btn-outline-primary" :disabled="testingLLM">
+          <i :class="testingLLM ? 'fas fa-circle-notch fa-spin' : 'fas fa-plug'" class="me-1"></i>
+          {{ testingLLM ? 'Testing...' : 'Test LLM Connection' }}
+        </button>
+        <div v-if="llmResult" class="mt-2">
+          <div :class="`alert alert-${llmResult.status === 'healthy' ? 'success' : 'danger'} mb-0`">
+            <i :class="llmResult.status === 'healthy' ? 'fas fa-check-circle' : 'fas fa-times-circle'" class="me-1"></i>
+            <strong>{{ llmResult.message }}</strong>
+            <div v-if="llmResult.details" class="mt-1 small">
+              <span v-if="llmResult.details.model_count">Models available: {{ llmResult.details.model_count }}</span>
+              <div v-if="llmResult.details.available_models" class="mt-1">
+                <span class="badge bg-secondary me-1" v-for="m in llmResult.details.available_models.slice(0, 5)" :key="m">{{ m }}</span>
+                <span v-if="llmResult.details.available_models.length > 5" class="text-muted">+{{ llmResult.details.available_models.length - 5 }} more</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -114,15 +132,26 @@
             <code>write_repository</code>
           </small>
         </div>
+
+        <button @click="testGitLab" class="btn btn-outline-success" :disabled="testingGitLab">
+          <i :class="testingGitLab ? 'fas fa-circle-notch fa-spin' : 'fas fa-plug'" class="me-1"></i>
+          {{ testingGitLab ? 'Testing...' : 'Test GitLab Connection' }}
+        </button>
+        <div v-if="gitlabResult" class="mt-2">
+          <div :class="`alert alert-${gitlabResult.status === 'healthy' ? 'success' : 'danger'} mb-0`">
+            <i :class="gitlabResult.status === 'healthy' ? 'fas fa-check-circle' : 'fas fa-times-circle'" class="me-1"></i>
+            <strong>{{ gitlabResult.message }}</strong>
+            <div v-if="gitlabResult.details && gitlabResult.details.username" class="mt-1 small">
+              Authenticated as: <strong>{{ gitlabResult.details.name }}</strong> (@{{ gitlabResult.details.username }})
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="d-flex gap-2">
       <button @click="saveSettings" class="btn btn-primary">
         <i class="fas fa-save"></i> Save Settings
-      </button>
-      <button @click="testConnection" class="btn btn-secondary">
-        <i class="fas fa-plug"></i> Test Connection
       </button>
       <button @click="clearSettings" class="btn btn-danger">
         <i class="fas fa-trash"></i> Clear All
@@ -145,22 +174,26 @@
 import { ref, onMounted } from 'vue';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useAuthStore } from '@/stores/authStore';
+import { apiService } from '@/services/apiService';
 import { showToast } from '@/utils/toast';
 import type { Settings } from '@/types';
 
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
 
-// Load settings synchronously before initial render
 authStore.loadFromStorage();
 settingsStore.loadFromStorage();
 
 const settings = ref<Settings>({ ...settingsStore.$state });
 
+const testingLLM = ref(false);
+const testingGitLab = ref(false);
+const llmResult = ref<any>(null);
+const gitlabResult = ref<any>(null);
+
 function saveSettings() {
   settingsStore.updateSettings(settings.value);
 
-  // If tokens entered and not authenticated, user is in guest mode
   if ((settings.value.GITLAB_TOKEN || settings.value.LLM_API_KEY) && !authStore.isAuthenticated) {
     authStore.switchToGuestMode();
   }
@@ -168,26 +201,61 @@ function saveSettings() {
   showToast('Settings saved successfully!', 'success');
 }
 
-function testConnection() {
-  if (!settingsStore.isConfigured) {
-    showToast('Please configure all settings first.', 'warning');
+async function testLLM() {
+  if (!settings.value.LLM_BASE_URL || !settings.value.LLM_API_KEY) {
+    showToast('Please fill in LLM Base URL and API Key first.', 'warning');
     return;
   }
-  showToast('Testing connection... (to be implemented)', 'info');
+  testingLLM.value = true;
+  llmResult.value = null;
+  try {
+    llmResult.value = await apiService.testLLMConnection(
+      settings.value.LLM_BASE_URL,
+      settings.value.LLM_API_KEY,
+    );
+  } catch (error: any) {
+    llmResult.value = {
+      status: 'unhealthy',
+      message: error?.response?.data?.message || error?.message || 'Connection test failed',
+    };
+  } finally {
+    testingLLM.value = false;
+  }
+}
+
+async function testGitLab() {
+  if (!settings.value.GITLAB_BASE_URL || !settings.value.GITLAB_TOKEN) {
+    showToast('Please fill in GitLab Base URL and Token first.', 'warning');
+    return;
+  }
+  testingGitLab.value = true;
+  gitlabResult.value = null;
+  try {
+    gitlabResult.value = await apiService.testGitLabConnection(
+      settings.value.GITLAB_BASE_URL,
+      settings.value.GITLAB_TOKEN,
+    );
+  } catch (error: any) {
+    gitlabResult.value = {
+      status: 'unhealthy',
+      message: error?.response?.data?.message || error?.message || 'Connection test failed',
+    };
+  } finally {
+    testingGitLab.value = false;
+  }
 }
 
 function clearSettings() {
   if (confirm('Are you sure you want to clear all settings?')) {
     settingsStore.clearSettings();
     settings.value = { ...settingsStore.$state };
+    llmResult.value = null;
+    gitlabResult.value = null;
     showToast('All settings cleared!', 'info');
   }
 }
 
-// onMounted is no longer needed for initial load since we load synchronously above
-// But keep it for any future async initialization needs
 onMounted(() => {
-  // Refresh in case storage changed externally
   settings.value = { ...settingsStore.$state };
 });
 </script>

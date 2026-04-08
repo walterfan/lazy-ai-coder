@@ -2,6 +2,7 @@ package rag
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -61,6 +62,9 @@ func NewEmbeddingService(config EmbeddingConfig) *EmbeddingService {
 		model:   config.Model,
 		client: &http.Client{
 			Timeout: 60 * time.Second,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			},
 		},
 	}
 }
@@ -115,8 +119,9 @@ func (es *EmbeddingService) GenerateEmbeddings(texts []string) ([][]float32, err
 func (es *EmbeddingService) generateBatch(texts []string) ([][]float32, error) {
 	// Prepare request
 	reqBody := EmbeddingRequest{
-		Input: texts,
-		Model: es.model,
+		Input:          texts,
+		Model:          es.model,
+		EncodingFormat: "float",
 	}
 
 	jsonData, err := json.Marshal(reqBody)

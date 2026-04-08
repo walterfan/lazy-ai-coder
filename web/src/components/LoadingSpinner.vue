@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center" :class="containerClass">
+  <div v-if="show" class="text-center" :class="containerClass">
     <div class="spinner-border" :class="spinnerClass" role="status">
       <span class="visually-hidden">{{ message }}</span>
     </div>
@@ -11,6 +11,8 @@
 import { computed } from 'vue';
 
 interface Props {
+  /** Controls visibility. When false the entire spinner is removed from the DOM. */
+  show?: boolean;
   message?: string;
   showMessage?: boolean;
   size?: 'sm' | 'md' | 'lg';
@@ -19,6 +21,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  show: true,
   message: 'Loading...',
   showMessage: true,
   size: 'md',

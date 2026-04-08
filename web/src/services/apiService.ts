@@ -174,23 +174,23 @@ class ApiService {
           }
         }
 
-        // Handle 403 Forbidden - read-only guest trying to modify or insufficient permissions
-        if (error.response?.status === 403) {
+        // Handle 401/403 for guest users — redirect to login
+        if ((error.response?.status === 401 || error.response?.status === 403) && authMode === 'guest') {
           const authStore = useAuthStore();
+          const errorData = error.response.data as any;
+          const message = errorData?.error || 'Please sign in to use this feature.';
+          authStore.showAuthWarning('guest', message);
+          return Promise.reject(error);
+        }
 
-          if (authMode === 'guest') {
-            // Guest user trying to modify
-            const errorData = error.response.data as any;
-            const message = errorData?.error || 'This feature is only available for registered users.';
-            authStore.showAuthWarning('guest', message);
-            return Promise.reject(error);
-          } else {
-            // Authenticated user with insufficient permissions
-            const errorData = error.response.data as any;
-            const message = errorData?.error || 'You don\'t have permission to perform this action.';
-            authStore.showAuthWarning('unauthorized', message);
-            return Promise.reject(error);
-          }
+        // Handle 403 Forbidden for authenticated users (likely expired session)
+        if (error.response?.status === 403 && (authMode === 'oauth' || authMode === 'password')) {
+          const authStore = useAuthStore();
+          authStore.showAuthWarning('expired', 'Your session has expired. Please login again.');
+          storage.removeItem('auth_token');
+          storage.removeItem('user');
+          storage.setItem('auth_mode', 'guest');
+          return Promise.reject(error);
         }
 
         const message = error.response?.data
@@ -558,6 +558,100 @@ class ApiService {
    * @param settings - Optional settings (GitLab token, LLM API key, etc.)
    * @returns Tool call result
    */
+  // Code Knowledge Graph APIs
+  async codekgRegisterRepo(data: { name: string; url: string; branch?: string; local_path?: string }): Promise<any> {
+    const response = await this.api.post('/codekg/repos', data);
+    return response.data;
+  }
+
+  async codekgListRepos(): Promise<any[]> {
+    const response = await this.api.get('/codekg/repos');
+    return response.data;
+  }
+
+  async codekgDeleteRepo(repoId: string): Promise<void> {
+    await this.api.delete(`/codekg/repos/${repoId}`);
+  }
+
+  async testLLMConnection(baseURL: string, apiKey: string): Promise<any> {
+    const response = await this.api.post('/test-connection/llm', {
+      base_url: baseURL,
+      api_key: apiKey,
+    });
+    return response.data;
+  }
+
+  async testGitLabConnection(baseURL: string, token: string): Promise<any> {
+    const response = await this.api.post('/test-connection/gitlab', {
+      base_url: baseURL,
+      token: token,
+    });
+    return response.data;
+  }
+
+  async codekgTriggerSync(repoId: string): Promise<{ job_id: string }> {
+    const response = await this.api.post(`/codekg/repos/${repoId}/sync`);
+    return response.data;
+  }
+
+  async codekgGetSyncStatus(repoId: string): Promise<any> {
+    const response = await this.api.get(`/codekg/repos/${repoId}/status`);
+    return response.data;
+  }
+
+  async codekgSearch(query: string, options?: { top_k?: number; entity_type?: string }): Promise<any> {
+    const response = await this.api.post('/codekg/search', { query, ...options });
+    return response.data;
+  }
+
+  async codekgGetEntities(params?: { type?: string; repo_id?: string; page?: number; per_page?: number }): Promise<any> {
+    const response = await this.api.get('/codekg/entities', { params });
+    return response.data;
+  }
+
+  async codekgGetEntity(id: string): Promise<any> {
+    const response = await this.api.get(`/codekg/entities/${id}`);
+    return response.data;
+  }
+
+  async codekgGetKnowledgeDocs(repoId: string): Promise<any[]> {
+    const response = await this.api.get(`/codekg/repos/${repoId}/knowledge`);
+    return response.data;
+  }
+
+  // Skill ratings
+  async getSkillRatingsMap(): Promise<Record<string, any>> {
+    const response = await this.api.get('/skill-ratings/map');
+    return response.data;
+  }
+
+  async getSkillRatings(params?: { favorited?: boolean; category?: string }): Promise<{ data: any[]; total: number }> {
+    const response = await this.api.get('/skill-ratings', { params });
+    return response.data;
+  }
+
+  async rateSkill(rating: {
+    skill_path: string;
+    skill_name: string;
+    category: string;
+    score: number;
+    notes?: string;
+    tags?: string;
+    favorited?: boolean;
+  }): Promise<any> {
+    const response = await this.api.post('/skill-ratings', rating);
+    return response.data;
+  }
+
+  async updateSkillRating(id: number, data: { score?: number; notes?: string; tags?: string; favorited?: boolean }): Promise<any> {
+    const response = await this.api.put(`/skill-ratings/${id}`, data);
+    return response.data;
+  }
+
+  async deleteSkillRating(id: number): Promise<void> {
+    await this.api.delete(`/skill-ratings/${id}`);
+  }
+
   async callMCPTool(
     toolName: string,
     args: Record<string, unknown>,

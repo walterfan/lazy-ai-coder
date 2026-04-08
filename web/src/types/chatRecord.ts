@@ -116,6 +116,10 @@ export interface SubmitChatRecordResponse {
 export interface ConversationTurn {
   userInput: string;
   response: SubmitChatRecordResponse | null; // null while loading
+  /** Raw markdown accumulated during SSE streaming (present only in streaming mode) */
+  streamContent?: string;
+  /** True while SSE stream is actively receiving tokens */
+  streaming?: boolean;
 }
 
 export interface ListChatRecordsResponse {
@@ -138,6 +142,7 @@ export const InputTypeConfig: Record<string, { label: string; icon: string; colo
   research_solution: { label: 'Research', icon: 'fa-search', color: 'primary' },
   learn_tech: { label: 'Learn Tech', icon: 'fa-book', color: 'info' },
   tech_design: { label: 'Tech Design', icon: 'fa-drafting-compass', color: 'success' },
+  skill_response: { label: 'Skill', icon: 'fa-graduation-cap', color: 'warning' },
   word: { label: 'Word', icon: 'fa-font', color: 'primary' },
   sentence: { label: 'Sentence', icon: 'fa-align-left', color: 'info' },
   question: { label: 'Question', icon: 'fa-question-circle', color: 'warning' },

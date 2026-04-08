@@ -1,15 +1,19 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/walterfan/lazy-ai-coder/internal/chatrecord"
 	"github.com/walterfan/lazy-ai-coder/internal/chatrecord/memory"
+	"github.com/walterfan/lazy-ai-coder/internal/llm"
 	"github.com/walterfan/lazy-ai-coder/pkg/models"
 )
 
@@ -58,6 +62,8 @@ func (h *ChatRecordHandlers) SetAgent(agent chatrecord.Agent) {
 type SubmitChatRecordRequest struct {
 	UserInput string `json:"user_input" binding:"required"`
 	SessionID string `json:"session_id,omitempty"`
+	// Optional skill context (SKILL.md content) to guide the LLM conversation
+	SkillContext string `json:"skill_context,omitempty"`
 	// Optional LLM settings from client (e.g. Settings page). Used when server has no LLM_API_KEY set.
 	LLMApiKey      string `json:"LLM_API_KEY,omitempty"`
 	LLMBaseURL     string `json:"LLM_BASE_URL,omitempty"`
@@ -70,6 +76,7 @@ type SubmitchatrecordResponse struct {
 	InputType       string                      `json:"input_type"`
 	ResponsePayload *models.ResponsePayloadData `json:"response_payload"`
 	SimilarRecords  []models.ChatRecordSummary  `json:"similar_records,omitempty"`
+	SessionID       string                      `json:"session_id,omitempty"`
 }
 
 // ConfirmRequest is the request body for confirming a learning record
@@ -109,11 +116,9 @@ type StatsResponse struct {
 // @Failure 500 {object} map[string]string
 // @Router /api/v1/chat-record/submit [post]
 func (h *ChatRecordHandlers) HandleSubmit(c *gin.Context) {
-	// Get user context (optional for submit, but needed for similar records)
 	_, userID, _, _, _ := GetUserContext(c)
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication required"})
-		return
+		userID = "anonymous"
 	}
 
 	var req SubmitChatRecordRequest
@@ -124,8 +129,9 @@ func (h *ChatRecordHandlers) HandleSubmit(c *gin.Context) {
 
 	// Convert to service request
 	serviceReq := &chatrecord.SubmitRequest{
-		UserInput: req.UserInput,
-		SessionID: req.SessionID,
+		UserInput:    req.UserInput,
+		SessionID:    req.SessionID,
+		SkillContext: req.SkillContext,
 	}
 
 	// Build optional agent config from request (client can send LLM settings when server has none)
@@ -173,6 +179,7 @@ func (h *ChatRecordHandlers) HandleSubmit(c *gin.Context) {
 		InputType:       result.InputType,
 		ResponsePayload: result.ResponsePayload,
 		SimilarRecords:  similarSummaries,
+		SessionID:       result.SessionID,
 	})
 }
 
@@ -412,4 +419,92 @@ func (h *ChatRecordHandlers) HandleStats(c *gin.Context) {
 		Streak:       stats.Streak,
 		LastRecordAt: lastRecordAtStr,
 	})
+}
+
+// HandleStreamSubmit streams an LLM response via Server-Sent Events.
+// It reuses the client-side LLM settings and session memory but bypasses
+// the classify-then-JSON-generate pipeline, returning raw markdown instead.
+func (h *ChatRecordHandlers) HandleStreamSubmit(c *gin.Context) {
+	_, userID, _, _, _ := GetUserContext(c)
+	if userID == "" {
+		userID = "anonymous"
+	}
+
+	var req SubmitChatRecordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.UserInput == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user_input is required"})
+		return
+	}
+
+	sessionID := req.SessionID
+	if sessionID == "" {
+		sessionID = uuid.New().String()
+	}
+
+	// Collect conversation history from session store
+	var history []llm.ChatMessage
+	for _, msg := range h.service.GetSessionContext(sessionID) {
+		history = append(history, llm.ChatMessage{
+			Role:    string(msg.Role),
+			Content: msg.Content,
+		})
+	}
+
+	// Build system prompt
+	systemPrompt := "You are a helpful coding assistant. Provide clear, well-structured answers in markdown format."
+	if req.SkillContext != "" {
+		systemPrompt = req.SkillContext + "\n\n" + systemPrompt
+	}
+
+	// Build LLM settings from the client-provided config
+	settings := llm.LLMSettings{}
+	if req.LLMApiKey != "" {
+		settings.ApiKey = req.LLMApiKey
+		settings.BaseUrl = req.LLMBaseURL
+		settings.Model = req.LLMModel
+		if req.LLMTemperature != "" {
+			if f, err := strconv.ParseFloat(req.LLMTemperature, 64); err == nil {
+				settings.Temperature = f
+			}
+		}
+	}
+
+	// Set SSE headers
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("X-Accel-Buffering", "no")
+
+	// Send the session_id as the first event so the frontend can track it
+	fmt.Fprintf(c.Writer, "data: {\"session_id\":%q}\n\n", sessionID)
+	c.Writer.Flush()
+
+	var fullResponse strings.Builder
+
+	err := llm.AskLLMWithStreamAndMemory(systemPrompt, req.UserInput, history, settings, func(chunk string) {
+		// Filter out the wrapper tags injected by AskLLMWithStreamAndMemory
+		if chunk == "<answer>" || chunk == "</answer>" {
+			return
+		}
+		fullResponse.WriteString(chunk)
+		fmt.Fprintf(c.Writer, "data: {\"content\":%q}\n\n", chunk)
+		c.Writer.Flush()
+	})
+
+	if err != nil {
+		fmt.Fprintf(c.Writer, "data: {\"error\":%q}\n\n", err.Error())
+		c.Writer.Flush()
+	}
+
+	// Signal completion
+	fmt.Fprintf(c.Writer, "data: [DONE]\n\n")
+	c.Writer.Flush()
+
+	// Persist the exchange in session memory for multi-turn context
+	h.service.SaveToSession(sessionID, req.UserInput, fullResponse.String())
 }

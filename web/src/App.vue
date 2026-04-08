@@ -43,7 +43,7 @@
       :type="authStore.authWarning.type"
       :message="authStore.authWarning.message"
       @close="authStore.hideAuthWarning"
-      @confirm="authStore.hideAuthWarning"
+      @confirm="handleAuthConfirm"
     />
   </div>
 </template>
@@ -80,20 +80,13 @@ function dismissBanner() {
   storage.setItem('guestBannerDismissed', 'true');
 }
 
+function handleAuthConfirm() {
+  authStore.hideAuthWarning();
+  router.push('/login');
+}
+
 function goToSignup() {
-  router.push('/settings');
-  // Scroll to auth section after navigation
-  setTimeout(() => {
-    const authSection = document.getElementById('auth-section');
-    if (authSection) {
-      authSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Add highlight effect
-      authSection.classList.add('highlight-pulse');
-      setTimeout(() => {
-        authSection.classList.remove('highlight-pulse');
-      }, 3000);
-    }
-  }, 100);
+  router.push('/login');
 }
 </script>
 

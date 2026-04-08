@@ -531,6 +531,7 @@ import { useSettingsStore } from '@/stores/settingsStore';
 import { usePromptStore } from '@/stores/promptStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useLLMModelStore } from '@/stores/llmModelStore';
+import { useAppStore } from '@/stores/appStore';
 import { apiService } from '@/services/apiService';
 import { showToast } from '@/utils/toast';
 import { getCurrentDateTime, getRandomString } from '@/utils/dateUtils';
@@ -542,9 +543,10 @@ const settingsStore = useSettingsStore();
 const promptStore = usePromptStore();
 const projectStore = useProjectStore();
 const llmModelStore = useLLMModelStore();
+const appStore = useAppStore();
 
 // URL parameters
-const pageTitle = ref('Lazy AI Coder');
+const pageTitle = ref(appStore.title);
 const module = ref('');
 const tags = ref('');
 const tagList = computed(() => (tags.value ? tags.value.split(',').map((tag) => tag.trim()) : []));
@@ -1155,7 +1157,7 @@ watch(
     // Update module and tags from URL parameters
     const newModule = (newQuery.module as string) || '';
     const newTags = (newQuery.tags as string) || '';
-    const newTitle = (newQuery.title as string) || 'Lazy AI Coder';
+    const newTitle = (newQuery.title as string) || appStore.title;
 
     // Only re-fetch if module or tags actually changed
     if (newModule !== module.value || newTags !== tags.value) {
@@ -1185,7 +1187,7 @@ watch(
 // Lifecycle
 onMounted(async () => {
   // Parse URL parameters
-  pageTitle.value = (route.query.title as string) || 'Lazy AI Coder';
+  pageTitle.value = (route.query.title as string) || appStore.title;
   module.value = (route.query.module as string) || '';
   tags.value = (route.query.tags as string) || '';
 

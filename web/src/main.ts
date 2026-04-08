@@ -20,4 +20,9 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(router);
 
-app.mount('#app');
+// Load app config (title, version) from backend before mounting
+import { useAppStore } from '@/stores/appStore';
+const appStore = useAppStore(pinia);
+appStore.fetchInfo().finally(() => {
+  app.mount('#app');
+});

@@ -13,7 +13,7 @@
           </p>
           <small class="text-muted">
             <i class="fas fa-code me-1"></i>
-            Powered by Lazy AI Coder
+            Powered by {{ appStore.fullTitle }}
           </small>
         </div>
       </div>
@@ -22,7 +22,8 @@
 </template>
 
 <script setup lang="ts">
-// No script needed for now
+import { useAppStore } from '@/stores/appStore';
+const appStore = useAppStore();
 </script>
 
 <style scoped>

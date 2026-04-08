@@ -1,0 +1,18 @@
+[submodule "oss/anthropics-skills"]
+	path = oss/anthropics-skills
+	url = git@github.com:anthropics/skills.git
+[submodule "oss/everything-claude-code"]
+	path = oss/everything-claude-code
+	url = git@github.com:affaan-m/everything-claude-code.git
+[submodule "oss/awesome-claude-skills"]
+	path = oss/awesome-claude-skills
+	url = git@github.com:ComposioHQ/awesome-claude-skills.git
+[submodule "oss/superpowers"]
+	path = oss/superpowers
+	url = git@github.com:obra/superpowers.git
+[submodule "oss/gstack"]
+	path = oss/gstack
+	url = git@github.com:garrytan/gstack.git
+[submodule "oss/OpenHarness"]
+	path = oss/OpenHarness
+	url = git@github.com:HKUDS/OpenHarness.git

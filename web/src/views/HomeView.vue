@@ -1,15 +1,32 @@
 <template>
   <div class="home-page">
     <!-- Hero -->
-    <section class="hero-section text-center py-5 bg-dark text-white">
+    <section class="hero-section text-center py-4 bg-dark text-white">
       <div class="container">
-        <h1 class="display-5 fw-bold mb-2">Lazy AI Coder</h1>
+        <h1 class="display-5 fw-bold mb-1">{{ appStore.title }}</h1>
         <p class="lead text-secondary mb-4">
-          Browse, search, and download reusable skills, commands, and rules for your AI coding workflow.
+          Your AI-powered toolkit for every phase of the software development lifecycle.
         </p>
+
+        <!-- Quick-nav cards -->
+        <div class="row g-3 justify-content-center mb-4">
+          <div class="col-6 col-md-3" v-for="nav in quickNavs" :key="nav.route">
+            <router-link :to="nav.route" class="nav-card text-decoration-none">
+              <div class="nav-card-inner">
+                <div class="nav-card-icon" :style="{ background: nav.gradient }">
+                  <i :class="nav.icon"></i>
+                </div>
+                <div class="nav-card-label">{{ nav.label }}</div>
+                <div class="nav-card-desc">{{ nav.desc }}</div>
+              </div>
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Search -->
         <div class="row justify-content-center">
           <div class="col-lg-6">
-            <div class="input-group input-group-lg shadow">
+            <div class="input-group shadow">
               <input
                 v-model="searchQuery"
                 type="text"
@@ -50,6 +67,27 @@
               </a>
             </li>
           </ul>
+        </div>
+
+        <!-- Provider filter pills -->
+        <div v-if="providers.length > 1" class="provider-filter px-3 py-2 border-bottom bg-light">
+          <span class="small text-muted me-2">Provider:</span>
+          <button
+            class="provider-pill"
+            :class="{ active: selectedProvider === '' }"
+            @click="selectedProvider = ''"
+          >
+            All
+          </button>
+          <button
+            v-for="prov in providers"
+            :key="prov"
+            class="provider-pill"
+            :class="{ active: selectedProvider === prov }"
+            @click="selectedProvider = prov"
+          >
+            {{ prov }}
+          </button>
         </div>
 
         <div class="card-body">
@@ -153,8 +191,42 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { marked } from 'marked';
 import { apiService } from '@/services/apiService';
+import { useAppStore } from '@/stores/appStore';
 import { showToast } from '@/utils/toast';
 import type { AssetItem } from '@/types';
+
+const appStore = useAppStore();
+
+const quickNavs = [
+  {
+    label: 'Coding Mate',
+    desc: 'AI pair programmer',
+    icon: 'fas fa-graduation-cap',
+    route: '/chat',
+    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  },
+  {
+    label: 'Code Assistant',
+    desc: 'Write & review code',
+    icon: 'fas fa-code',
+    route: '/assistant?module=code',
+    gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+  },
+  {
+    label: 'Code Review',
+    desc: 'Analyze & improve',
+    icon: 'fas fa-search',
+    route: '/assistant?module=review',
+    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+  },
+  {
+    label: 'Knowledge Base',
+    desc: 'Index & search repos',
+    icon: 'fas fa-project-diagram',
+    route: '/codekg',
+    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+  },
+];
 
 const tabs = [
   { value: 'skill', label: 'Skills', icon: 'fas fa-graduation-cap' },
@@ -166,6 +238,7 @@ type TabValue = (typeof tabs)[number]['value'];
 
 const activeTab = ref<TabValue>('skill');
 const searchQuery = ref('');
+const selectedProvider = ref<string>('');
 const allItems = ref<AssetItem[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
@@ -182,8 +255,22 @@ const tabCounts = computed(() => {
   return counts;
 });
 
+const providers = computed(() => {
+  const cats = new Set<string>();
+  for (const it of allItems.value) {
+    if (it.type === activeTab.value && it.category) {
+      cats.add(it.category);
+    }
+  }
+  return Array.from(cats).sort();
+});
+
 const filteredItems = computed(() => {
-  return allItems.value.filter((it) => it.type === activeTab.value);
+  return allItems.value.filter((it) => {
+    if (it.type !== activeTab.value) return false;
+    if (selectedProvider.value && it.category !== selectedProvider.value) return false;
+    return true;
+  });
 });
 
 function typeBadgeColor(type: string): string {
@@ -214,6 +301,7 @@ async function fetchAssets() {
 
 function switchTab(tab: TabValue) {
   activeTab.value = tab;
+  selectedProvider.value = '';
   previewItem.value = null;
 }
 
@@ -267,6 +355,81 @@ onMounted(() => {
 <style scoped>
 .hero-section {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* Quick-nav cards */
+.nav-card {
+  display: block;
+  color: #fff;
+}
+
+.nav-card-inner {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 1.25rem 0.75rem;
+  text-align: center;
+  transition: transform 0.18s, background 0.18s, box-shadow 0.18s;
+}
+
+.nav-card-inner:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.nav-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  font-size: 1.4rem;
+  color: #fff;
+  margin-bottom: 0.65rem;
+}
+
+.nav-card-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.nav-card-desc {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Provider filter */
+.provider-filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.provider-pill {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 0.78rem;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.provider-pill:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.provider-pill.active {
+  background: #667eea;
+  border-color: #667eea;
+  color: #fff;
 }
 
 .mt-n3 {

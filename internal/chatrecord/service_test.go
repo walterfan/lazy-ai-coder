@@ -639,10 +639,10 @@ type MockAgent struct {
 }
 
 func (m *MockAgent) Process(ctx context.Context, input string) (*ProcessResult, error) {
-	return m.ProcessWithHistory(ctx, input, nil)
+	return m.ProcessWithHistory(ctx, input, nil, "")
 }
 
-func (m *MockAgent) ProcessWithHistory(ctx context.Context, _ string, _ []*schema.Message) (*ProcessResult, error) {
+func (m *MockAgent) ProcessWithHistory(ctx context.Context, _ string, _ []*schema.Message, _ string) (*ProcessResult, error) {
 	return &ProcessResult{
 		InputType:       m.classifyAs,
 		ResponsePayload: m.payload,

@@ -53,18 +53,20 @@ func NewEinoAgentWithModel(chatModel model.ChatModel, config *AgentConfig) *Eino
 
 // Process classifies user input and generates a type-appropriate response
 func (a *EinoAgent) Process(ctx context.Context, input string) (*ProcessResult, error) {
-	return a.ProcessWithHistory(ctx, input, nil)
+	return a.ProcessWithHistory(ctx, input, nil, "")
 }
 
-// ProcessWithHistory supports multi-turn: uses history for context when present
-func (a *EinoAgent) ProcessWithHistory(ctx context.Context, input string, history []*schema.Message) (*ProcessResult, error) {
-	// Step 1: Classify the input (with history for context on follow-ups)
+// ProcessWithHistory supports multi-turn and optional skill context injection
+func (a *EinoAgent) ProcessWithHistory(ctx context.Context, input string, history []*schema.Message, skillContext string) (*ProcessResult, error) {
+	if skillContext != "" {
+		return a.processWithSkill(ctx, input, history, skillContext)
+	}
+
 	inputType, err := a.classifyWithHistory(ctx, input, history)
 	if err != nil {
 		return nil, fmt.Errorf("classification failed: %w", err)
 	}
 
-	// Step 2: Generate response based on type (with history for continuity)
 	payload, err := a.generateResponseWithHistory(ctx, input, inputType, history)
 	if err != nil {
 		return nil, fmt.Errorf("response generation failed: %w", err)
@@ -72,6 +74,36 @@ func (a *EinoAgent) ProcessWithHistory(ctx context.Context, input string, histor
 
 	return &ProcessResult{
 		InputType:       inputType,
+		ResponsePayload: payload,
+	}, nil
+}
+
+// processWithSkill bypasses classification and uses the skill's instructions as the system prompt
+func (a *EinoAgent) processWithSkill(ctx context.Context, input string, history []*schema.Message, skillContent string) (*ProcessResult, error) {
+	systemPrompt := fmt.Sprintf(`You are an AI coding assistant. Follow the skill instructions below to guide your response.
+Respond in well-structured markdown. Be thorough and practical.
+
+--- SKILL INSTRUCTIONS ---
+%s
+--- END SKILL INSTRUCTIONS ---`, skillContent)
+
+	messages := make([]*schema.Message, 0, 2+len(history))
+	messages = append(messages, &schema.Message{Role: schema.System, Content: systemPrompt})
+	if len(history) > 0 {
+		messages = append(messages, history...)
+	}
+	messages = append(messages, &schema.Message{Role: schema.User, Content: input})
+
+	resp, err := a.chatModel.Generate(ctx, messages)
+	if err != nil {
+		return nil, fmt.Errorf("LLM call failed: %w", err)
+	}
+
+	payload := &models.ResponsePayloadData{
+		Summary: resp.Content,
+	}
+	return &ProcessResult{
+		InputType:       "skill_response",
 		ResponsePayload: payload,
 	}, nil
 }

@@ -1,3 +1,8 @@
+# Application Settings
+app:
+  title: "Lazy AI Coder"
+  version: "1.0"
+
 # Database Configuration
 database:
   type: sqlite  # sqlite, postgres, mysql

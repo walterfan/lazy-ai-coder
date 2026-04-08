@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -12,12 +13,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/walterfan/lazy-ai-coder/internal/assets"
 	"github.com/walterfan/lazy-ai-coder/internal/auth"
 	"github.com/walterfan/lazy-ai-coder/internal/chat"
 	"github.com/walterfan/lazy-ai-coder/internal/chatrecord"
+	"github.com/walterfan/lazy-ai-coder/internal/codekg"
 	"github.com/walterfan/lazy-ai-coder/internal/chatrecord/memory"
 	"github.com/walterfan/lazy-ai-coder/internal/debug"
 	"github.com/walterfan/lazy-ai-coder/internal/diagram"
@@ -28,6 +31,7 @@ import (
 	"github.com/walterfan/lazy-ai-coder/internal/middleware"
 	"github.com/walterfan/lazy-ai-coder/internal/smartprompt"
 	"github.com/walterfan/lazy-ai-coder/pkg/database"
+	"github.com/walterfan/lazy-ai-coder/pkg/models"
 	"gorm.io/gorm"
 )
 
@@ -155,6 +159,24 @@ func setupRouter() *gin.Engine {
 		fmt.Fprintf(os.Stderr, "Assets loader init failed (assets endpoints will error): %v\n", errAssets)
 		assetsLoader = nil
 	}
+
+	// Register OSS skill roots (submodule repos that contain SKILL.md files)
+	if assetsLoader != nil {
+		ossDir := os.Getenv("OSS_SKILLS_PATH")
+		if ossDir == "" {
+			ossDir = "oss"
+		}
+		if absOss, err := filepath.Abs(ossDir); err == nil {
+			if entries, err := os.ReadDir(absOss); err == nil {
+				for _, e := range entries {
+					if e.IsDir() {
+						assetsLoader.AddOSSRoot(filepath.Join(absOss, e.Name()))
+					}
+				}
+			}
+		}
+	}
+
 	var assetsHandlers *handlers.AssetsHandlers
 	if assetsLoader != nil {
 		assetsHandlers = handlers.NewAssetsHandlers(assetsLoader)
@@ -283,6 +305,130 @@ func setupRouter() *gin.Engine {
 		r.GET("/api/v1/assets/download-skill", assetsHandlers.DownloadSkillZip)
 	}
 
+	// Coding Mate: chat submit (uses client-side LLM settings; auth optional for session tracking)
+	r.POST("/api/v1/chat-record/submit", ChatRecordHandlers.HandleSubmit)
+	r.POST("/api/v1/chat-record/stream", ChatRecordHandlers.HandleStreamSubmit)
+
+	// Coding Mate: list skills available for conversation context
+	if assetsLoader != nil {
+		r.GET("/api/v1/codemate/skills", func(c *gin.Context) {
+			skills, err := assetsLoader.ListSkills()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"data": skills, "total": len(skills)})
+		})
+		r.GET("/api/v1/codemate/skills/content", func(c *gin.Context) {
+			path := c.Query("path")
+			if path == "" {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "path is required"})
+				return
+			}
+			data, _, err := assetsLoader.ReadFile(path)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "skill not found"})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"content": string(data)})
+		})
+	}
+
+	// Skill ratings CRUD
+	r.GET("/api/v1/skill-ratings", func(c *gin.Context) {
+		var ratings []models.SkillRating
+		q := db.Order("score DESC, usage_count DESC")
+		if fav := c.Query("favorited"); fav == "true" {
+			q = q.Where("favorited = ?", true)
+		}
+		if cat := c.Query("category"); cat != "" {
+			q = q.Where("category = ?", cat)
+		}
+		if err := q.Find(&ratings).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"data": ratings, "total": len(ratings)})
+	})
+
+	r.GET("/api/v1/skill-ratings/map", func(c *gin.Context) {
+		var ratings []models.SkillRating
+		if err := db.Find(&ratings).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		rMap := make(map[string]models.SkillRating, len(ratings))
+		for _, r := range ratings {
+			rMap[r.SkillPath] = r
+		}
+		c.JSON(http.StatusOK, rMap)
+	})
+
+	r.POST("/api/v1/skill-ratings", func(c *gin.Context) {
+		var req models.SkillRating
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if req.SkillPath == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "skill_path is required"})
+			return
+		}
+		if req.Score < 1 || req.Score > 5 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "score must be 1-5"})
+			return
+		}
+		var existing models.SkillRating
+		if err := db.Where("skill_path = ?", req.SkillPath).First(&existing).Error; err == nil {
+			existing.Score = req.Score
+			existing.Notes = req.Notes
+			existing.Tags = req.Tags
+			existing.Favorited = req.Favorited
+			if req.SkillName != "" {
+				existing.SkillName = req.SkillName
+			}
+			if req.Category != "" {
+				existing.Category = req.Category
+			}
+			db.Save(&existing)
+			c.JSON(http.StatusOK, existing)
+			return
+		}
+		db.Create(&req)
+		c.JSON(http.StatusCreated, req)
+	})
+
+	r.PUT("/api/v1/skill-ratings/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		var rating models.SkillRating
+		if err := db.First(&rating, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "rating not found"})
+			return
+		}
+		var req models.SkillRating
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if req.Score >= 1 && req.Score <= 5 {
+			rating.Score = req.Score
+		}
+		rating.Notes = req.Notes
+		rating.Tags = req.Tags
+		rating.Favorited = req.Favorited
+		db.Save(&rating)
+		c.JSON(http.StatusOK, rating)
+	})
+
+	r.DELETE("/api/v1/skill-ratings/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		if err := db.Delete(&models.SkillRating{}, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "deleted"})
+	})
+
 	// Protected endpoints - Create/Update/Delete operations (Authenticated only)
 	protected := r.Group("/api/v1")
 	protected.Use(handlers.RequireAuthenticated())
@@ -335,8 +481,7 @@ func setupRouter() *gin.Engine {
 		protected.POST("/llm-models/:id/default", llmModelHandlers.SetDefaultLLMModel)
 		protected.POST("/llm-models/:id/toggle", llmModelHandlers.ToggleLLMModelEnabled)
 
-		// Learning Record endpoints
-		protected.POST("/chat-record/submit", ChatRecordHandlers.HandleSubmit)
+		// Learning Record endpoints (history management requires auth)
 		protected.POST("/chat-record/confirm", ChatRecordHandlers.HandleConfirm)
 		protected.GET("/chat-record/list", ChatRecordHandlers.HandleList)
 		protected.GET("/chat-record/stats", ChatRecordHandlers.HandleStats)
@@ -397,12 +542,55 @@ func setupRouter() *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"sessions": sessions})
 	})
 
+	// App info (title, version from config.yaml)
+	r.GET("/api/v1/app/info", func(c *gin.Context) {
+		title := viper.GetString("app.title")
+		if title == "" {
+			title = "Lazy AI Coder"
+		}
+		version := viper.GetString("app.version")
+		if version == "" {
+			version = "1.0"
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"title":   title,
+			"version": version,
+		})
+	})
+
 	// Health check endpoints
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, healthChecker.BasicHealthCheck())
 	})
 	r.GET("/health/detailed", func(c *gin.Context) {
 		c.JSON(http.StatusOK, healthChecker.DetailedHealthCheck())
+	})
+
+	// Test-connection endpoints (accept credentials from request body)
+	r.POST("/api/v1/test-connection/llm", func(c *gin.Context) {
+		var req struct {
+			BaseURL string `json:"base_url"`
+			APIKey  string `json:"api_key"`
+		}
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		result := healthChecker.CheckLLMAPI(req.BaseURL, req.APIKey)
+		c.JSON(http.StatusOK, result)
+	})
+
+	r.POST("/api/v1/test-connection/gitlab", func(c *gin.Context) {
+		var req struct {
+			BaseURL string `json:"base_url"`
+			Token   string `json:"token"`
+		}
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		result := healthChecker.CheckGitLabAPI(req.BaseURL, req.Token)
+		c.JSON(http.StatusOK, result)
 	})
 
 	// Prometheus metrics endpoint
@@ -418,6 +606,11 @@ func setupRouter() *gin.Engine {
 		debugGroup.GET("/memory/stats", debugHandlers.GetMemoryStats)
 		debugGroup.POST("/memory/cleanup", debugHandlers.CleanupExpiredSessions)
 	}
+
+	// Code Knowledge Graph
+	codekgService := codekg.NewService(db)
+	codekgHandlers := codekg.NewHandlers(codekgService)
+	codekgHandlers.RegisterRoutes(r)
 
 	// MCP server integration (HTTP-based)
 	mcpServer := mcp.NewHTTPServer()

@@ -21,8 +21,9 @@ type ConfirmRequest struct {
 
 // SubmitRequest is the request to submit user input for classification and response
 type SubmitRequest struct {
-	UserInput string `json:"user_input" binding:"required"`
-	SessionID string `json:"session_id,omitempty"`
+	UserInput    string `json:"user_input" binding:"required"`
+	SessionID    string `json:"session_id,omitempty"`
+	SkillContext string `json:"skill_context,omitempty"`
 }
 
 // SubmitResult is the result of submitting user input
@@ -74,20 +75,22 @@ func (s *Service) SubmitInput(ctx context.Context, req *SubmitRequest, userID st
 	return s.SubmitInputWithConfig(ctx, req, userID, nil)
 }
 
-// SubmitInputWithConfig processes user input using the service agent or, if nil, an agent created from config.
-// When config is non-nil and has APIKey, a one-off agent is created for this request (e.g. from request settings).
+// SubmitInputWithConfig processes user input, preferring client-provided config over the server default agent.
 func (s *Service) SubmitInputWithConfig(ctx context.Context, req *SubmitRequest, userID string, config *AgentConfig) (*SubmitResult, error) {
 	if req.UserInput == "" {
 		return nil, fmt.Errorf("user_input is required")
 	}
 
-	agent := s.agent
-	if agent == nil && config != nil && config.APIKey != "" {
+	var agent Agent
+	if config != nil && config.APIKey != "" {
 		var err error
 		agent, err = NewEinoAgent(ctx, config)
 		if err != nil {
 			return nil, fmt.Errorf("agent from request config failed: %w", err)
 		}
+	}
+	if agent == nil {
+		agent = s.agent
 	}
 	if agent == nil {
 		return nil, ErrAgentNotConfigured
@@ -105,8 +108,8 @@ func (s *Service) SubmitInputWithConfig(ctx context.Context, req *SubmitRequest,
 		history = s.sessionStore.ToSchemaMessages(sessionID)
 	}
 
-	// Process input through agent (with history for follow-up context)
-	processResult, err := agent.ProcessWithHistory(ctx, req.UserInput, history)
+	// Process input through agent (with history for follow-up context, and optional skill)
+	processResult, err := agent.ProcessWithHistory(ctx, req.UserInput, history, req.SkillContext)
 	if err != nil {
 		return nil, fmt.Errorf("agent process failed: %w", err)
 	}
@@ -177,6 +180,13 @@ func (s *Service) GetSessionContext(sessionID string) []memory.SessionMessage {
 		return nil
 	}
 	return s.sessionStore.GetRecentMessages(sessionID)
+}
+
+// SaveToSession stores a user+assistant pair into session memory
+func (s *Service) SaveToSession(sessionID, userMsg, assistantMsg string) {
+	if s.sessionStore != nil {
+		s.sessionStore.AddMessage(sessionID, userMsg, assistantMsg)
+	}
 }
 
 // ClearSession clears the session memory for a given session ID

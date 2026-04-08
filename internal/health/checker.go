@@ -2,7 +2,10 @@ package health
 
 import (
 	"context"
+	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -211,22 +214,23 @@ func (hc *HealthChecker) checkMemoryManager() ComponentHealth {
 	}
 }
 
-// checkLLMAPI checks if the LLM API is accessible (optional, requires configuration)
-func (hc *HealthChecker) checkLLMAPI(baseURL, apiKey string) ComponentHealth {
+// CheckLLMAPI tests LLM API connectivity by calling the /models endpoint.
+func (hc *HealthChecker) CheckLLMAPI(baseURL, apiKey string) ComponentHealth {
 	if baseURL == "" || apiKey == "" {
 		return ComponentHealth{
 			Name:    "llm_api",
-			Status:  StatusHealthy,
-			Message: "LLM API check skipped (no configuration)",
+			Status:  StatusUnhealthy,
+			Message: "Base URL and API key are required",
 		}
 	}
 
-	// Create a simple test request
 	client := &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: 15 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 	}
 
-	// Test with models endpoint (most APIs support this)
 	req, err := http.NewRequest("GET", baseURL+"/models", nil)
 	if err != nil {
 		return ComponentHealth{
@@ -235,7 +239,6 @@ func (hc *HealthChecker) checkLLMAPI(baseURL, apiKey string) ComponentHealth {
 			Message: fmt.Sprintf("Failed to create request: %v", err),
 		}
 	}
-
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
 	resp, err := client.Do(req)
@@ -243,45 +246,69 @@ func (hc *HealthChecker) checkLLMAPI(baseURL, apiKey string) ComponentHealth {
 		return ComponentHealth{
 			Name:    "llm_api",
 			Status:  StatusUnhealthy,
-			Message: fmt.Sprintf("Failed to connect to LLM API: %v", err),
+			Message: fmt.Sprintf("Failed to connect: %v", err),
 		}
 	}
 	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
 
 	if resp.StatusCode != http.StatusOK {
 		return ComponentHealth{
 			Name:    "llm_api",
 			Status:  StatusUnhealthy,
-			Message: fmt.Sprintf("LLM API returned status: %d", resp.StatusCode),
+			Message: fmt.Sprintf("LLM API returned status %d", resp.StatusCode),
+			Details: map[string]interface{}{
+				"base_url":    baseURL,
+				"status_code": resp.StatusCode,
+			},
 		}
+	}
+
+	details := map[string]interface{}{"base_url": baseURL}
+	var modelsResp struct {
+		Data []struct {
+			ID string `json:"id"`
+		} `json:"data"`
+	}
+	if json.Unmarshal(body, &modelsResp) == nil && len(modelsResp.Data) > 0 {
+		modelIDs := make([]string, 0, min(len(modelsResp.Data), 10))
+		for i, m := range modelsResp.Data {
+			if i >= 10 {
+				break
+			}
+			modelIDs = append(modelIDs, m.ID)
+		}
+		details["available_models"] = modelIDs
+		details["model_count"] = len(modelsResp.Data)
 	}
 
 	return ComponentHealth{
 		Name:    "llm_api",
 		Status:  StatusHealthy,
 		Message: "LLM API is accessible",
-		Details: map[string]interface{}{
-			"base_url": baseURL,
-		},
+		Details: details,
 	}
 }
 
-// checkGitLabAPI checks if GitLab API is accessible (optional)
-func (hc *HealthChecker) checkGitLabAPI(baseURL, token string) ComponentHealth {
+// CheckGitLabAPI tests GitLab API connectivity by calling /api/v4/user.
+func (hc *HealthChecker) CheckGitLabAPI(baseURL, token string) ComponentHealth {
 	if baseURL == "" || token == "" {
 		return ComponentHealth{
 			Name:    "gitlab_api",
-			Status:  StatusHealthy,
-			Message: "GitLab API check skipped (no configuration)",
+			Status:  StatusUnhealthy,
+			Message: "Base URL and token are required",
 		}
 	}
 
 	client := &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: 15 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 	}
 
-	// Test with /api/v4/version endpoint
-	req, err := http.NewRequest("GET", baseURL+"/api/v4/version", nil)
+	req, err := http.NewRequest("GET", baseURL+"/api/v4/user", nil)
 	if err != nil {
 		return ComponentHealth{
 			Name:    "gitlab_api",
@@ -289,7 +316,6 @@ func (hc *HealthChecker) checkGitLabAPI(baseURL, token string) ComponentHealth {
 			Message: fmt.Sprintf("Failed to create request: %v", err),
 		}
 	}
-
 	req.Header.Set("PRIVATE-TOKEN", token)
 
 	resp, err := client.Do(req)
@@ -297,25 +323,46 @@ func (hc *HealthChecker) checkGitLabAPI(baseURL, token string) ComponentHealth {
 		return ComponentHealth{
 			Name:    "gitlab_api",
 			Status:  StatusUnhealthy,
-			Message: fmt.Sprintf("Failed to connect to GitLab API: %v", err),
+			Message: fmt.Sprintf("Failed to connect: %v", err),
 		}
 	}
 	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+
+	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+		return ComponentHealth{
+			Name:    "gitlab_api",
+			Status:  StatusUnhealthy,
+			Message: fmt.Sprintf("Authentication failed (status %d) — check your token", resp.StatusCode),
+			Details: map[string]interface{}{"base_url": baseURL},
+		}
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		return ComponentHealth{
 			Name:    "gitlab_api",
 			Status:  StatusUnhealthy,
-			Message: fmt.Sprintf("GitLab API returned status: %d", resp.StatusCode),
+			Message: fmt.Sprintf("GitLab API returned status %d", resp.StatusCode),
+			Details: map[string]interface{}{"base_url": baseURL, "status_code": resp.StatusCode},
 		}
+	}
+
+	details := map[string]interface{}{"base_url": baseURL}
+	var userResp struct {
+		Username string `json:"username"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+	}
+	if json.Unmarshal(body, &userResp) == nil && userResp.Username != "" {
+		details["username"] = userResp.Username
+		details["name"] = userResp.Name
 	}
 
 	return ComponentHealth{
 		Name:    "gitlab_api",
 		Status:  StatusHealthy,
 		Message: "GitLab API is accessible",
-		Details: map[string]interface{}{
-			"base_url": baseURL,
-		},
+		Details: details,
 	}
 }

@@ -11,11 +11,10 @@ import (
 // that classifies user input and generates type-appropriate responses.
 type Agent interface {
 	// Process takes user input, classifies it, and generates a response.
-	// It returns the classified input type and the generated response payload.
 	Process(ctx context.Context, input string) (*ProcessResult, error)
-	// ProcessWithHistory does the same with conversation history for multi-turn context.
-	// history is prior user/assistant messages (e.g. from session). May be nil or empty.
-	ProcessWithHistory(ctx context.Context, input string, history []*schema.Message) (*ProcessResult, error)
+	// ProcessWithHistory supports multi-turn context and optional skill guidance.
+	// history is prior user/assistant messages. skillContext is the SKILL.md content (may be empty).
+	ProcessWithHistory(ctx context.Context, input string, history []*schema.Message, skillContext string) (*ProcessResult, error)
 }
 
 // ProcessResult contains the result of processing user input

@@ -3,8 +3,8 @@
     <div class="container">
       <router-link to="/" class="navbar-brand d-flex align-items-center">
         <i class="fas fa-robot me-2"></i>
-        <span class="brand-text">Lazy AI Coder</span>
-        <span class="version-badge ms-2">v1.0</span>
+        <span class="brand-text">{{ appStore.title }}</span>
+        <span class="version-badge ms-2">v{{ appStore.version }}</span>
       </router-link>
       <button
         class="navbar-toggler"
@@ -73,7 +73,7 @@
           <li class="nav-item dropdown">
             <a
               class="nav-link dropdown-toggle"
-              :class="{ active: isActiveRoute('Tools') || isActiveRoute('Assets') || isActiveRoute('CursorRules') || isActiveRoute('CursorCommands') }"
+              :class="{ active: isActiveRoute('Tools') || isActiveRoute('CodeKG') || isActiveRoute('Assets') || isActiveRoute('CursorRules') || isActiveRoute('CursorCommands') }"
               href="#"
               id="toolsDropdown"
               role="button"
@@ -84,6 +84,11 @@
               <span class="nav-text">Tools</span>
             </a>
             <ul class="dropdown-menu" aria-labelledby="toolsDropdown">
+              <li>
+                <router-link to="/codekg" class="dropdown-item">
+                  <i class="fas fa-project-diagram me-2"></i>Code Knowledge Base
+                </router-link>
+              </li>
               <li>
                 <router-link to="/asset-library" class="dropdown-item">
                   <i class="fas fa-folder-open me-2"></i>Assets (Commands / Rules / Skills)
@@ -338,11 +343,13 @@
 import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted, nextTick } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
+import { useAppStore } from '@/stores/appStore';
 import { useUserManagementStore } from '@/stores/userManagementStore';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const appStore = useAppStore();
 const userManagementStore = useUserManagementStore();
 
 // Pending users count for super admin badge

@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -38,27 +40,28 @@ func (m *FlexibleAuthMiddleware) Middleware() gin.HandlerFunc {
 		if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
 			tokenString := authHeader[7:]
 
-			// Validate JWT
-			claims, err := m.jwtService.ValidateToken(tokenString)
-			if err == nil {
-				// JWT is valid - authenticated user (OAuth or password)
-				user, err := m.userService.GetUserByID(claims.UserID)
-				if err == nil {
-					// Set context for authenticated user
-					c.Set("is_authenticated", true)
-					c.Set("auth_type", "oauth") // Could be "oauth" or "password"
-					c.Set("user_id", user.ID)
-					c.Set("realm_id", user.RealmID)
-					c.Set("username", user.Username)
-					c.Set("email", user.Email)
-					if user.GitLabAccessToken != nil {
-						c.Set("gitlab_token", *user.GitLabAccessToken)
-					}
-					c.Next()
-					return
+		// Validate JWT
+		claims, err := m.jwtService.ValidateToken(tokenString)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "[AUTH] JWT validation failed for %s: %v\n", c.Request.URL.Path, err)
+		} else {
+			user, err := m.userService.GetUserByID(claims.UserID)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "[AUTH] User lookup failed for userID=%s path=%s: %v\n", claims.UserID, c.Request.URL.Path, err)
+			} else {
+				c.Set("is_authenticated", true)
+				c.Set("auth_type", "oauth")
+				c.Set("user_id", user.ID)
+				c.Set("realm_id", user.RealmID)
+				c.Set("username", user.Username)
+				c.Set("email", user.Email)
+				if user.GitLabAccessToken != nil {
+					c.Set("gitlab_token", *user.GitLabAccessToken)
 				}
+				c.Next()
+				return
 			}
-			// If JWT validation fails, fall through to guest mode
+		}
 		}
 
 		// No valid JWT token - guest mode (read-only)

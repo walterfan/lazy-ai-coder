@@ -99,27 +99,36 @@ services:
       - ./db:/root/db
     restart: unless-stopped
 
-  jupyterlab:
-    image: jupyter/scipy-notebook:latest
-    container_name: jupyterlab
+  memgraph:
+    image: memgraph/memgraph-mage:latest
+    container_name: memgraph
     ports:
-      - "8889:8888"
-    environment:
-      - JUPYTER_ENABLE_LAB=yes
-      - JUPYTER_TOKEN=${JUPYTER_PASSWORD}
-      - GRANT_SUDO=yes
+      - "7687:7687"
+      - "7444:7444"
     volumes:
-      - ./notebooks:/home/jovyan/notebooks
+      - memgraph-data:/var/lib/memgraph
     networks:
       - pgvector-net
     restart: unless-stopped
-    user: root
-    command: start-notebook.sh --NotebookApp.token='${JUPYTER_PASSWORD}' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url='/jupyter'
+
+  memgraph-lab:
+    image: memgraph/lab:latest
+    container_name: memgraph-lab
+    ports:
+      - "3000:3000"
+    environment:
+      - QUICK_CONNECT_MG_HOST=memgraph
+    depends_on:
+      - memgraph
+    networks:
+      - pgvector-net
+    restart: unless-stopped
 
 volumes:
   pgvector-data:
   nginx-logs:
   redis-data:
+  memgraph-data:
 
 networks:
   pgvector-net:

@@ -266,7 +266,7 @@
           <a href="mailto:walter.fan@gmail.com">walter.fan@gmail.com</a>
         </p>
         <p class="mb-0">
-          <i class="fas fa-code"></i> Powered by Lazy AI Coder v1.0
+          <i class="fas fa-code"></i> Powered by {{ appStore.fullTitle }}
         </p>
       </div>
     </div>
@@ -274,7 +274,8 @@
 </template>
 
 <script setup lang="ts">
-// No script needed for static help page
+import { useAppStore } from '@/stores/appStore';
+const appStore = useAppStore();
 </script>
 
 <style scoped>

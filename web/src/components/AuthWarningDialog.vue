@@ -203,20 +203,7 @@ function handleConfirm() {
   emit('confirm');
   emit('close');
 
-  // Redirect to settings/login page
-  router.push('/settings');
-
-  // Scroll to auth section after navigation
-  setTimeout(() => {
-    const authSection = document.getElementById('auth-section');
-    if (authSection) {
-      authSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      authSection.classList.add('highlight-pulse');
-      setTimeout(() => {
-        authSection.classList.remove('highlight-pulse');
-      }, 3000);
-    }
-  }, 100);
+  router.push('/login');
 }
 </script>
 
